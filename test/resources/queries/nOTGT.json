@@ -1,0 +1,38 @@
+{
+  "title": "NOT GT",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "GT": {
+          "courses_avg": 0
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_dept": "frst",
+      "courses_instructor": "",
+      "courses_avg": 0
+    }
+  ]
+}

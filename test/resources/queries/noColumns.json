@@ -1,0 +1,10 @@
+{
+  "errorMsg": "OPTIONS missing COLUMNS",
+  "title": "no columns",
+  "input": {
+    "WHERE": {},
+    "OPTIONS": {}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

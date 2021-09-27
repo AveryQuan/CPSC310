@@ -1,0 +1,22 @@
+{
+  "title": "Simple Query",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_year": 2001,
+        "courses_avg": 5
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ]
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
+
+
