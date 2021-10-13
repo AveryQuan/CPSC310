@@ -56,9 +56,18 @@ describe("InsightFacade", function () {
 			const id: string = "courses";
 			const content: string = datasetContents.get("courses") ?? "";
 			const expected: string[] = [id];
+			console.log(expected);
 			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
 				expect(result).to.deep.equal(expected);
 			});
+		});
+
+		// load data
+		it("Show data", function () {
+			const id: string = "courses";
+			const content: string = datasetContents.get("courses") ?? "";
+			const expected: string = "courses";
+			insightFacade.listDatasets();
 		});
 	});
 
