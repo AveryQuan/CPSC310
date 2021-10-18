@@ -358,7 +358,7 @@ describe("InsightFacade", function () {
 			testFolder<Input, Output, Error>(
 				"query tests",                               // suiteName
 				(input: Input): Promise<Output> => insight.performQuery(input),      // target
-				"./test/resources/json-spec",                   // path
+				"./test/resources/queries",                   // path
 				{
 					assertOnResult: assertResult,
 					assertOnError: assertError,                 // options

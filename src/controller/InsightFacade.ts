@@ -284,9 +284,6 @@ export default class InsightFacade implements IInsightFacade {
 	private getDataset(dataset: any) {
 		return this.data.get(dataset);
 	}
-	private hasDataset(dataset: string) {
-		return this.data.has(dataset);
-	}
 
 	private queryNot(queryElement: any) {
 		return Promise.resolve(undefined);
