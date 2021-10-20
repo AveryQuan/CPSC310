@@ -27,6 +27,7 @@ describe("InsightFacade", function () {
 		let courses2: string;
 		let courses: string;
 		let invalid: string;
+		let courseCopy: string;
 		before(function () {
 			let filepath = "test/resources/archives/courses2.zip";
 			let fileBuffer = fs.readFileSync(filepath);
@@ -42,6 +43,12 @@ describe("InsightFacade", function () {
 			fileBuffer = fs.readFileSync(filepath);
 			// encode contents into base64
 			invalid = fileBuffer.toString("base64");
+
+
+			filepath = "test/resources/archives/coursesCopy.zip";
+			fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			courseCopy = fileBuffer.toString("base64");
 
 		});
 
@@ -74,24 +81,24 @@ describe("InsightFacade", function () {
 							kind: InsightDatasetKind.Courses,
 							numRows: 64612,
 						}]);
-						return insight.performQuery(
-							{
-								WHERE: {
-									GT: {
-										courses_avg: 99
-									}
-								},
-								OPTIONS: {
-									COLUMNS: [
-										"courses_avg"
-									],
-									ORDER: "courses_avg"
-								}
-							}
-						).then((result) => {
-							// eslint-disable-next-line max-len
-							expect(result).to.deep.equals([{courses_avg: 99.19}, {courses_avg: 99.78}, {courses_avg: 99.78}]);
-						});
+						// return insight.performQuery(
+						// 	{
+						// 		WHERE: {
+						// 			GT: {
+						// 				courses_avg: 99
+						// 			}
+						// 		},
+						// 		OPTIONS: {
+						// 			COLUMNS: [
+						// 				"courses_avg"
+						// 			],
+						// 			ORDER: "courses_avg"
+						// 		}
+						// 	}
+						// ).then((result) => {
+						// 	// eslint-disable-next-line max-len
+						// 	expect(result).to.deep.equals([{courses_avg: 99.19}, {courses_avg: 99.78}, {courses_avg: 99.78}]);
+						// });
 					});
 				});
 
@@ -99,17 +106,17 @@ describe("InsightFacade", function () {
 		});
 
 		it("add 2 good courses dataset ", function () {
-			return insight.addDataset("1", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.addDataset("2", courses, InsightDatasetKind.Courses).then(() => {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				return insight.addDataset("coursesCopy", courseCopy, InsightDatasetKind.Courses).then(() => {
 					return insight.listDatasets().then((x) => {
 						expect(x).to.have.length(2);
 						expect(x).to.have.deep.members([{
-							id: "1",
+							id: "courses",
 							kind: InsightDatasetKind.Courses,
 							numRows: 64612,
 						},
 						{
-							id: "2",
+							id: "coursesCopy",
 							kind: InsightDatasetKind.Courses,
 							numRows: 64612,
 						}]);
@@ -121,8 +128,8 @@ describe("InsightFacade", function () {
 
 
 		it("add 2 good courses same id should fail ", function () {
-			return insight.addDataset("1", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.addDataset("1", courses, InsightDatasetKind.Courses).then((err) => {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then((err) => {
 					throw new Error(`Resolved with: ${err}`);
 				}
 				).catch((err) => {
@@ -131,29 +138,16 @@ describe("InsightFacade", function () {
 			});
 		});
 
-		// This is a unit test. You should create more like this!
-		// it("Should add a valid dataset", function () {
-		// 	const id: string = "courses";
-		// 	const content: string = datasetContents.get("courses") ?? "";
-		// 	const expected: string[] = [id];
-		// 	console.log(expected);
-		// 	return InsightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
-		// 		expect(result).to.deep.equal(expected);
-		//
-		// 	});
+		// it("add 1 rooms dataset", function () {
+		// 	return insight.addDataset("first", courses, InsightDatasetKind.Rooms)
+		// 		.then((err) => {
+		// 			throw new Error(`Resolved with: ${err}`);
+		// 		})
+		// 		.catch((x) => {
+		// 			expect(x).to.be.instanceof(InsightError);
+		// 		});
+
 		// });
-
-
-		it("add 1  rooms dataset", function () {
-			return insight.addDataset("first", courses2, InsightDatasetKind.Rooms)
-				.then((err) => {
-					throw new Error(`Resolved with: ${err}`);
-				})
-				.catch((x) => {
-					expect(x).to.be.instanceof(InsightError);
-				});
-
-		});
 
 
 		it("add dataset with invalid id", function () {
@@ -175,40 +169,12 @@ describe("InsightFacade", function () {
 		// 	const expected: string = "courses";
 		// 	insightFacade.listDatasets();
 		// });
-	});
 
-	describe("Remove Dataset", function () {
-		let insight: InsightFacade;
-		beforeEach(function () {
-			extra.removeSync("./data");
-			insight = new InsightFacade();
-		});
-
-		let small: string;
-		let courses2: string;
-		let courses: string;
-		before(function () {
-			let filepath = "test/resources/archives/courses2.zip";
-			let fileBuffer = fs.readFileSync(filepath);
-			// encode contents into base64
-			courses2 = fileBuffer.toString("base64");
-
-			filepath = "test/resources/archives/courses.zip";
-			fileBuffer = fs.readFileSync(filepath);
-			// encode contents into base64
-			courses = fileBuffer.toString("base64");
-
-			filepath = "test/resources/archives/small.zip";
-			fileBuffer = fs.readFileSync(filepath);
-			// encode contents into base64
-			small = fileBuffer.toString("base64");
-
-		});
 
 		it("add dataset and remove", function () {
-			return insight.addDataset("1", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.removeDataset("1").then((x) => {
-					expect(x).to.equal("1");
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				return insight.removeDataset("courses").then((x) => {
+					expect(x).to.equal("courses");
 					return insight.listDatasets().then((dataset) => {
 						expect(dataset).to.have.length(0);
 					});
@@ -216,6 +182,19 @@ describe("InsightFacade", function () {
 
 			});
 		});
+
+		it("remove dataset invalid id -- all spaces", function () {
+			return insight.removeDataset("      ").then((err) => {
+				throw new Error(`Resolved with: ${err}`);
+			}
+			).catch((err) => {
+				expect(err).to.be.instanceof(InsightError);
+				return insight.listDatasets().then((x) => {
+					expect(x).to.have.length(0);
+				});
+			});
+		});
+
 
 		it("remove dataset invalid id", function () {
 			return insight.removeDataset("      ").then((err) => {
@@ -247,7 +226,7 @@ describe("InsightFacade", function () {
 
 		it("add 2 dataset and remove 1", function () {
 			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.addDataset("small", small, InsightDatasetKind.Courses).then(() => {
+				return insight.addDataset("coursesCopy", courseCopy, InsightDatasetKind.Courses).then(() => {
 					return insight.removeDataset("courses").then(() => {
 
 						return insight.listDatasets().then((dataset) => {
@@ -258,50 +237,50 @@ describe("InsightFacade", function () {
 							//         numRows: 4,
 							//     }])
 
-							return insight.performQuery(
-								{
-									WHERE: {
-										OR: [
-											{
-												AND: [
-													{
-														GT: {
-															small_avg: 89
-														}
-													},
-													{
-														IS: {
-															small_dept: "anat"
-														}
-													},
-													{
-														EQ: {
-															small_year: 2015
-														}
-													}
-												]
-											},
-											{
-												EQ: {
-													small_avg: 95
-												}
-											}
-										]
-									},
-									OPTIONS: {
-										COLUMNS: [
-											"small_avg"
-										]
-									}
-								}).then((result) => {
-								return expect(result).to.deep.equals([
-									{
-										small_avg: 89.6
+							// return insight.performQuery(
+							// 	{
+							// 		WHERE: {
+							// 			OR: [
+							// 				{
+							// 					AND: [
+							// 						{
+							// 							GT: {
+							// 								small_avg: 89
+							// 							}
+							// 						},
+							// 						{
+							// 							IS: {
+							// 								small_dept: "anat"
+							// 							}
+							// 						},
+							// 						{
+							// 							EQ: {
+							// 								small_year: 2015
+							// 							}
+							// 						}
+							// 					]
+							// 				},
+							// 				{
+							// 					EQ: {
+							// 						small_avg: 95
+							// 					}
+							// 				}
+							// 			]
+							// 		},
+							// 		OPTIONS: {
+							// 			COLUMNS: [
+							// 				"small_avg"
+							// 			]
+							// 		}
+							// 	}).then((result) => {
+							// 	return expect(result).to.deep.equals([
+							// 		{
+							// 			small_avg: 89.6
 
-									}]);
+							// 		}]);
 
 
-							});
+							// });
 						});
 
 					});
@@ -311,25 +290,23 @@ describe("InsightFacade", function () {
 		});
 
 
-	});
+		describe("query Dataset", function () {
+			// let insight: InsightFacade;
+			// beforeEach(function () {
+			// // insight = new InsightFacade();
+			// });
 
-	describe("query Dataset", function () {
-		let insight: InsightFacade;
-		beforeEach(function () {
-			// insight = new InsightFacade();
-		});
-
-		let courses: string;
-		before(function () {
-			extra.removeSync("./data");
-			let filepath = "test/resources/archives/courses.zip";
-			let fileBuffer = fs.readFileSync(filepath);
+			// let courses: string;
+			before(function () {
+				extra.removeSync("./data");
+				// let filepath = "test/resources/archives/courses.zip";
+				// let fileBuffer = fs.readFileSync(filepath);
 
 			// encode contents into base64
-			courses = fileBuffer.toString("base64");
-			insight = new InsightFacade();
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
-		});
+				// courses = fileBuffer.toString("base64");
+				insight = new InsightFacade();
+				return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+			});
 
 			interface Input {
 				"WHERE": JSON,
@@ -925,9 +902,10 @@ describe("InsightFacade", function () {
 
 
 			});
+		});
+
+
 	});
-
-
 });
 
 
