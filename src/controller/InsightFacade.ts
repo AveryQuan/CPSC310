@@ -50,8 +50,6 @@ let checkFormat: (input: string) => boolean = function(input: string) {
 
 	return true;
 };
-
-
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -70,11 +68,11 @@ export default class InsightFacade implements IInsightFacade {
 		if (!checkFormat(id)) {
 			return Promise.reject("Invalid ID");
 		}
-		let ReadPromise = new Promise<string[]>((resolve, reject) => {
-			JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
+		return new Promise<string[]>((resolve, reject) => {
+			return JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					let path = relativePath.substr(id.length + 1);
-					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+					return promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result, path, kind);
 						dataSet.push(item);
 					}));
@@ -82,7 +80,7 @@ export default class InsightFacade implements IInsightFacade {
 				Promise.all(promises).then((value: any[]) => {
 					this.data.set(id, dataSet);
 					// console.log(this.data.get(id));
-					return  Promise.resolve([id]);
+					resolve([id]);
 				});
 			});
 		}).catch();
@@ -231,7 +229,7 @@ export default class InsightFacade implements IInsightFacade {
 			return this.queryComparator(query[key], this.lessThan);
 		}
 		case "NOT": {
-			return this.queryNot(query[key]);
+			// return this.queryNot(query[key]);
 		}
 		case "IS": {
 			return this.querySComparator(query[key]);
@@ -254,7 +252,6 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.reject("Not implemented.");
 	}
-
 	public performQuery(query: any): Promise<any[]> {
 		if(typeof query !== "object" || Object.keys(query) !== [ "WHERE", "OPTIONS" ]) {
 			return Promise.reject("invalid query");
@@ -267,25 +264,33 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return Promise.reject("Not implemented.");
 	}
-
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
+		console.log(Object.entries(this.data));
 		for (const [key, value] of Object.entries(this.data)){
 			let arr = this.data.get(key);
+			console.log(key);
 			if (arr){
+				console.log("gay");
 				for (const element of arr){
 					list.push(element.mode);
 				}
 			}
 		}
-		return Promise.resolve(list);
+		console.log(list);
+		let retval: Promise<InsightDataset[]> = new Promise((resolve, reject) => {
+			resolve(list);
+		});
+		return retval;
 	}
-
 	private getDataset(dataset: any) {
 		return this.data.get(dataset);
 	}
+	private queryNot(query: any){
+		let keys = Object.keys(query);
+		if(keys.length !== 1) {
+			return Promise.reject("more than one logic query");
+		}
 
-	private queryNot(queryElement: any) {
-		return Promise.resolve(undefined);
 	}
 }
