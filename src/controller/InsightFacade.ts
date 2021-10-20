@@ -1,11 +1,8 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 // import fs = require("fs");
 import JSZip = require("jszip");
-// import { relative } from "path";
-// import { rejects } from "assert";
-// import { KeyObject } from "crypto";
 
-/* class to store data */
+
 export class EnumDataItem {
 	public mode: InsightDataset;
 	public data: string[];
@@ -15,12 +12,6 @@ export class EnumDataItem {
 		let count = 0;
 		for (const key in buffer.result) {
 			count++;
-		}
-		for (const key in buffer.rank){
-			count++;
-		}
-		if (count === 0) {
-			count = 2;
 		}
 		this.data = buffer;
 		this.mode = {
@@ -36,7 +27,6 @@ let checkFormat: (input: string) => boolean = function(input: string) {
 	if (input.includes("_")){
 		return false;
 	}
-
 	let i = input.length;
 	let onlySpaces = true;
 	while (i--) {
@@ -47,7 +37,6 @@ let checkFormat: (input: string) => boolean = function(input: string) {
 	if (onlySpaces) {
 		return false;
 	}
-
 	return true;
 };
 
@@ -55,10 +44,12 @@ let checkFormat: (input: string) => boolean = function(input: string) {
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
- *
  */
 export default class InsightFacade implements IInsightFacade {
-	public data: Map<string, EnumDataItem[]>;
+	// [0] is InsightDataset meta data for course id
+	// [1] is EnumDataItem[] => buffer for JSON data
+	public data: Map<string, any[]>;
+
 	constructor() {
 		console.trace("InsightFacadeImpl::init()");
 		this.data = new Map();
@@ -67,37 +58,49 @@ export default class InsightFacade implements IInsightFacade {
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: EnumDataItem[] = [];
 		let promises: any[] = [];
-		if (!checkFormat(id)) {
-			return Promise.reject("Invalid ID");
+		let total = 0;
+		if (!checkFormat(id) || this.data.has(id)) {
+			return Promise.reject(new InsightError("Invalid ID"));
 		}
-		let ReadPromise = new Promise<string[]>((resolve, reject) => {
+		return new Promise<string[]>((resolve, reject) => {
 			JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					let path = relativePath.substr(id.length + 1);
 					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result, path, kind);
 						dataSet.push(item);
+						total = total + item.mode.numRows;
 					}));
 				});
 				Promise.all(promises).then((value: any[]) => {
-					this.data.set(id, dataSet);
-					// console.log(this.data.get(id));
-					return  Promise.resolve([id]);
+					if (dataSet.length === 0){
+						reject(new InsightError("Error: Read invalid"));
+					} else {
+						let array = [];
+						let insight = {id:id, kind:kind, numRows:total};
+						console.log(insight);
+						array.push(insight);
+						array.push(dataSet);
+						this.data.set(id, array);
+						resolve([id]);
+					}
 				});
 			});
 		}).catch();
-		return Promise.reject("Error: Read failed");
 	}
 
 	public removeDataset(id: string): Promise<string> {
 		if (!checkFormat(id)) {
-			return Promise.reject("Invalid ID");
+			return Promise.reject(new InsightError("Error: Invalid ID"));
 		}
-		for (const [key, value] of Object.entries(this.data)){
+		if (!this.data.has(id)) {
+			return Promise.reject(new NotFoundError("Error: Invalid ID"));
+		}
+		this.data.forEach((value, key) => {
 			if (key === id){
 				this.data.delete(id);
 			}
-		}
+		});
 		return Promise.resolve(id);
 	}
 
@@ -265,19 +268,14 @@ export default class InsightFacade implements IInsightFacade {
 				return err;
 			});
 		}
-		return Promise.reject("Not implemented.");
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
-		for (const [key, value] of Object.entries(this.data)){
-			let arr = this.data.get(key);
-			if (arr){
-				for (const element of arr){
-					list.push(element.mode);
-				}
-			}
-		}
+		this.data.forEach((value, key) => {
+			console.log(value[0]);
+			list.push(value[0]);
+		});
 		return Promise.resolve(list);
 	}
 
