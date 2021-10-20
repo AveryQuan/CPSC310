@@ -91,10 +91,10 @@ export default class InsightFacade implements IInsightFacade {
 
 	public removeDataset(id: string): Promise<string> {
 		if (!checkFormat(id)) {
-			return Promise.reject(new InsightError("Error: Invalid ID"));
+			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
 		if (!this.data.has(id)) {
-			return Promise.reject(new NotFoundError("Error: Invalid ID"));
+			return Promise.reject(new NotFoundError("Error: No dataset found with ID given"));
 		}
 		this.data.forEach((value, key) => {
 			if (key === id){
