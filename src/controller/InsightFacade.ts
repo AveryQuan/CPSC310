@@ -39,8 +39,6 @@ let checkFormat: (input: string) => boolean = function(input: string) {
 	}
 	return true;
 };
-
-
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -66,7 +64,7 @@ export default class InsightFacade implements IInsightFacade {
 			JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					let path = relativePath.substr(id.length + 1);
-					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+					return promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result, path, kind);
 						dataSet.push(item);
 						total = total + item.mode.numRows;
@@ -234,7 +232,7 @@ export default class InsightFacade implements IInsightFacade {
 			return this.queryComparator(query[key], this.lessThan);
 		}
 		case "NOT": {
-			return this.queryNot(query[key]);
+			// return this.queryNot(query[key]);
 		}
 		case "IS": {
 			return this.querySComparator(query[key]);
@@ -257,7 +255,6 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.reject("Not implemented.");
 	}
-
 	public performQuery(query: any): Promise<any[]> {
 		if(typeof query !== "object" || Object.keys(query) !== [ "WHERE", "OPTIONS" ]) {
 			return Promise.reject("invalid query");
@@ -269,7 +266,6 @@ export default class InsightFacade implements IInsightFacade {
 			});
 		}
 	}
-
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
 		this.data.forEach((value, key) => {
@@ -278,15 +274,14 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.resolve(list);
 	}
-
 	private getDataset(dataset: any) {
 		return this.data.get(dataset);
 	}
-	private hasDataset(dataset: string) {
-		return this.data.has(dataset);
-	}
+	private queryNot(query: any){
+		let keys = Object.keys(query);
+		if(keys.length !== 1) {
+			return Promise.reject("more than one logic query");
+		}
 
-	private queryNot(queryElement: any) {
-		return Promise.resolve(undefined);
 	}
 }
