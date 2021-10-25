@@ -1,2 +1,1 @@
-var a, b = "gay".split("a");
-console.log(b);
+console.log(JSON.stringify(["gay"]) === JSON.stringify(["gay"]));
