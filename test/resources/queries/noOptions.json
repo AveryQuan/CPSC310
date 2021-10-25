@@ -1,0 +1,9 @@
+{
+  "errorMsg": "Missing OPTIONS",
+  "title": "no options",
+  "input": {
+    "WHERE": {}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

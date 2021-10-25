@@ -1,8 +1,17 @@
 {
-	"title": "Very invalid query",
-	"input": {
-		"OPTIONS": {}
-	},
-	"errorExpected": true,
-	"with": "InsightError"
+  "title":"invalid one",
+  "input":{
+    "WHERE":{
+      "GT":{}
+    },
+    "OPTIONS":{
+      "COLUMNS":[
+        "courses_dept",
+        "courses_avg"
+      ],
+      "ORDER":"courses_avg"
+    }
+  },
+  "errorExpected":true,
+  "with":"InsightError"
 }

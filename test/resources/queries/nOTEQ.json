@@ -1,0 +1,23 @@
+{
+  "errorMsg": "The result is too big. Only queries with a maximum of 5000 results are supported.",
+  "title": "NOT EQ",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "EQ": {
+          "courses_avg": 98
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "ResultTooLargeError"
+}

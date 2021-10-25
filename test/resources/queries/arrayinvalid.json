@@ -1,0 +1,8 @@
+{
+  "title": "order key not in columns",
+  "input": {
+    "where": {}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

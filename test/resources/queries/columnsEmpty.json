@@ -1,0 +1,12 @@
+{
+  "errorMsg": "COLUMNS must be a non-empty array",
+  "title": "columns empty",
+  "input": {
+    "WHERE": {},
+    "OPTIONS": {
+      "COLUMNS": []
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

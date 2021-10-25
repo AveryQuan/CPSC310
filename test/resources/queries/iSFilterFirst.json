@@ -1,0 +1,1416 @@
+{
+  "title": "IS filter first",
+  "input": {
+    "WHERE": {
+      "IS": {
+        "courses_dept": "anth"
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 60.05
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 60.05
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 66.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "gordon-walker, caitlin",
+      "courses_avg": 66.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 66.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 66.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 67.58
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 67.58
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 68.02
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "solomonian, adam",
+      "courses_avg": 68.02
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 69.5
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 69.5
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 69.59
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 69.59
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 69.64
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 69.64
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 69.85
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 69.85
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 70
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "solomonian, adam",
+      "courses_avg": 70
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "gessner, suzanne",
+      "courses_avg": 70.11
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 70.96
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 70.96
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.15
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 71.15
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "carrier-moisan, marie-eve",
+      "courses_avg": 71.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 71.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wagelie, jennifer",
+      "courses_avg": 71.42
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.48
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 71.48
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "gessner, suzanne",
+      "courses_avg": 71.56
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 71.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.84
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 71.84
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 71.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 71.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 71.96
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.19
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "miller, bruce",
+      "courses_avg": 72.19
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 72.21
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.22
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.31
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 72.47
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "miller, bruce",
+      "courses_avg": 72.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 72.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.91
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 72.91
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 72.94
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 72.94
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.1
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.1
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 73.17
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.23
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "ryniker, david",
+      "courses_avg": 73.23
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.26
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 73.26
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.36
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.55
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 73.55
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 73.56
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 73.71
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.73
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 73.73
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 73.73
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 73.91
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.11
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 74.11
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 74.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wainer, rafael",
+      "courses_avg": 74.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 74.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 74.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.37
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "muehlmann, shaylih",
+      "courses_avg": 74.37
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "muehlmann, shaylih",
+      "courses_avg": 74.38
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "condin, christopher",
+      "courses_avg": 74.4
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.41
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.42
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "brown, kimberly",
+      "courses_avg": 74.42
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.51
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.51
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.53
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.61
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 74.61
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.63
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "levell, nicola",
+      "courses_avg": 74.63
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.64
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 74.64
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "thobani, sitara",
+      "courses_avg": 74.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "campbell, alice",
+      "courses_avg": 74.74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 74.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 74.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wagelie, jennifer",
+      "courses_avg": 74.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "levell, nicola",
+      "courses_avg": 75.32
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.35
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "nitsan, tal",
+      "courses_avg": 75.35
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.51
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "muehlmann, shaylih",
+      "courses_avg": 75.51
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.55
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 75.55
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.55
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 75.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 75.7
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 75.74
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.81
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "swierenga, heidi",
+      "courses_avg": 75.81
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "robertson, leslie",
+      "courses_avg": 75.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "malone, molly",
+      "courses_avg": 75.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.95
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 75.95
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 75.99
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "campbell, alice",
+      "courses_avg": 75.99
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.03
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 76.03
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.05
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.05
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "barker, john",
+      "courses_avg": 76.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "small, robert",
+      "courses_avg": 76.29
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.44
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "geary, david",
+      "courses_avg": 76.44
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.52
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 76.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "marsh, diana",
+      "courses_avg": 76.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.65
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 76.65
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.8
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 76.8
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "small, robert",
+      "courses_avg": 76.89
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 76.98
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "small, robert",
+      "courses_avg": 76.98
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.04
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wyndham, felice",
+      "courses_avg": 77.04
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.08
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 77.08
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 77.1
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.14
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "creighton, millie",
+      "courses_avg": 77.14
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.17
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 77.17
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.18
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 77.18
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.19
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.19
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.31
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "levell, nicola",
+      "courses_avg": 77.31
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "levell, nicola",
+      "courses_avg": 77.36
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.4
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 77.4
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.54
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 77.54
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 77.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 77.76
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.77
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 77.77
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.77
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 77.81
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bloch, alexia",
+      "courses_avg": 77.81
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "small, robert",
+      "courses_avg": 78.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "small, robert",
+      "courses_avg": 78.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wolowic, jennifer",
+      "courses_avg": 79
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 79.42
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 79.42
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 80.07
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "shneiderman, sara",
+      "courses_avg": 80.07
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 80.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wyndham, felice",
+      "courses_avg": 80.16
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 80.57
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "swierenga, heidi",
+      "courses_avg": 80.57
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 80.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "swierenga, heidi",
+      "courses_avg": 80.86
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 81.06
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "malone, molly",
+      "courses_avg": 81.06
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wyndham, felice",
+      "courses_avg": 82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 82.07
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 82.07
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 82.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 82.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 84.13
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 84.13
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 84.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william;miller, bruce",
+      "courses_avg": 84.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 84.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 84.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 84.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "blake, thomas michael;miller, bruce",
+      "courses_avg": 84.82
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "robertson, leslie",
+      "courses_avg": 85
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.14
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "shelton, anthony",
+      "courses_avg": 85.14
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 85.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "rosenblum, daisy",
+      "courses_avg": 85.2
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "shelton, anthony",
+      "courses_avg": 85.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.88
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 85.88
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.17
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 86.17
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "jing, zhichun",
+      "courses_avg": 86.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "blake, thomas michael",
+      "courses_avg": 86.33
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.4
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "bell, kirsten",
+      "courses_avg": 86.4
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 86.5
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.56
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "blake, thomas michael",
+      "courses_avg": 86.56
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "gordillo, gaston",
+      "courses_avg": 86.62
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "shelton, anthony",
+      "courses_avg": 86.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.69
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "robertson, leslie",
+      "courses_avg": 86.69
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.73
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 86.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "robertson, leslie",
+      "courses_avg": 86.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 87.13
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "robertson, leslie",
+      "courses_avg": 87.13
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 87.43
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "gordillo, gaston",
+      "courses_avg": 87.43
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 87.5
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 87.5
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 87.9
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 87.9
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "mckellin, william",
+      "courses_avg": 88
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "jing, zhichun",
+      "courses_avg": 88.25
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88.38
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "pokotylo, david",
+      "courses_avg": 88.38
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88.43
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "wyndham, felice",
+      "courses_avg": 88.6
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 88.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "moore, patrick",
+      "courses_avg": 88.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 89.67
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 89.75
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 90.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "menzies, charles",
+      "courses_avg": 90.92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 92
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "",
+      "courses_avg": 92.29
+    },
+    {
+      "courses_dept": "anth",
+      "courses_instructor": "kamat, vinay ramnath",
+      "courses_avg": 92.29
+    }
+  ]
+}

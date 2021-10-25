@@ -1,0 +1,57 @@
+{
+  "title": "NANDnum",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "AND": [
+          {
+            "GT": {
+              "courses_avg": 1
+            }
+          },
+          {
+            "LT": {
+              "courses_avg": 100
+            }
+          }
+        ]
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_pass",
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_pass": 0,
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_pass": 0,
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_pass": 0,
+      "courses_dept": "frst",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_pass": 0,
+      "courses_dept": "wood",
+      "courses_instructor": "",
+      "courses_avg": 1
+    }
+  ]
+}
