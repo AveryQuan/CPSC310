@@ -1,11 +1,6 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
-// import fs = require("fs");
 import JSZip = require("jszip");
-import {Interface} from "readline";
-import spec = Mocha.reporters.spec;
-import {rejects} from "assert";
-import {createSecureContext} from "tls";
-
+import {Utils} from "./Utils";
 
 export class EnumDataItem {
 	public mode: InsightDataset;
@@ -65,7 +60,6 @@ export default class InsightFacade implements IInsightFacade {
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
 	constructor() {
-		// console.trace("InsightFacadeImpl::init()");
 		this.data = new Map();
 	}
 
@@ -119,37 +113,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 		});
 		return Promise.resolve(id);
-	}
-
-	private intersection(setA: any, setB: any) {
-		let intersect = new Set();
-		setB[0].forEach((elem: unknown) => {
-			if (setA[0].has(elem)) {
-				intersect.add(elem);
-			}
-		});
-		return Promise.resolve(intersect);
-	}
-
-	private union(setA: any, setB: any) {
-		let retval = new Set(setA[0]);
-
-		setB[0].forEach((elem: unknown) => {
-			retval.add(elem);
-		});
-		return Promise.resolve(retval);
-	}
-
-	private equals(a: number, b: number) {
-		return a === b;
-	}
-
-	private  greaterThan(a: number, b: number) {
-		return a > b;
-	}
-
-	private lessThan(a: number, b: number) {
-		return a < b;
 	}
 
 	private queryComparator(query: any, comparator: any, not: boolean){
@@ -251,18 +214,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			return Promise.resolve(currentSet);
 		});
-
-		// return this.nextQuery(query[keys[0]], not).then((set1) => {
-		// 	return this.nextQuery(query[keys[1]], not).then((set2) => {
-		// 		if (set1[1] !== set2[1]) {	// Checking database names
-		// 			return Promise.reject(new InsightError("More than one dataset referenced"));
-		// 		}
-		//
-		// 		return logic(set1, set2).then((finalSet: any) => {
-		// 			return Promise.resolve([finalSet, set1[1]]);
-		// 		});
-		// 	});
-		// });
 	}
 
 	private async nextQuery(query: any, not: boolean): Promise<any> {
@@ -277,19 +228,19 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		switch (key) {
 		case "AND": {
-			return this.queryLogic(query[keys[0]], this.intersection, not);
+			return this.queryLogic(query[keys[0]], Utils.intersection, not);
 		}
 		case "OR": {
-			return this.queryLogic(query[keys[0]], this.union, not);
+			return this.queryLogic(query[keys[0]], Utils.union, not);
 		}
 		case "EQ": {
-			return this.queryComparator(query[key], this.equals, not);
+			return this.queryComparator(query[key], Utils.equals, not);
 		}
 		case "GT": {
-			return this.queryComparator(query[key], this.greaterThan, not);
+			return this.queryComparator(query[key], Utils.greaterThan, not);
 		}
 		case "LT": {
-			return this.queryComparator(query[key], this.lessThan, not);
+			return this.queryComparator(query[key], Utils.lessThan, not);
 		}
 		case "NOT": {
 			return this.queryNot(query[key], not);
@@ -297,7 +248,6 @@ export default class InsightFacade implements IInsightFacade {
 		case "IS": {
 			return this.querySComparator(query[key], not);
 		}
-			// eslint-disable-next-line max-lines
 		default: {
 			return Promise.reject(new InsightError("Invalid Json"));
 		}
@@ -347,6 +297,7 @@ export default class InsightFacade implements IInsightFacade {
 					return Promise.reject(new InsightError("order field not in columns"));
 				}
 				retval = retval.sort((a, b) => a[orderField].toString().localeCompare(b[orderField].toString()));
+				// eslint-disable-next-line max-lines
 			}
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
