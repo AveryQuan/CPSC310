@@ -3,6 +3,8 @@ import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFou
 import JSZip = require("jszip");
 import {Interface} from "readline";
 import spec = Mocha.reporters.spec;
+import {rejects} from "assert";
+import {createSecureContext} from "tls";
 
 
 export class EnumDataItem {
@@ -230,17 +232,37 @@ export default class InsightFacade implements IInsightFacade {
 		if(keys.length !== 2) {
 			return Promise.reject(new InsightError("more than one logic query"));
 		}
-		return this.nextQuery(query[keys[0]], not).then((set1) => {
-			return this.nextQuery(query[keys[1]], not).then((set2) => {
-				if (set1[1] !== set2[1]) {	// Checking database names
+		let promises: any[] = [];
+		keys.forEach((key) => {
+			promises.push(new Promise((resolve, reject) => {
+				resolve(this.nextQuery(query[key], not));
+			}));
+		});
+
+		return Promise.all(promises).then(async (sets) => {
+			let currentSet = sets[0];
+			for (let i = 1; i < sets.length; i++) {
+				if (currentSet[1] !== sets[i][1]) {
 					return Promise.reject(new InsightError("More than one dataset referenced"));
 				}
-
-				return logic(set1, set2).then((finalSet: any) => {
-					return Promise.resolve([finalSet, set1[1]]);
+				await logic(currentSet, sets[i]).then((value: any) => {
+					currentSet = [value, currentSet[1]];
 				});
-			});
+			}
+			return Promise.resolve(currentSet);
 		});
+
+		// return this.nextQuery(query[keys[0]], not).then((set1) => {
+		// 	return this.nextQuery(query[keys[1]], not).then((set2) => {
+		// 		if (set1[1] !== set2[1]) {	// Checking database names
+		// 			return Promise.reject(new InsightError("More than one dataset referenced"));
+		// 		}
+		//
+		// 		return logic(set1, set2).then((finalSet: any) => {
+		// 			return Promise.resolve([finalSet, set1[1]]);
+		// 		});
+		// 	});
+		// });
 	}
 
 	private async nextQuery(query: any, not: boolean): Promise<any> {
@@ -275,6 +297,7 @@ export default class InsightFacade implements IInsightFacade {
 		case "IS": {
 			return this.querySComparator(query[key], not);
 		}
+			// eslint-disable-next-line max-lines
 		default: {
 			return Promise.reject(new InsightError("Invalid Json"));
 		}
