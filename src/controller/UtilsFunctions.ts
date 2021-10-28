@@ -260,7 +260,7 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 export function combineBuffer(buildings: any, dataSet: any[]): any {
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
-	};
+	}
 	// traverse tables in "index.htm" and format as RoomData
 	let buffer1 = traverseRooms(buildings, "buildings");
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"

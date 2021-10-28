@@ -66,7 +66,7 @@ export default class InsightFacade implements IInsightFacade {
 						}));
 					});
 					Promise.all(promises).then((value: any[]) => {
-						this.data.set(id, combineBuffer(buildings, dataSet)); 
+						this.data.set(id, combineBuffer(buildings, dataSet));
 						resolve([id]);
 					});
 				});
