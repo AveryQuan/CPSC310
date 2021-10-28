@@ -1,26 +1,9 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
-// import fs = require("fs");
+import {EnumDataItem} from "./EnumDataItem"
+import {checkCourseFormat, checkRoomFormat, union, intersection} from "./util"
 import JSZip = require("jszip");
 
 
-export class EnumDataItem {
-	public mode: InsightDataset;
-	public data: string[];
-
-	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
-		let buffer = JSON.parse(result);
-		let count = 0;
-		for (const key in buffer.result) {
-			count++;
-		}
-		this.data = buffer;
-		this.mode = {
-			id: _id,
-			kind: _kind,
-			numRows: count
-		};
-	}
-}
 
 // Returns false if input is invalid
 let checkFormat: (input: string) => boolean = function(input: string) {
@@ -57,9 +40,23 @@ export default class InsightFacade implements IInsightFacade {
 		let dataSet: EnumDataItem[] = [];
 		let promises: any[] = [];
 		let total = 0;
-		if (!checkFormat(id) || this.data.has(id)) {
-			return Promise.reject(new InsightError("Invalid ID"));
+
+		// check for valid ID
+		switch (kind){
+			case InsightDatasetKind.Courses:
+				if (!checkCourseFormat(id) || this.data.has(id)) {
+					return Promise.reject(new InsightError("Invalid ID"));
+				}
+				break;
+			case InsightDatasetKind.Rooms:
+				if (!checkRoomFormat(id) || this.data.has(id)) {
+					return Promise.reject(new InsightError("Invalid ID"));
+				}
+				break
+			default:
+				return Promise.reject(new InsightError("Error: Invalid data kind"))
 		}
+		
 		return new Promise<string[]>((resolve, reject) => {
 			JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
@@ -88,7 +85,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public removeDataset(id: string): Promise<string> {
-		if (!checkFormat(id)) {
+		if (!checkCourseFormat(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
 		if (!this.data.has(id)) {
@@ -100,25 +97,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 		});
 		return Promise.resolve(id);
-	}
-
-	private intersection(setA: any, setB: any) {
-		let intersect = new Set();
-		setB.forEach((elem: unknown) => {
-			if (setA.has(elem)) {
-				intersect.add(elem);
-			}
-		});
-
-		return intersect;
-	}
-
-	private union(setA: any, setB: any) {
-		let retval = new Set(setA);
-		setB.forEach((elem: unknown) => {
-			retval.add(elem);
-		});
-		return retval;
 	}
 
 	private equals(a: number, b: number) {
@@ -217,10 +195,10 @@ export default class InsightFacade implements IInsightFacade {
 		let key = keys[0];
 		switch (key) {
 		case "AND": {
-			return this.queryLogic(query[key], this.intersection);
+			return this.queryLogic(query[key], intersection);
 		}
 		case "OR": {
-			return this.queryLogic(query[key],this.union);
+			return this.queryLogic(query[key], union);
 		}
 		case "EQ": {
 			return this.queryComparator(query[key], this.equals);
