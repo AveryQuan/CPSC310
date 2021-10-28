@@ -15,7 +15,7 @@ export function checkCourseFormat(input: string): boolean {
 		return false;
 	}
 	return true;
-};
+}
 
 export function checkRoomFormat(input: string): boolean {
 	if (input.includes("_")){
@@ -32,7 +32,7 @@ export function checkRoomFormat(input: string): boolean {
 		return false;
 	}
 	return true;
-};
+}
 
 export function intersection(setA: any, setB: any) {
 	let intersect = new Set();

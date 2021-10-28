@@ -1,8 +1,7 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
-import {EnumDataItem} from "./EnumDataItem"
-import {checkCourseFormat, checkRoomFormat, union, intersection} from "./util"
+import {EnumDataItem} from "./EnumDataItem";
+import {checkCourseFormat, checkRoomFormat, union, intersection} from "./util";
 import JSZip = require("jszip");
-
 
 
 // Returns false if input is invalid
@@ -43,20 +42,20 @@ export default class InsightFacade implements IInsightFacade {
 
 		// check for valid ID
 		switch (kind){
-			case InsightDatasetKind.Courses:
-				if (!checkCourseFormat(id) || this.data.has(id)) {
-					return Promise.reject(new InsightError("Invalid ID"));
-				}
-				break;
-			case InsightDatasetKind.Rooms:
-				if (!checkRoomFormat(id) || this.data.has(id)) {
-					return Promise.reject(new InsightError("Invalid ID"));
-				}
-				break
-			default:
-				return Promise.reject(new InsightError("Error: Invalid data kind"))
+		case InsightDatasetKind.Courses:
+			if (!checkCourseFormat(id) || this.data.has(id)) {
+				return Promise.reject(new InsightError("Invalid ID"));
+			}
+			break;
+		case InsightDatasetKind.Rooms:
+			if (!checkRoomFormat(id) || this.data.has(id)) {
+				return Promise.reject(new InsightError("Invalid ID"));
+			}
+			break;
+		default:
+			return Promise.reject(new InsightError("Error: Invalid data kind"));
 		}
-		
+
 		return new Promise<string[]>((resolve, reject) => {
 			JSZip.loadAsync(content, {base64: true}).then( (zip: JSZip) => {
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
