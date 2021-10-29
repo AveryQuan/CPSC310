@@ -340,11 +340,13 @@ describe("InsightFacade", function () {
 		}
 
 		testFolder<Input, Output, Error>(
-			"query tests",                               // suiteName
+			"query tests",             	                  // suiteName
 			(input: Input): Promise<Output> => insight.performQuery(input),      // target
 			"./test/resources/queries",                   // path
 			{
-				assertOnResult: assertResult,
+				errorValidator(error: any): error is Error {
+					return error === "InsightError" || error === "ResultTooLargeError";
+				},
 				assertOnError: assertError,                 // options
 			}
 		);
@@ -353,15 +355,10 @@ describe("InsightFacade", function () {
 			return insight.performQuery({
 				WHERE: {},
 				OPTIONS: {
-					COLUMNS: [
-						"courses_dept",
-						"courses_id",
-						"courses_avg"
-					],
-					ORDER: "courses_avg"
+					COLUMNS: []
 				}
-			}).then( (a) => {
-				console.log(a);
+			}).catch( (a) => {
+				expect(a.to.be.instanceof(InsightError));
 			});
 		});
 

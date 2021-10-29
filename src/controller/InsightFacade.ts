@@ -192,7 +192,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private queryLogic(query: any, logic: (a: any, b: any) => any, not: boolean): Promise<any>{
 		let keys = Object.keys(query);
-		if(keys.length !== 2) {
+		if(keys.length < 2) {
 			return Promise.reject(new InsightError("more than one logic query"));
 		}
 		let promises: any[] = [];
@@ -256,6 +256,9 @@ export default class InsightFacade implements IInsightFacade {
 
 	private options(results: any, query: any): Promise<any> {
 		let keys = Object.keys(query);
+		if (results.is.instanceof("InsightError")){
+			return results;
+		}
 		keys.forEach((k) => {
 			if (!["COLUMNS", "ORDER"].includes(k)) {
 				return Promise.reject(new InsightError("Invalid field in options"));
@@ -270,11 +273,7 @@ export default class InsightFacade implements IInsightFacade {
 			results[0].forEach((row: any) => {
 				let newRow: { [key: string]: any } = {};
 				columns.forEach((field: string) => {
-					// eslint-disable-next-line max-lines
-
 					let fieldSplit = field.split("_",2);
-
-
 					if (fieldSplit[0] !== results[1]) {
 						return Promise.reject(new InsightError("Columns refers to wrong dataset"));
 					}
@@ -297,8 +296,8 @@ export default class InsightFacade implements IInsightFacade {
 					return Promise.reject(new InsightError("order field not in columns"));
 				}
 				retval = retval.sort((a, b) => a[orderField].toString().localeCompare(b[orderField].toString()));
-				// eslint-disable-next-line max-lines
 			}
+			// eslint-disable-next-line max-lines
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
