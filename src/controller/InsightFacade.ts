@@ -1,6 +1,7 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import JSZip = require("jszip");
 import {Utils} from "./Utils";
+import Min = Mocha.reporters.Min;
 
 export class EnumDataItem {
 	public mode: InsightDataset;
@@ -199,6 +200,9 @@ export default class InsightFacade implements IInsightFacade {
 		keys.forEach((key) => {
 			promises.push(new Promise((resolve, reject) => {
 				resolve(this.nextQuery(query[key], not));
+				reject((err: any)=> {
+					return err;
+				});
 			}));
 		});
 
@@ -228,7 +232,9 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		switch (key) {
 		case "AND": {
-			return this.queryLogic(query[keys[0]], Utils.intersection, not);
+			return this.queryLogic(query[keys[0]], Utils.intersection, not).catch((err)=> {
+				return err;
+			});
 		}
 		case "OR": {
 			return this.queryLogic(query[keys[0]], Utils.union, not);
@@ -256,9 +262,6 @@ export default class InsightFacade implements IInsightFacade {
 
 	private options(results: any, query: any): Promise<any> {
 		let keys = Object.keys(query);
-		if (results.is.instanceof("InsightError")){
-			return results;
-		}
 		keys.forEach((k) => {
 			if (!["COLUMNS", "ORDER"].includes(k)) {
 				return Promise.reject(new InsightError("Invalid field in options"));
@@ -294,15 +297,140 @@ export default class InsightFacade implements IInsightFacade {
 				let orderField: string = query["ORDER"];
 				if (!columns.includes(orderField)) {
 					return Promise.reject(new InsightError("order field not in columns"));
-				}
+				}// eslint-disable-next-line max-lines
+
 				retval = retval.sort((a, b) => a[orderField].toString().localeCompare(b[orderField].toString()));
 			}
-			// eslint-disable-next-line max-lines
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
 	}
+
+	private static up(a: any, b: any) {
+		return (a === b) ? -1 : a > b;
+	}
+
+	private static down(a: any, b: any) {
+		return (a === b) ? -1 : a < b;
+	}
+
+	private static sort(array: any, sortKeys: any, direction: any){
+		const zeroConvert = new Map([[1,1], [0, -1]]);
+		array.sort((a: any, b: any) => {
+			sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
+				let greater = direction(a[key], b[key]);
+				if (greater !== -1) {
+					return zeroConvert.get(greater);
+				}
+			});
+		});
+	}
+
+	private order(results: any, query: any) {
+		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
+		if (Object.keys(query) !== ["dir", "keys"]) {
+			return Promise.reject(new InsightError("invalid order"));
+		}
+		InsightFacade.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
+	}
+// takes set of rows and groups by list of keys, returns map[key values, list of rows]
+	private static group(results: any, keys: any) {
+		const groups = new Map();
+		results.forEach((row: any) => {
+			let  temp = [];
+			let rowValues = keys.forEach((key: any) => {
+				temp.push(row[key]);
+			});
+			if (!groups.has(rowValues)){
+				groups.set(rowValues, []);
+			}
+			groups.get(rowValues).push(row);
+		});
+		return groups;
+	}
+
+	private static sum(rows: [any], field: string){
+		let sum = 0;
+		rows.forEach((row) => {
+			sum += row[field];
+		});
+		return sum;
+	}
+
+	private static avg(rows: [any], field: string){
+		return InsightFacade.sum(rows,field) / rows.length;
+	}
+
+	private static max(rows: [any], field: string) {
+		let maximum = Number.MIN_VALUE;
+		rows.forEach((row) => {
+			if (row[field] > maximum) {
+				maximum = row[field];
+			}
+		});
+		return maximum;
+	}
+
+	private static min(rows: [any], field: string) {
+		let minimum = Number.MAX_VALUE;
+		rows.forEach((row) => {
+			if (row[field] > minimum) {
+				minimum = row[field];
+			}
+		});
+		return minimum;
+	}
+
+	private static count(rows: [any], field: string) {
+		const unique: any[]  = [];
+		let count = 0;
+		rows.forEach((row: any)=> {
+			let value: any = row[field];
+			if (!unique.includes(value)) {
+				unique.push(value);
+				count++;
+			}
+		});
+		return count;
+	}
+
+	private transformations(results: any, query: any) {
+		const APPLYTOKENS = ["MAX" , "MIN" , "AVG" , "COUNT" , "SUM"];
+		let keys = Object.keys(query);
+		if (!keys.includes("GROUP")) {
+			return Promise.reject(new InsightError("Must include group"));
+		}
+		let groupSplit = query["GROUP"].split("_",2);	// [0] is dataset name [1] is field to group on
+		if (groupSplit[0] !== results[1]) {
+			return Promise.reject(new InsightError(groupSplit[0] + " refers to different dataset"));
+		}
+		if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
+			return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
+		}
+		results[0] = InsightFacade.group(results[0], groupSplit[1]); // results[0] is now a map instead of a list
+		if (keys.includes("APPLY")){
+			if (keys.length > 2) {
+				return Promise.reject(new InsightError(keys + " contains an invalid key"));
+			}
+			let apply = query["APPLY"];
+			if (Object.keys(apply).length === 0) {
+				return Promise.reject(new InsightError("must have a field for apply"));
+			}
+			let fieldName = Object.keys(apply)[0];
+			let applyToken = apply[fieldName];
+			if (APPLYTOKENS.indexOf(applyToken) === -1) {
+				return Promise.reject(new InsightError(applyToken + "is an invalid apply field"));
+			}
+			let applyTokenValue = apply[fieldName][applyToken];
+			// TODO check applyTokenValue is a valid room field, wait for yvonne to add rooms
+		} else if (keys.length > 1) {
+			return Promise.reject(new InsightError(keys + " contains an invalid key"));
+		}
+
+
+	}
+
 	public performQuery(query: any): Promise<any[]> {
 		if(typeof query !== "object" || !InsightFacade.isEqual(Object.keys(query), [ "WHERE", "OPTIONS" ])) {
 			return Promise.reject(new InsightError("invalid query"));
@@ -310,10 +438,11 @@ export default class InsightFacade implements IInsightFacade {
 			return this.nextQuery(query["WHERE"], false).then((queryResults) => {
 				return this.options(queryResults, query["OPTIONS"]);
 			}).catch((err) => {
-				return err;
+				return Promise.reject(err);
 			});
 		}
 	}
+
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
 		this.data.forEach((value, key) => {

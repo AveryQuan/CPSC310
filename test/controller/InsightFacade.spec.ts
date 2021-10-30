@@ -348,17 +348,24 @@ describe("InsightFacade", function () {
 					return error === "InsightError" || error === "ResultTooLargeError";
 				},
 				assertOnError: assertError,                 // options
+				assertOnResult: assertResult,
 			}
 		);
 
 		it ("test", function (){
 			return insight.performQuery({
-				WHERE: {},
-				OPTIONS: {
-					COLUMNS: []
+				WHERE:{
+					GT:{}
+				},
+				OPTIONS:{
+					COLUMNS:[
+						"courses_dept",
+						"courses_avg"
+					],
+					ORDER:"courses_avg"
 				}
-			}).catch( (a) => {
-				expect(a.to.be.instanceof(InsightError));
+			}).catch((a: any) => {
+				expect(a).to.be.an.instanceof(InsightError);
 			});
 		});
 
