@@ -1,0 +1,308 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:00.000
+I would worry that I would be drinking gluten would have to look that up I'm sure I could Google does, where each have.
+
+00:00:00.000 --> 00:00:00.000
+This is my typing simple typing typing typing.
+
+00:00:00.000 --> 00:00:04.000
+Okay, It is now 40 past the hour so let's get going because we only have 10 minutes for me to tell you a little tiny bit about rest I will begin recording again, here we go.
+
+00:00:04.000 --> 00:00:26.000
+Okay. Hi everybody, welcome to our new topic, which is restful design principles. So let me share my screen and we can get right into it. So, we were looking at refactoring and as you would have heard in the last video refactoring and code smells have
+
+00:00:26.000 --> 00:00:36.000
+a lot to do with design principles. But what we are talking about in this lecture sequence so it's today and this video and next video
+
+00:00:36.000 --> 00:00:46.000
+is restful design principles and restful design is actually very strictly about a client server over the internet relationship.
+
+00:00:46.000 --> 00:01:00.000
+So, basically, looking at inter component design. So right now whenever we're doing, you know coding, we're basically looking you know you can see everything in your project browser in your, in your ID right like that's kind of what you're used to seeing
+
+00:01:00.000 --> 00:01:10.000
+kind of see everything because you're just working on kind of one side or the other, that kind of nailing it for people kind of working within a single component.
+
+00:01:10.000 --> 00:01:15.000
+You know what I mean by that
+
+00:01:15.000 --> 00:01:18.000
+have people come back from break, maybe.
+
+00:01:18.000 --> 00:01:21.000
+Maybe I lost everybody over the break.
+
+00:01:21.000 --> 00:01:31.000
+So, So we've, we're very used to 10 definitely you're always working within a single component you're always like doing the client or you're always doing the server service or whatever.
+
+00:01:31.000 --> 00:01:44.000
+And you have access that's right you have access to all the source code you can refactor it, you can move bits around you can shuffle stuff and you can change names and it works for the whole project, but client server design so inter component design
+
+00:01:44.000 --> 00:01:56.000
+means you don't have control, neither side has control over the other side so you really need to collaborate. Well, you know, I'm going to caveat that a little bit but the idea is they're very separate they're actually running on two separate machines,
+
+00:01:56.000 --> 00:02:08.000
+and they're totally different pieces of code that can be written in different languages, and they can be written in different styles. So one could be, you could have like a functional client and an object oriented service or something like that.
+
+00:02:08.000 --> 00:02:23.000
+So, so what does an A. So, but before I get into all of that what I want to say is that even still, the underpinning principles are still the same. What we want to try and effect is a localization of reasoning, so that you're not having to make changes
+
+00:02:23.000 --> 00:02:30.000
+in the client, because you change something in the server or understand something about the server to be able to do something in the client.
+
+00:02:30.000 --> 00:02:45.000
+So this is the localization of reasoning and reduction in the propagation of change. So propagation of change is a term that just means that you make a change in one place and it propagates somewhere else so you make a change in the client and then the
+
+00:02:45.000 --> 00:02:51.000
+server has to keep up, or what more often happens is you make a change in the server.
+
+00:02:51.000 --> 00:03:04.000
+And then clients have to keep up. I don't know how many of you have ever developed like a Facebook plugin, or tried to use the Facebook API for anything Have any of you ever done that.
+
+00:03:04.000 --> 00:03:20.000
+Maybe some of you have done something. Okay. Yes. Have you ever experienced the actual hell where they changed the API, which causes you to have to change your code also.
+
+00:03:20.000 --> 00:03:33.000
+Yes, and it's horrible right it's like you feel like suing the company and saying hey, I thought that we had a deal here. You were supposed to, kind of like keep up with your end of the bargain.
+
+00:03:33.000 --> 00:03:45.000
+Yeah. Facebook has a very good point is it not virgin version, I don't. Yeah, good point I don't know that it. Yeah, more likely the company will see you in this case, they have a lot more money than anybody else.
+
+00:03:45.000 --> 00:03:51.000
+So, um, yeah, no, I think you are, you are a victim to their changes every time they make a change.
+
+00:03:51.000 --> 00:04:07.000
+So let's take a look. So as I said in the last in the last talk in the last lecture, I wanted to get everybody to kind of click on this link, and I think this link is still active I don't know, can somebody, try clicking on it, It looks positive, this
+
+00:04:07.000 --> 00:04:12.000
+is a whole keynote which I will not be playing it's about an hour long.
+
+00:04:12.000 --> 00:04:20.000
+So, so you know watch it but but do watch it, you know you won't be examined on it but to watch it because it talks about this relationship between clients and services.
+
+00:04:20.000 --> 00:04:33.000
+This is him talking about the, the Java API actually so you probably never thought about Java as an API you just thought about it as a bunch of libraries, but it actually is a service right you're granted your sub typing off of the service you're overriding
+
+00:04:33.000 --> 00:04:36.000
+and everything.
+
+00:04:36.000 --> 00:04:50.000
+Every API counts as an API so somebody says does a serial API count every API counts as an API it's a service and you're there, and there's a client, and you're trying to relate the two, we're specifically today going to be talking and next class also
+
+00:04:50.000 --> 00:05:06.000
+talking about clients and services that talk over the internet this wiggly line is the internet and, and the services organized somehow your client is organized somehow, but the way that they interact is through the API this application programming interface.
+
+00:05:06.000 --> 00:05:22.000
+interface. So, let's start out with an example. We're not going to stick to this too much but anyway here we go, Let's say that we have a system where we have two kinds of users, it wouldn't have to be two kinds of users.
+
+00:05:22.000 --> 00:05:27.000
+But we have these two kinds of users finders and seekers.
+
+00:05:27.000 --> 00:05:38.000
+I used to call them losers and finders but that apparently people became sad when I kept talking about that so we're calling them seekers, not losers, but because it's nicer.
+
+00:05:38.000 --> 00:05:49.000
+But they technically have lost something that's why I was calling them that not because of some sort of character judgment or something they had lost something at say a bus stop, and then someone else had found it and they each wanted to be able to upload
+
+00:05:49.000 --> 00:05:56.000
+information to the service so there are two classes of user, we don't really care that there are two classes user honestly it's too complicated an example.
+
+00:05:56.000 --> 00:06:09.000
+But there's one service that kind of has endpoints for each of these things has kind of hooks. So the people who find something can upload their images and the people who are looking for something can look on the service to see whether that thing was
+
+00:06:09.000 --> 00:06:10.000
+found.
+
+00:06:10.000 --> 00:06:16.000
+So originally so remember you are used to developing a single component system.
+
+00:06:16.000 --> 00:06:29.000
+And you're used to having all the parts of your system in your same ID Project Browser. And originally when people were developing client server interfaces.
+
+00:06:29.000 --> 00:06:39.000
+It was the same group of people developing the client on the service this idea of a dislocated client and service, never came up.
+
+00:06:39.000 --> 00:06:53.000
+Well, in the beginning so what what happened was the service would actually sort of like it was still over the internet but using parameters and kind of like a complicated internet calls and things.
+
+00:06:53.000 --> 00:07:02.000
+It could make the developer feel like they were developing the client and the server on the same machine so you would have, what were called remote procedure calls.
+
+00:07:02.000 --> 00:07:14.000
+And those remote procedure calls would basically from the perspective of the developer look the same as sending something over the internet so you wouldn't have you would have almost no idea that you will not no idea but you would have, you know, you
+
+00:07:14.000 --> 00:07:31.000
+would know you were calling server Doc, do whatever. But, but it didn't really bother you that much, it all of the behavior on the server was stored exactly like method calls would be provided by any class in any system.
+
+00:07:31.000 --> 00:07:38.000
+So this was kind of bolstered by this thing called simple object Access Protocol.
+
+00:07:38.000 --> 00:07:49.000
+Where, where there wasn't a way of accessing objects so that you could effectively called methods on those objects, even though those objects were running on a different machine and there were actual programming languages that even got more specialized
+
+00:07:49.000 --> 00:08:00.000
+around, around this so norm Hutchinson I don't know if you know not neurologists and he actually developed a programming language called Emerald that moved objects around so you could make remote procedure call to other machines and they would run over
+
+00:08:00.000 --> 00:08:16.000
+there and do stuff and it would send responses back. That was the early days and don't worry, you won't need to know about any of this. And what you will know have to know though, is that in the early days, this violated this concept of a localized change
+
+00:08:16.000 --> 00:08:28.000
+or a localized change. So, if there was a change to the server. It was very likely that you would have to make a change in the client, mostly because there wasn't some sort of ideological difference between the client and the server, like they were here
+
+00:08:28.000 --> 00:08:38.000
+the same kind of company doing these two things like, there weren't a million Facebook clients there was just the one Facebook client talking to the Facebook server and they were very intertwined maybe.
+
+00:08:38.000 --> 00:08:53.000
+But then times changed, and it became way. Well, I think, times changed but also people realize the teams that were developing the servers were different teams than the ones developing the clients, it wasn't even necessarily different companies at this
+
+00:08:53.000 --> 00:09:08.000
+point but it was different groups of people, and we remember from before with divergent changes that when you have two different people developing the same module that you can have this kind of problematic coupling between these groups, if you have them
+
+00:09:08.000 --> 00:09:21.000
+interacting that closely, the exact same thing happened with client server design. So they realized how we have a server team we have a client who we need these two teams to be able to operate in isolation as much as possible.
+
+00:09:21.000 --> 00:09:25.000
+And this RPC approach is not supporting it.
+
+00:09:25.000 --> 00:09:45.000
+Hence, the rise of rest, full design for API's so restful design is a very clean separation between the client side responsibilities and the server side responsibilities, the I the name isn't that helpful to tell you how it works.
+
+00:09:45.000 --> 00:09:50.000
+There's nothing really restful about this is nothing relaxing about it.
+
+00:09:50.000 --> 00:10:02.000
+representational state transfer is it is you know it definitely definitely captures how the protocol works, but it doesn't necessarily capture the design of rep of rest.
+
+00:10:02.000 --> 00:10:18.000
+So what rest is really all about is just, and I'm stopping here. What rest is really all about is about this perfectly clean and predictable separation between the client side responsibilities and the server side responsibilities.
+
+00:10:18.000 --> 00:10:23.000
+So, that is my introduction to rest.
+
+00:10:23.000 --> 00:10:40.000
+You know, giving you a little bit of history about it and kind of where it came from, and that's kind of the depth of what you need to know about, about restful design in terms of the history, so don't worry about soap or anything like that, and someone
+
+00:10:40.000 --> 00:10:49.000
+has a question we're going a little bit into overtime so folks who have to go and sorry I'm going to answer this question and then maybe you can watch the recording of this.
+
+00:10:49.000 --> 00:11:05.000
+I'm confused about what is meant by client side and server side. Okay, so, client side is like, Let's say you have to remember like, do you have like Evo, like the EVO app or something or like one of these Car Share applications or something.
+
+00:11:05.000 --> 00:11:09.000
+or better yet, Spotify.
+
+00:11:09.000 --> 00:11:13.000
+So you have a Spotify app and it's running on your phone or something right.
+
+00:11:13.000 --> 00:11:21.000
+And it's. Does it still work in some ways if you're not connected to the internet.
+
+00:11:21.000 --> 00:11:28.000
+Like does it have some functionality if you're not connected to the internet, internet. Yeah, it's probably downloaded some songs or something yeah if you've downloaded offline.
+
+00:11:28.000 --> 00:11:36.000
+Okay, great. So that tells you that there's a client sitting on your phone, that is, has some data and some behavior in it.
+
+00:11:36.000 --> 00:11:40.000
+But does it totally work if it's connected to the internet.
+
+00:11:40.000 --> 00:11:54.000
+Yeah, so there are some things you can't do, you can't search for new songs, and there are probably a lot of songs you can't play right so that's because your client that's on your phone is making a request over to a big central service that is the Spotify
+
+00:11:54.000 --> 00:12:05.000
+API. And it saying hey search for this song. Give me back all the results. Hey search for, give me the song now give me all the stream me back the data for the song.
+
+00:12:05.000 --> 00:12:17.000
+And so all of that is happening on the server, the server is serving up all that information back to the client. So the client is what you see on your phone, and the server is the thing that sits somewhere in a data center somewhere running away, responding
+
+00:12:17.000 --> 00:12:19.000
+to your requests and serving you up data.
+
+00:12:19.000 --> 00:12:26.000
+Does that make sense.
+
+00:12:26.000 --> 00:12:29.000
+So is it because we don't have a connection to the server side.
+
+00:12:29.000 --> 00:12:44.000
+You definitely so yes that's right so if you can't search for songs offline. It's because the server is the one that remembers all the songs, the client only remembers the songs that you the user have specifically told it to remember, so it keeps a certain
+
+00:12:44.000 --> 00:12:55.000
+amount of clients state, and the server actually doesn't keep any of your clients state, all your clients states days on your client and the server is the place with the whole big database of songs.
+
+00:12:55.000 --> 00:13:03.000
+So if the client is like, I'd like to play that song, it has to ask the server for the data, the server gives it back, and then it plays on your client phone.
+
+00:13:03.000 --> 00:13:07.000
+Does that help.
+
+00:13:07.000 --> 00:13:15.000
+Okay, another clarification question I'm just going to keep taking these and keep recording. These are just clarification questions so people should feel free to go with you have run out of time.
+
+00:13:15.000 --> 00:13:23.000
+And when we send a message on Facebook to our friends, does the server take our message to send it to our receiving friend. Yes it does. So what would happen.
+
+00:13:23.000 --> 00:13:36.000
+Well, let's assume a restful design, and let's also assume there's no client to client communication and Facebook, which I believe there would not be, because that would be incredibly differently complicated.
+
+00:13:36.000 --> 00:13:46.000
+So what instead would happen is your Facebook client would take the text that you are wanting to send your client would send it back to the server on Facebook.
+
+00:13:46.000 --> 00:13:53.000
+Facebook would then read the text, and the recipient, and it would send it to your friends client.
+
+00:13:53.000 --> 00:14:02.000
+Well actually would hold it, and then your friends client would ping back to say hey, do I have any mail, give it to me If so, that's how that is how it would work.
+
+00:14:02.000 --> 00:14:03.000
+Yeah.
+
+00:14:03.000 --> 00:14:13.000
+Does that make sense because usually the server isn't pushing stuff to the clients that's a different, that's usually a very different model.
+
+00:14:13.000 --> 00:14:21.000
+So in terms of insight facade, how do you want them to to server I think I read somewhere that their server side implementation. And the last sprint is the client side that's exactly right.
+
+00:14:21.000 --> 00:14:31.000
+So, in the very last sprint what you'll be doing is you'll be implementing a client that makes use of your server that you've been building because you've been building this one component which is all the stuff that's performing the queries.
+
+00:14:31.000 --> 00:14:41.000
+Basically what you should be imagining is that you have there's some sort of thing that's sending you a query, you are processing the query and setting back a result you are being the server right now.
+
+00:14:41.000 --> 00:14:53.000
+But now you're going to get to be that front end as well so now you're going to be developing the client side, which will be the thing that is responsible for sending the request over to the server to your server.
+
+00:14:53.000 --> 00:15:02.000
+And, um, yeah. Okay, so the server takes your message puts it with all your personal info inside of database and sends back to your receiving friend. Yes, that's exactly right so that's what happens.
+
+00:15:02.000 --> 00:15:16.000
+And doesn't necessarily push that send back as I said, it might be based on a pull request from the friends client which is more typical right like usually clients would pull periodically like every minute or something to see if they have new mail.
+
+00:15:16.000 --> 00:15:24.000
+And so your client is this implementation that's that yeah exactly the client side is the implementation that's sitting on your phone.
+
+00:15:24.000 --> 00:15:37.000
+It's about the user it's the UI kind of side of things, it's that view. Another example of a client side implementation is the, the web is client right you're, you're running a web client you may have heard this terminology.
+
+00:15:37.000 --> 00:15:48.000
+Have you heard that term before web client. And so then you're interacting with the thing that's really only talking to you and then when you hit a button like submit that submission is going to the server.
+
+00:15:48.000 --> 00:16:02.000
+And then it waits, and then it pulls in does this thing in the background. And then the server will be sending back a response, and then your view and the web will display the response that the server gave you.
+
+00:16:02.000 --> 00:16:17.000
+So even when you type in a URL for a web page you're using the client which is your web browser you type in a URL. This is my typing sign, type in a URL, you hit return that sends the request over to the server the domain name server it resolves it it
+
+00:16:17.000 --> 00:16:35.000
+does all the internet, awesome stuff. And it gets the HTML back from whatever URL, it is that you're looking for. And then, that it asks the server give me all of the data associated with this location and the server responds with all of that big package
+
+00:16:35.000 --> 00:16:50.000
+of HTML, and then your web browser is waiting for that. And it takes it, and it displays it to you, rendering it properly. So, the server has nothing to do with any of the fonts or anything it's just sending you back all the HTML with all the tags, your
+
+00:16:50.000 --> 00:17:05.000
+browser is the one that renders the fonts nicely. So you might notice that you could load the same webpage in two different browsers and have it kind of look different people noticed this before.
+
+00:17:05.000 --> 00:17:35.000
+Like everybody complains about Internet Explorer, mobile, mobile versus desktop exactly so these are this is because you're accessing the same material through different client side applications.
+

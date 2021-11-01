@@ -1,0 +1,1016 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:00.000
+Oh, someone has a question would you say it would be similar to the practice midterm that was provided Yeah, I think, like, and I think there's a practice final up there too.
+
+00:00:00.000 --> 00:00:00.000
+So, I think, somewhat similar I'll take a look, or closer to the date
+
+00:00:00.000 --> 00:00:00.000
+to kind of make sure.
+
+00:00:00.000 --> 00:00:12.000
+Okay, let's do it, we're going we're going live here we go.
+
+00:00:12.000 --> 00:00:31.000
+So today we are going to be finishing our refactoring topics so let's, let's just have to share my screen, just a second here.
+
+00:00:31.000 --> 00:00:43.000
+So, so, can everybody see my screen share it should say enter class smells on screen, which is my, I, you know, I just like this, this word smell as you know I have a sort of issue with it but that's okay.
+
+00:00:43.000 --> 00:01:02.000
+Anyway so last class, we went over a couple of a couple of different code smells we went over almost duplicate code. That was some sort of more most interesting one, where we're kind of making a template and then moving the common bits up and and moving
+
+00:01:02.000 --> 00:01:16.000
+the other bits down, so that was where we left off. And today, what we're going to be talking about is just kind of the wrap up of of refactoring, but also looking at a more holistic way at technical debt, not exactly.
+
+00:01:16.000 --> 00:01:29.000
+I guess kind of technical debt but kind of the experiential side of refactoring. So, so just let me navigate over to their second.
+
+00:01:29.000 --> 00:01:43.000
+Okay, great. Alright, so the two things that we're going to be talking about today are divergent changes or divergent change singular I think people interchangeably say either singular or plural, and shot gun surgery.
+
+00:01:43.000 --> 00:02:02.000
+So these are two sides sort of of the same coin. And the interesting thing about these is that they are code smells that need to be experienced, so they're not code spells where you can look at a single piece of code and say, Ah, that is a divergent change
+
+00:02:02.000 --> 00:02:14.000
+or that is a shotgun surgery, and that makes it really different from all of the other code smells that we've seen so far so all the other code smells that we've seen, you look back at this list, you can see like magic numbers and everybody knows how
+
+00:02:14.000 --> 00:02:30.000
+to identify a magic number in a piece of code right you just, you see a number and you say, hey, that's a literal number, that shouldn't be there or duplicated code you would see the two pieces of code that were duplicated or along method you'd be like
+
+00:02:30.000 --> 00:02:39.000
+oh I'm scrolling a lot so you could you could physically point to it and say that's a long method that's a switch statement on a type. That's a large class.
+
+00:02:39.000 --> 00:02:53.000
+But these aren't like that. So, oral ledger code. That's right. That's a really good point, a linear could also identify these these are the kind of like these are the ones that can be kind of lexical or static static Lee I guess lexical yeah lexical
+
+00:02:53.000 --> 00:02:53.000
+be assessed.
+
+00:02:53.000 --> 00:03:12.000
+assessed. But these other code smells these divergent changes and shotgun surgery have to actually be lived experience of the developer. And for that reason, it's almost like they kind of cover a lot of the other code smells because remember what I what
+
+00:03:12.000 --> 00:03:26.000
+I had said at the very beginning, was that code smells, don't really need to be changed, they don't need to be fixed or addressed until they've reached a certain level of problematic goodness, basically.
+
+00:03:26.000 --> 00:03:43.000
+So, until some of these until some of these kinds of things start to trip you up. So you have to make a change in more than one place so you're trying to go around your code base kind of making changes, or if you are trying to change the same kind of
+
+00:03:43.000 --> 00:03:45.000
+module of code.
+
+00:03:45.000 --> 00:03:58.000
+Maybe even find enough granularity that you're resulting in merge conflicts, but even still if you're two people are changing the same class, then you know one of you could be changing some internal methods, the other one relies on it, there's a little
+
+00:03:58.000 --> 00:04:09.000
+bit of danger there. Have you have anybody ever experienced that where one partner changes a part of the class that you assumed wasn't going to be changing, and then it broke your code.
+
+00:04:09.000 --> 00:04:22.000
+Yeah. So that's, I'm going to, sort of, I know that those aren't technically merge conflicts, but they are kind of like they are sort of ideologically merge conflicts there, they're not, they're not the ones that would get flagged but they are the kind
+
+00:04:22.000 --> 00:04:29.000
+of locking problems with developers like, Oh, I thought I had the luck on that I didn't think you'd be changing any of that and then you changed it and then it broke my code.
+
+00:04:29.000 --> 00:04:47.000
+Now, now I have problems. So, anytime you know so so changes that you can tell will result in, in sort of development conflicts. We don't even need to call them merge conflicts we can kind of call them like development conflict situations where you are,
+
+00:04:47.000 --> 00:04:52.000
+are colliding kind of development collisions, maybe we'll call them collisions.
+
+00:04:52.000 --> 00:05:00.000
+Does that does that is that meaningful to people if I, if I called them development collisions.
+
+00:05:00.000 --> 00:05:11.000
+And yeah, somebody in the chat says that those are actually worse, to be honest, since it's harder to identify them and that's absolutely true. Because GitHub isn't like oh, notice that you change the same line of code.
+
+00:05:11.000 --> 00:05:26.000
+You're just changing something that you each depend upon which is really scary. And that usually doesn't only happen when you're changing something within a module, but it almost definitely does happen if you're both changing the same class like if you're
+
+00:05:26.000 --> 00:05:40.000
+both working on the you know the the envelope of add data set, then you might be messing each other up. So a choice that you might have made was like no no I have the lock on a data set right now I'm doing that one, don't interact with it at all that's
+
+00:05:40.000 --> 00:05:53.000
+kind of my code. Do people have conversations like that with their partner, through the project like this is kind of me this is going to be my side, please don't touch anything in here Do people have conversations like that.
+
+00:05:53.000 --> 00:05:54.000
+Hmm.
+
+00:05:54.000 --> 00:06:07.000
+And why was that it was it. Can you can you expand on your motivation for doing that, like, what was your antagonistic Lee. Good, always important to people like get out of my code.
+
+00:06:07.000 --> 00:06:10.000
+That's not a very nice to talk to your partner.
+
+00:06:10.000 --> 00:06:16.000
+But yes, I mean, so I was trying to be businesslike but yes indeed it could have seen kind of antagonistic.
+
+00:06:16.000 --> 00:06:29.000
+So, yeah, like, and the reason is that you're trying to cut down on these development collisions right yeah you're trying to sort of say, Okay, this is my protected space, I need to know that nothing in here is going to be changing because I might be
+
+00:06:29.000 --> 00:06:39.000
+changing it we don't want to accidentally have actual line conflicts or even changes to the implementations of methods that that I'm going to be relying on inside this module.
+
+00:06:39.000 --> 00:06:56.000
+Also of being afraid of get is, is fair like there's a lot to rely on there. And, and you know having human interaction to try and make sure that you are that you are staying, you know, keeping everything kind of sanitary between the parts of the project
+
+00:06:56.000 --> 00:06:59.000
+like is, it's not a bad idea.
+
+00:06:59.000 --> 00:07:05.000
+Okay, so, um, so. So here's the thing with these two kinds of inter class smells.
+
+00:07:05.000 --> 00:07:12.000
+These experiential these experiential smells come up in those two situations.
+
+00:07:12.000 --> 00:07:28.000
+And they are called divergent changes divergent changes are the ones where it may result in one of these development collisions, where you are changing multiple parts of what basically you're going, not multiple parts that's not sorry, that was a mistake,
+
+00:07:28.000 --> 00:07:37.000
+you're going back to the same class for multiple reasons. So, let's say your entire project was in one file.
+
+00:07:37.000 --> 00:07:40.000
+You know, I'm sure some of you started out like that.
+
+00:07:40.000 --> 00:07:50.000
+you would have been going back to your same one file for for perform query stuff, and then the other of you would be have been going in there for a data set stuff.
+
+00:07:50.000 --> 00:08:14.000
+And so you would have been doing two different kinds of the nature of the changes would have been two different features were basically living together in side of the same module is Everybody with me on that as a concept.
+
+00:08:14.000 --> 00:08:23.000
+Okay, it seems like people are yeah are okay. Someone says, I'm always afraid of overhaul changes that break because of a gift code merge functionality.
+
+00:08:23.000 --> 00:08:33.000
+Absolutely. I mean this is it, you make some make some change and then you merge something in and then it breaks something, you know, within the same module, potentially or even somewhere else.
+
+00:08:33.000 --> 00:08:44.000
+So, and someone asks, Do I mean, all the implementation is in one file. I don't necessarily mean all of the implementation but maybe things that two people are working on.
+
+00:08:44.000 --> 00:08:55.000
+So we're two people are working on the same file for two different reasons, or even you are working on the same file for two different reasons, although it's a lot less pesky if it's only your file.
+
+00:08:55.000 --> 00:09:09.000
+If it's yours. If it's a shared file between you and someone else and it can become quite annoying because maybe they change types of things even they do stuff that still compiles in their branch but when you merge it back in and no longer compiles and
+
+00:09:09.000 --> 00:09:11.000
+yours.
+
+00:09:11.000 --> 00:09:22.000
+So, maybe not compiled but maybe even worse causes a behavioral change. So divergent changes means changes within a single module for different reasons.
+
+00:09:22.000 --> 00:09:35.000
+So that's what divergent changes means, and shotgun surgery is the other side of the coin. It's the you're making a change for one reason but you're making it in a bunch of different places.
+
+00:09:35.000 --> 00:09:47.000
+So you're realizing that you have a little bit of code related to this here a little bit code related to this here a little bit code religious here and here, that often happens in a full stack kind of development environment because if you're adding like
+
+00:09:47.000 --> 00:09:58.000
+a new UI element, you're going to have to go through. There's almost no getting around this, if you're trying to add an element, you're going to have to like hook it in at all the various places.
+
+00:09:58.000 --> 00:10:17.000
+But if you're trying to fix a bug or if you're trying to evolve a feature or something, then that evolution, the ideal is that it wouldn't be located in lots of different places that the bug, the feature evolution, would be localized as much as possible.
+
+00:10:17.000 --> 00:10:27.000
+And if it's not localized as much as possible, then it's called shotgun surgery and you're supposed to imagine like a shotgun pow pow, pow going across the whole code base making changes.
+
+00:10:27.000 --> 00:10:39.000
+So those are the kind of experiential code smells. And now we're going to talk about them a little more deeply because they also motivate refactoring.
+
+00:10:39.000 --> 00:10:53.000
+They usually motivate kind of some of the similar refactoring, as you might find in some of our like this large class doing the work of two that's actually somewhat synonymous with divergent change or divergent changes or whatever.
+
+00:10:53.000 --> 00:10:58.000
+Maybe I'll put us here just to keep it really, this is apparently a picture and I can't change it.
+
+00:10:58.000 --> 00:11:12.000
+Large clustering the work of two is kind of the same thing as divergent changes because if you have a large class that's doing the work of two, then you will experience divergent changes to that class so divergent changes are like the symptom.
+
+00:11:12.000 --> 00:11:19.000
+And in this case the large class doing the work of two, is, is that is the cause.
+
+00:11:19.000 --> 00:11:32.000
+Now, do people remember in 210 what we called large class doing the work of two or it was a violation of a certain thing two people remember what that was.
+
+00:11:32.000 --> 00:11:38.000
+It's not the list of substitution principle, although they are related.
+
+00:11:38.000 --> 00:11:51.000
+What. Yeah, the single responsibility principle. Exactly. So we're going to be talking about principles, not in the exact next topic because the next topic we talked about RESTful API design, but in the one after that will be again revisiting the single
+
+00:11:51.000 --> 00:11:53.000
+responsibility principle and so.
+
+00:11:53.000 --> 00:12:05.000
+So the single responsibility principle is basically like a principal description of the large class during the work of two, and also have the recognition of divergent changes.
+
+00:12:05.000 --> 00:12:16.000
+Okay, so let's look at a classic divergent changes example, I'm oh I'm just going to pause for questions for a second, and
+
+00:12:16.000 --> 00:12:21.000
+some things are comments I think to the chat.
+
+00:12:21.000 --> 00:12:33.000
+Let's see, every time I merge I throw in random mutations into my partner's code to make sure as good as robust Oh, that's pretty fun. and for something like insight besides bourbon divergent changes.
+
+00:12:33.000 --> 00:12:51.000
+Should we be immediately calling elsewhere rather than in that class. Yes, I think that is the idea is that you would you would decompose the, the, you know, the behaviors that you're, you would be encoding and that one spot into something that's more
+
+00:12:51.000 --> 00:13:05.000
+almost the kind of working structure of your team like. I think there's a, I think there's a software engineering law called common I think it's Conway's Law that the organizational structure should kind of look like the coding structure of your of your system.
+
+00:13:05.000 --> 00:13:18.000
+system. And so, at least, if, if the only decomposition that you do is just a split something so that it's your stuff versus your partner stuff, then that will that will get you somewhere.
+
+00:13:18.000 --> 00:13:19.000
+Okay.
+
+00:13:19.000 --> 00:13:32.000
+So divergent changes. This is changes coming back to the same class for different reasons. So Deborah I'm just going to read this out divergent change occurs when one class is commonly changed in different ways for different reasons.
+
+00:13:32.000 --> 00:13:43.000
+Any change to handle a variation, should change a single class, and all the typing in the new class should express the variation well that's you know that's a tricky thing to understand so let's.
+
+00:13:43.000 --> 00:13:57.000
+So let's read this little thing which is supposed to be an explanation for what this thing means it's when you look at a class and say I will have to change these three methods every time I get a new database, I will have to change those four methods
+
+00:13:57.000 --> 00:14:00.000
+every time there's a new financial instrument.
+
+00:14:00.000 --> 00:14:17.000
+Then, if that is your situation. Then you likely have a situation in which two units to abstractions are better than one so splitting up those two concerns that way each object has changed, only as a result of one kind of change.
+
+00:14:17.000 --> 00:14:28.000
+And of course, you could you often discover this only after you've added a few databases or financial instruments. So, this is part of this emergent quality of code smells.
+
+00:14:28.000 --> 00:14:37.000
+Because when your code is really tiny maybe you're even just developing it yourself or really it's no big deal if both of you are kind of in there messing around.
+
+00:14:37.000 --> 00:14:39.000
+And.
+
+00:14:39.000 --> 00:14:49.000
+And so, as your code grows you'll then gradually realized, oh yeah like Actually, this is becoming complicated. we keep colliding, we need to split this up.
+
+00:14:49.000 --> 00:15:06.000
+Is there a code smell for too many splits. And let's see, you mean to granular like overly tiny glasses. Let's look back at our list of code smells and see if there is because I think we have a bunch of code smells written down somewhere where are they,
+
+00:15:06.000 --> 00:15:08.000
+it's a great question.
+
+00:15:08.000 --> 00:15:12.000
+Where do I not have all the code smells in the world written down.
+
+00:15:12.000 --> 00:15:22.000
+Well, I don't yeah I don't have all the code smells in the world written down, but there are a trillion different examples of code smells. I would say that.
+
+00:15:22.000 --> 00:15:28.000
+I don't know if there's a named code smell for like overly granular.
+
+00:15:28.000 --> 00:15:42.000
+You will need to know every code smell on the exam you also won't need to have memorized this list of things, but you will know if if your code is too granular experientially by having them to perhaps do shotgun surgery.
+
+00:15:42.000 --> 00:15:57.000
+So, shotgun surgery can sometimes tell you when you need to make something in like group something into a new abstraction, whereas divergent changes is kind of telling you when you need to split up something into new abstractions, and so does that does
+
+00:15:57.000 --> 00:15:59.000
+that help like it.
+
+00:15:59.000 --> 00:16:13.000
+I don't think it's too, there is no Cosmo maybe that is called too small classes but somebody Google Code smells and and take a look and tell me right away and do that but you know obviously still pay attention.
+
+00:16:13.000 --> 00:16:21.000
+Okay, so we have all these different accounts, we have an investment account. And then we have all of these, all of these different things that are happening inside of the account.
+
+00:16:21.000 --> 00:16:34.000
+And when we began programming this when we began programming this this all made total sense we needed to manage our investments we needed to get loan amounts print statements manage loans add loan payments update dividends, the whole business we were
+
+00:16:34.000 --> 00:16:36.000
+doing all this stuff and it was all.
+
+00:16:36.000 --> 00:16:49.000
+It was all totally fine. And the code was reasonably sized enough that we were able to conceptualize it all in our minds. And also there was maybe only one developer working on the investment count class and so they just went in there whenever they needed
+
+00:16:49.000 --> 00:16:52.000
+to when it was all fine and there were no collisions.
+
+00:16:52.000 --> 00:17:09.000
+However, as the code evolved, some texture and some kind of topology started emerging and you realized that Ah, now we actually have three different teams working on the same class, we have an investments development team which is managing all the stuff
+
+00:17:09.000 --> 00:17:21.000
+having to do with investments. We have a loans team which isn't a totally different, you know, module in the system. And it, that team also needs to muck in with investment accounts.
+
+00:17:21.000 --> 00:17:35.000
+And then finally we have the reporting team that does kind of the UI stuff and interfaces with a customer, and they need all of these statement printing stuff and each of these is representative of a much larger body of software, of course.
+
+00:17:35.000 --> 00:17:47.000
+So, in this case you know they need to change, so all the blue stuff is for loans all the green stuff is for just a second I think that that Ron.
+
+00:17:47.000 --> 00:17:49.000
+This should be investments.
+
+00:17:49.000 --> 00:18:01.000
+That should be loans, so blue stuff is all anything to do with investments the green stuff is all anything having to do with loans and the yellow stuff is having everything to do with customer facing statements of stuff.
+
+00:18:01.000 --> 00:18:09.000
+And so now you have three teams all relying on the same thing. They probably have some, Some behavior in common here.
+
+00:18:09.000 --> 00:18:21.000
+You know that, because of course there's no protection between things that are resident in the same class. And so they could easily clobber each other's changes even without get noticing that it was happening.
+
+00:18:21.000 --> 00:18:34.000
+Oh, just as Oh, good to second, wait what the investment stuff needs to change whenever the load loans implementation has changed. Wait.
+
+00:18:34.000 --> 00:18:46.000
+So the investments will need to change when the investment simple conditions change the green stuff will need to change whenever the loans implementation exchange, and this will lead us, I think, yeah, I think it looks right to me now I think I had maybe
+
+00:18:46.000 --> 00:19:03.000
+like I corrected it, so I think it should be correct now. Okay, so now you need to decide how you're going to split up how you're going to actually split up this class because the right move here is to split this one class into multiple other classes.
+
+00:19:03.000 --> 00:19:12.000
+So, so usually what happens is that you like if you look at this carefully.
+
+00:19:12.000 --> 00:19:31.000
+What would the approach be to split up this class, do you think, like we have an investment account class. What should you do here. Should you a split off subtypes of the investment account class that deals with each of each one dealing with those things,
+
+00:19:31.000 --> 00:19:44.000
+or be, should you make new classes and delegate from the investment account to those other classes, what would what do you feel.
+
+00:19:44.000 --> 00:19:52.000
+Yeah. Somebody votes for delegation anybody else.
+
+00:19:52.000 --> 00:19:59.000
+Okay, excellent delegation, it is it's definitely delegation this place the way you can tell that is if you made a.
+
+00:19:59.000 --> 00:20:12.000
+So the only the only one that, like, yeah, no I mean dividends and lyst investments investment account. Maybe these things could have stayed in investment account because they actually have investment in the name, maybe you could make a case for that,
+
+00:20:12.000 --> 00:20:20.000
+but the loan stuff really shouldn't be living in investment account and the printing stuff definitely shouldn't be living in the investment account.
+
+00:20:20.000 --> 00:20:32.000
+So, what you would probably end up doing is, you would make, keep your investment account as it is, and you would separate out into three different classes.
+
+00:20:32.000 --> 00:20:44.000
+And so this relationship is a knows about relationship it could be as strong as a field, I'm not making any statements about what the actual semantics are here.
+
+00:20:44.000 --> 00:20:55.000
+You could have it would make perfect sense for an investment account to have three fields alone manager field and investment manager field and report printer field, makes total sense.
+
+00:20:55.000 --> 00:20:59.000
+So yeah, so just so delegate as appropriate, basically.
+
+00:20:59.000 --> 00:21:08.000
+Someone mentioned for listener for print I think a listener might be better, potentially so for those who are wondering what is the listener.
+
+00:21:08.000 --> 00:21:18.000
+The Observer pattern that we would have, you would have looked at him to 10 is a close closely resembles the listener set up and.
+
+00:21:18.000 --> 00:21:30.000
+And in that case, like maybe it depending on the depending on the needs of the, of the reports if they're live reports them yeah I think it makes sense to have it set up as a listener, in which case you would evolve that, again, you would like them look
+
+00:21:30.000 --> 00:21:36.000
+at this and say, ooh, there's too much coupling here I think I'm going to move this over and I'm going to make this a thing and I'm going to have it, notify and do all of the things.
+
+00:21:36.000 --> 00:21:50.000
+So, yeah, potentially, like, I'm not saying that this is the end of the story for your investment account. Definitely not. But this gets you at least through that painful period where you have three different teams trying to clobber each other's changes
+
+00:21:50.000 --> 00:21:52.000
+within the same class.
+
+00:21:52.000 --> 00:22:07.000
+So, um, so I just want to remind everybody how to decide between delegation versus inheritance. And if the new classes feel like they are types of the original class or kinds of the original class than inheritance is a good way to go.
+
+00:22:07.000 --> 00:22:18.000
+So for instance if we'd had an investment account and then we had a rapid investment account or a high interest investment account or a some other kind of investment account then those sound like kinds of investment accounts.
+
+00:22:18.000 --> 00:22:21.000
+Whereas, none of these.
+
+00:22:21.000 --> 00:22:28.000
+None of these classes are responsibilities sound like a kind of investment account.
+
+00:22:28.000 --> 00:22:43.000
+If the new classes feel like parts of the original class, which is what we just experienced, then employee delegation. So using fields instead stop stop typing, and then calling over to those.
+
+00:22:43.000 --> 00:22:58.000
+And if you're having trouble conceiving of how that looks. You can say, like, you can try and sort of instantiate it and see if it makes any sense to you so if you said investment account p equals new printer thingy that wouldn't that wouldn't feel right.
+
+00:22:58.000 --> 00:23:13.000
+Because printer thing you don't manage investments that that is a nonsensical piece of functionality for a printer thingy. So, because a printer thing you shouldn't be managing investments, so unless the thing that you're instantiated is going to be able
+
+00:23:13.000 --> 00:23:19.000
+to do all of the things that this thing can do and this comes back to the list of substitution principle.
+
+00:23:19.000 --> 00:23:31.000
+Then, you can't make it a subtype us delegation instead. Does anybody have any questions about that.
+
+00:23:31.000 --> 00:23:32.000
+Okay.
+
+00:23:32.000 --> 00:23:36.000
+Um, Is there a typo, probably were usually, where are we seeing the typo.
+
+00:23:36.000 --> 00:23:45.000
+Usually, where are we seeing the typo. So can't be a subtype campus so cannot be a subtype.
+
+00:23:45.000 --> 00:23:52.000
+Nice. Good. That was an important one, though, rendered it opposite of what I wanted to say thank you.
+
+00:23:52.000 --> 00:23:55.000
+Okay, so.
+
+00:23:55.000 --> 00:24:05.000
+So, now just to recap this a little bit symptom is divergent changes, the code smell that you will experience as one classes actually to.
+
+00:24:05.000 --> 00:24:16.000
+This is the canonical example so I just wanted to flash this up there if you Google for divergent changes you might find this example on the web, for instance, and this is how it would end up working.
+
+00:24:16.000 --> 00:24:27.000
+So you would split, so this person has a name something something and then I get telephone number. We've decided that this is just too much information for the person class and the fact that there.
+
+00:24:27.000 --> 00:24:46.000
+They are supplying this telephone number thing is just a terrible thing. And so instead, what we would do is we would split the class into person and telephone number and the person class still has the get telephone number and method, which people are
+
+00:24:46.000 --> 00:24:59.000
+always like that's kind of weird Shouldn't you have moved it over. But I want you to remember that what you have is a client that is assuming this behavior and you don't want to immediately break all of your clients right your client was assuming client
+
+00:24:59.000 --> 00:25:13.000
+just means the class that calls your class, your client was assuming that you're person how to get telephone number behavior. But you've decided that get telephone number needs to live in something that's more responsible for telephone number so you're
+
+00:25:13.000 --> 00:25:22.000
+just going to be calling over to the right spots, you're going to be holding a field of the telephone number and this is an actual Association in this example.
+
+00:25:22.000 --> 00:25:35.000
+And then this little red dash line indicates the delegation that you would be that you would be doing so you would be making a call from person get telephone number over to get telephone number.
+
+00:25:35.000 --> 00:25:45.000
+So yes, in this case person has a field indicated here, one field of telephone number.
+
+00:25:45.000 --> 00:25:47.000
+That's right.
+
+00:25:47.000 --> 00:25:54.000
+Yeah. And that allows this code to still work this client code.
+
+00:25:54.000 --> 00:25:59.000
+Any questions about that.
+
+00:25:59.000 --> 00:26:15.000
+Okay. And you can often tell whether you have, so Oh, just a second. So where would get telephone number transferred to. If both classes have it, so do you.
+
+00:26:15.000 --> 00:26:21.000
+So, both classes so remember in the client we would instantiate a person.
+
+00:26:21.000 --> 00:26:40.000
+And then we would call person get telephone number. So this code is going to n, and try and use the like official language and say, which I think what you're saying is, which get telephone number gets invoked, is that the formal version of what you're
+
+00:26:40.000 --> 00:26:49.000
+trying to say, Okay, good. So, let's put in a little arrow, make it red.
+
+00:26:49.000 --> 00:27:08.000
+Okay, So get telephone number invokes persons get telephone number which then invokes the telephone numbers get telephone number and this is the delegation moment, this, this one I'll make this one more bold maybe that's where the delegation is happening
+
+00:27:08.000 --> 00:27:10.000
+right there.
+
+00:27:10.000 --> 00:27:21.000
+Does that make sense because person used to have that functionality itself, but then we realized. No, that's too much responsibility for this person. They don't want to have to deal with telephone numbers.
+
+00:27:21.000 --> 00:27:27.000
+Instead you introduce a new class, and you just say, I'm forwarding all my telephone number information over there.
+
+00:27:27.000 --> 00:27:37.000
+So, somebody has made a very good point that says, I guess divergent changes refactoring is basically just conforming to the single responsibility principle.
+
+00:27:37.000 --> 00:27:55.000
+That is exactly right. So what I'm going to be yammering on about when we get to principles, is that, actually, every principle that you're looking at is the identification of a code smell the application of a refactoring to achieve a principle, and in
+
+00:27:55.000 --> 00:28:08.000
+this case it's incredibly clear you see the one you see the code smell that you're doing divergent changes, or one classes actually to these are more or less the same thing except for divergent changes is more experiential.
+
+00:28:08.000 --> 00:28:20.000
+And so you experience those divergent changes you identify the correct refactoring which is extract class. And then you have achieved the single responsibility principle.
+
+00:28:20.000 --> 00:28:23.000
+Does that make sense.
+
+00:28:23.000 --> 00:28:27.000
+Okay so credits credits to the person before.
+
+00:28:27.000 --> 00:28:32.000
+Oh, I see. I'm sorry I got scrolled away.
+
+00:28:32.000 --> 00:28:43.000
+So, the original question was, in what way is this different from maintaining the single responsibility principle, it seems like classes are responsible for too many things can be easily a target of divergent changes.
+
+00:28:43.000 --> 00:29:00.000
+That's exactly right. So just to recap, principles are achieved by noticing code smells and applying refactoring. So, you, you notice the code smell you apply refactoring, and it achieves the principle in every single case, which is pretty interesting.
+
+00:29:00.000 --> 00:29:08.000
+So pretty much every code smell that you see is a moment of a violation of a principle, which is pretty cool.
+
+00:29:08.000 --> 00:29:21.000
+Now there are about 1000 principals, way more than the solid principles that will be going over in class so not all of them will be covered by the solid principles but if you look under design principles that are controlling and design principles and
+
+00:29:21.000 --> 00:29:34.000
+code smell is a violation of one of those. So that's kind of their relationship, and I'll talk about that again. When we get to principles which is, you know, next thing after rest.
+
+00:29:34.000 --> 00:29:37.000
+Okay. And so another.
+
+00:29:37.000 --> 00:29:52.000
+So another example, you know you can. This was, I think, a to 10 example, even when we were talking about the single responsibility principle we looked at this, this code we saw that there was a whole bunch of stuff that that related to to one thing,
+
+00:29:52.000 --> 00:30:06.000
+like maybe all use the same data within the class that's another really nice way to, to identify if one class is actually to sometimes when one of you in a team will be using some piece of data and the other of you will be using another little piece of
+
+00:30:06.000 --> 00:30:16.000
+data. And so you're kind of working orthogonal II which makes it kind of feel safe, but then you realize, actually no we're clobbering each other we have to pull this apart.
+
+00:30:16.000 --> 00:30:28.000
+Somebody is following up on the, on the relationship between principles and code smells. Is it because people set up these principles after noticing these smells and common problems and solutions.
+
+00:30:28.000 --> 00:30:44.000
+So design principles came first, actually design principles and I'll probably go over this again but design principles are were the original concept people started realizing that code was easier to maintain if it held certain principles code smells were
+
+00:30:44.000 --> 00:30:56.000
+actually a pretty late introduction they came around and more like the 90s, where people started realizing that actually every time you see one of these, that means your code is in trouble.
+
+00:30:56.000 --> 00:31:09.000
+And you should probably fix it. And then the later 90s came along and said, not every single time you'll, you'll be you'll go into a crazy frenzy of of reconfiguring your code if you try and fix all of these.
+
+00:31:09.000 --> 00:31:21.000
+So that's kind of been the journey so principles definitely came first, and there hasn't been, you know, like, there's and there's a lot of intuition about how code spells relate to, to principles now and.
+
+00:31:21.000 --> 00:31:33.000
+But, but they but originally there wasn't an explicit link actually between code smells and principles, it was just like, there are principles that you have to maintain and then also there are these ugly things that can happen in your code, you can apply
+
+00:31:33.000 --> 00:31:34.000
+refactoring to.
+
+00:31:34.000 --> 00:31:43.000
+So it's only recently it actually part of my own pedagogical work together with Gregor and Megan and read and Ivan.
+
+00:31:43.000 --> 00:31:51.000
+We looked at the relationship between code smells and, and principles so now I'm deciding my own publications, so that's very self aggrandizement but anyway.
+
+00:31:51.000 --> 00:31:58.000
+So yeah, but this is the new emerging way of thinking about these is that you have code smells.
+
+00:31:58.000 --> 00:32:04.000
+That, that reveal the violation of design principles.
+
+00:32:04.000 --> 00:32:09.000
+And when I get to design patterns I'll tell you how that all works in.
+
+00:32:09.000 --> 00:32:21.000
+Okay, I lost my cursor here we go. All right, great. Okay, so this is just yet another you know this is just another example, same old same old, same exact thing you just move stuff over.
+
+00:32:21.000 --> 00:32:22.000
+Okay.
+
+00:32:22.000 --> 00:32:26.000
+So was everybody happy with divergent changes.
+
+00:32:26.000 --> 00:32:33.000
+Any questions about that one splitting classes delegating that kind of thing.
+
+00:32:33.000 --> 00:32:43.000
+So for those of you Just a quick question for those of you who have split up inside facade is it exactly this delegation arrangement that you have
+
+00:32:43.000 --> 00:32:55.000
+mostly is Do you also have some stuff typing as well or is it like that, there's a bit of code in there and then you're delegating some of it. What, you know, not that I want you to tell us all the secrets of your code but what is, what is your setup
+
+00:32:55.000 --> 00:33:00.000
+tell us everything.
+
+00:33:00.000 --> 00:33:04.000
+I'll drink tea while you're typing.
+
+00:33:04.000 --> 00:33:19.000
+Um yeah mostly okay so the person says it's mostly delegating yeah okay great so yeah because that's the kind of natural way that you would that you would handle the situation where you're like we need to get this separate so that we can work on it separately.
+
+00:33:19.000 --> 00:33:35.000
+Okay, fantastic. So, one person says they have a query validator delegated in query that makes sense. That's a really nice split of, of, of behavioral responsibility the query validator.
+
+00:33:35.000 --> 00:33:43.000
+some basic validation stuff and insight the side helper methods, but in the major stuff like say query validating they're in separate classes. Nicely done.
+
+00:33:43.000 --> 00:33:53.000
+Yeah, it sounds great, so I feel like intuitively, you knew to move these things to different places so that you will be able to think about them in and it kind of isolated way which is great.
+
+00:33:53.000 --> 00:34:01.000
+Question about delegation, would it be accurate to think of it like a service behavior responsibility that should be pulled out. I love that way of thinking about it.
+
+00:34:01.000 --> 00:34:06.000
+In fact, when we talk about rest we're going to glance at this person.
+
+00:34:06.000 --> 00:34:12.000
+Josh block, who I'm going to say please watch his keynote.
+
+00:34:12.000 --> 00:34:26.000
+And, and it is just an excellent keynote on designing API's, and what he points out is that every relationship between two entities like a client or the service is a client service relationship, even if it's just two classes.
+
+00:34:26.000 --> 00:34:40.000
+So if you look at this relationship between the person and the telephone number. It just that's not, I'm not talking about this relationship between this relationship, you're seeing person is kind of using the telephone number service and that's a way
+
+00:34:40.000 --> 00:34:51.000
+that you can think about it the telephone number would then provide a service back to the person who can then draw on it and would would use it as kind of a public kind of mechanism.
+
+00:34:51.000 --> 00:34:58.000
+Does that make sense and answer your question.
+
+00:34:58.000 --> 00:35:09.000
+Yeah, so that's a really excellent way of thinking about pretty much every relationship that exists every Association and dependency relationship that exists in your system that you have a client.
+
+00:35:09.000 --> 00:35:24.000
+And then you have the service and the service should always feel like one of these public API's, so everything is kind of, you know, contained and of course it can have its own hierarchy of things that it also requires, or it also uses a services so services
+
+00:35:24.000 --> 00:35:39.000
+services so maybe telephone number would have a bunch of services, it uses. And I'm thinking about it in that way and that client service kind of way, helps you really clean up your thinking about, about the relationships between your classes you will
+
+00:35:39.000 --> 00:35:46.000
+no longer think, well maybe this telephone number but could go over here. No, because you want everything located in the telephone number service.
+
+00:35:46.000 --> 00:35:56.000
+So it's a nice way of conceiving of your code, so that you can you sort of naturally emerges good separation of concerns.
+
+00:35:56.000 --> 00:36:08.000
+Okay, so the next final topic is shotgun surgery, that's the pew pew pew and actually somebody in the chat earlier said you know what shotguns actually blast shrapnel or something.
+
+00:36:08.000 --> 00:36:14.000
+Is that true they kind of like scatter. Is that true person who knows about shooting thing buckshot. Is that what it is.
+
+00:36:14.000 --> 00:36:19.000
+What's shrapnel than I've seen this on murder mysteries.
+
+00:36:19.000 --> 00:36:22.000
+Is it different.
+
+00:36:22.000 --> 00:36:25.000
+I'm going to drink tea and wait for my.
+
+00:36:25.000 --> 00:36:31.000
+Oh, shrapnel is from an explosion. Don't bullets explode.
+
+00:36:31.000 --> 00:36:38.000
+Okay, so shrapnel is okay so for the video I'm going to read this out, it's very important shrapnel is like pieces of metal that you throw in different directions.
+
+00:36:38.000 --> 00:36:50.000
+Okay, and it's the pieces of explosive that get thrown away from the explosive site, but buckshot is the stuff that comes out of bullet, when it's exploded in a chamber grenades explode.
+
+00:36:50.000 --> 00:36:51.000
+That is true.
+
+00:36:51.000 --> 00:37:05.000
+From from a shotgun specifically so that would perfectly apply in this case because shotgun surgery is all about, you know, well I was imagining just shooting and like all kinds of directions but that. That's actually difficult because it's not like automatically
+
+00:37:05.000 --> 00:37:12.000
+reloading. Right. So maybe this is imagining buckshot, maybe it's that you're trying to do one thing but you're shooting and a whole bunch of different places at once.
+
+00:37:12.000 --> 00:37:16.000
+Is this where this analogy is going.
+
+00:37:16.000 --> 00:37:28.000
+Like, I'm glad we've cleared that up, feel like we should really write a blog on this or something. Okay, so let's look at a concrete example of buckshot appearing in multiple locations.
+
+00:37:28.000 --> 00:37:38.000
+So here we have, we're bachelor investment accounts thing. And we're imagining that we hadn't done our separate one into three thing we've gone back in time.
+
+00:37:38.000 --> 00:37:53.000
+And now we are looking at all the different kinds of accounts and so probably these are common subtype like these probably are. These are probably what am I saying these are both subtypes of account most likely but we don't care about that right now,
+
+00:37:53.000 --> 00:38:05.000
+what we're noticing is that basic account has some loans stuff, management, investment account has some loans stuff. Basic account has been printing reports stuff and investment account has some printing reports stuff.
+
+00:38:05.000 --> 00:38:17.000
+And so if you're trying to keep these like say you had some sort of bug in the printing reports and you copied and pasted printing reports to basic account and then change it a little bit that bug would be present in both locations.
+
+00:38:17.000 --> 00:38:29.000
+And if there was any kind of issue with the core of the behavior of the calculate loans and managing loans, then maybe there will be something where you would need to fiddle with both of those in order to make a change the loans implementation.
+
+00:38:29.000 --> 00:38:32.000
+So,
+
+00:38:32.000 --> 00:38:42.000
+this is, you know, these are problematic, this is the situation I'm sure you've experienced this in your project unless you had a really great separation of concerns.
+
+00:38:42.000 --> 00:38:54.000
+But if people found that when they when they are trying to make a single change they sometimes have to make it in multiple places is this something that people have experienced.
+
+00:38:54.000 --> 00:39:05.000
+Yeah, so yeah and exactly as I said someone says well we've been pretty careful with classes, which is exactly the caveat if you've been really careful with classes, then you might have actually achieved a nice localization.
+
+00:39:05.000 --> 00:39:21.000
+And, oh someone says, Would fixing diverging changes, like, I'm assuming you mean doing this result in shotgun surgery, potentially, it might be that before.
+
+00:39:21.000 --> 00:39:36.000
+Is that is that what you. Is that what you're asking person who asked this question. Yeah, okay. So, yeah, maybe because if you have some code let's say you have your massive investment account you have your three teams and they've all been mucking with
+
+00:39:36.000 --> 00:39:51.000
+it, and you have a whole bunch of, you know, interconnectedness between all of these things, then you do your separation out into these three classes, And you're like, this is bound to be better, but then you realize that because your team's we're so
+
+00:39:51.000 --> 00:40:05.000
+and kind of not keeping to their own little fiefdoms or silos that a little bit of monthly statement actually appears in update dividends for whatever reason, like there's, there's a little bit of stuff that ended up over here because you need that to
+
+00:40:05.000 --> 00:40:21.000
+update before this happens and it's not a clean separation, in which case you would end up with this arrangement this shotgun surgery arrangement. So, whenever I say do this refactoring, I am not assuming that it's the end of your, the end of your technical
+
+00:40:21.000 --> 00:40:36.000
+debt journey. I'm just explaining one operation within your technical debt journey. So it's quite possible you built up quite a bit of technical debt conflating all of these concerns within your investment account then when you go to split it.
+
+00:40:36.000 --> 00:40:50.000
+You have more work to do. And then you have to, and, and the way you'll know that is because you will experience it, you will go into your investment account trying to make or your, your loans manager or whatever trying to make a change and you'll be
+
+00:40:50.000 --> 00:41:04.000
+like shoot now I also have to change that thing over in front report because print printing the print manager assumes a certain kind of format for my loan state, my loan string or something's always strings are always the problem.
+
+00:41:04.000 --> 00:41:07.000
+So now I have to go change over there as well and that's shotgun surgery.
+
+00:41:07.000 --> 00:41:19.000
+Sometimes I personally like to call this D localized change. And the reason I like this term D localized changes because the idea is that you're supposed to have changes in one location.
+
+00:41:19.000 --> 00:41:32.000
+And if you're that another, another way you can. Another word that you can use for this is scattered change, so this is like,
+
+00:41:32.000 --> 00:41:35.000
+aka scattered change.
+
+00:41:35.000 --> 00:41:54.000
+When Gregor and all those folks were making Aspect Oriented Programming. There were scattered changes was was kind of one of the, one of the things that Aspect Oriented Programming tried to get at so not going to talk a lot about Aspect Oriented Programming
+
+00:41:54.000 --> 00:42:07.000
+but for the couple of you who might know about it. Scattered change was what they said, Do you localize change relates to sort of some earlier thinking and software engineering called trying to modularize do localize plans and be localized plans for basically
+
+00:42:07.000 --> 00:42:23.000
+like things that a developer would do to, to try and do something to try and make a change or something and then you would try and localize those. And that was actually one of the earliest moments of discussion about refactoring was this, like, modularization
+
+00:42:23.000 --> 00:42:36.000
+of D localized plan so I really liked that terminology, but it isn't often use so don't worry about it if you're like, why can't I find anything about this on the internet, it's because I'm trying to make it work and nobody's nobody's doing it yet but
+
+00:42:36.000 --> 00:42:40.000
+yet but you know I'm a bit of a trailblazer so I'm sure it'll catch on soon.
+
+00:42:40.000 --> 00:42:58.000
+Okay, so, so here we have the situation where we have, you know, these, these this buckshot going all over the place. And so what do we do, and you're going to be shocked, I'm sure, do we do here are some options, do we move manage loans over to basic
+
+00:42:58.000 --> 00:43:00.000
+account so it's in the same spot.
+
+00:43:00.000 --> 00:43:13.000
+Now we do not. That makes no sense. Do a new move print basic reports over to investment counselor, it's in the same spot No we don't. What we end up having to do is make entirely new classes to capture those little concerns.
+
+00:43:13.000 --> 00:43:25.000
+So, to capture the loan stuff we make a loan calculator to capture the report stuff we make a report printer, and now how does this relate to the other behavior that we had before.
+
+00:43:25.000 --> 00:43:37.000
+It's possible that the loan manager would use as a service, you know this loan calculate I think I've changed my color scheme which irritates me Actually, can I change it back.
+
+00:43:37.000 --> 00:43:40.000
+Nope, I can't because these are pictures done.
+
+00:43:40.000 --> 00:43:52.000
+But in any case, you know we're not trying to relate these two different changes I should have because that would have been cool but I but I don't have a don't have a grand unified, end of story here, but that's okay.
+
+00:43:52.000 --> 00:44:04.000
+You get the idea. We have our two basic accounts, the investment account and the and the basic account, and they each have make use of these of these other new types.
+
+00:44:04.000 --> 00:44:12.000
+So the loan calculator is calculating loans and managing loans and that's you know doing all these things. The report printer is printing basic reports and printing reports.
+
+00:44:12.000 --> 00:44:15.000
+Now, you might be like, hey, wait.
+
+00:44:15.000 --> 00:44:22.000
+This looks kind of like a switch on type does anybody else noticed that this feels a little bit like a switch on type,
+
+00:44:22.000 --> 00:44:31.000
+it kind of does overloading can be a switch on type masquerading as something better, but actually it's kind of a switch on type.
+
+00:44:31.000 --> 00:44:35.000
+It's just that you're asking the you're asking the.
+
+00:44:35.000 --> 00:44:46.000
+The overloading system to do it. So another option would then be to have a basic account reports printer and a, investment account reports printer just for those of you who are like, hey, are we completely done.
+
+00:44:46.000 --> 00:44:59.000
+No, we're never completely done. But just in terms of solving the shotgun surgery here this will get you there. This will get it so that anything where you're making changes to a report will happen within this class and anytime we were making a change
+
+00:44:59.000 --> 00:45:10.000
+to alone calculation, it's happening in this class. Does that Does everybody understand about shotgun surgery and the refactoring that you do.
+
+00:45:10.000 --> 00:45:25.000
+So, notice that the move method and move field, that's the same response is to feature Nv except for first lovely different reason. So you can apply the same refactoring operation for different reasons, I just wanted to point that out.
+
+00:45:25.000 --> 00:45:32.000
+Any questions about this.
+
+00:45:32.000 --> 00:45:35.000
+Okay. Um, alright.
+
+00:45:35.000 --> 00:45:42.000
+So, the very final thought about this before we. Oh, just a second there is a question.
+
+00:45:42.000 --> 00:45:54.000
+So, a new subclass. In this case, may contain the method implementations that are used in the two different original classes. Yes, that's right. So we're actually taking.
+
+00:45:54.000 --> 00:46:06.000
+We're actually taking stuff from two places and moving it to another new place, like, you know, we're just kind of moving it over into this new place, and that's okay, especially if it facilitates.
+
+00:46:06.000 --> 00:46:13.000
+Did I say sunglasses. These are delegates yeah these are not sub classes, they're just new classes, not sub classes.
+
+00:46:13.000 --> 00:46:14.000
+Yeah.
+
+00:46:14.000 --> 00:46:23.000
+So, these are not inheritance arrows remember inheritance arrows look different to people remember what inheritance arrows look like.
+
+00:46:23.000 --> 00:46:28.000
+I can draw one for as an example.
+
+00:46:28.000 --> 00:46:30.000
+So when inheritance arrow.
+
+00:46:30.000 --> 00:46:35.000
+So we have a. It's not just a solid line, this is like super serious.
+
+00:46:35.000 --> 00:46:41.000
+It's, it's funny the arrows in the UML are deadly serious.
+
+00:46:41.000 --> 00:46:47.000
+Why they really are. I don't really like any of the arrow heads that.
+
+00:46:47.000 --> 00:46:57.000
+So if it goes up, and it's a big arrow like that. So that's a terrible arrow because my scribble redrew it.
+
+00:46:57.000 --> 00:47:07.000
+But if I do it using the arrow then the arrow head comes out way too tiny which I don't like. But it's this open arrow it's this one.
+
+00:47:07.000 --> 00:47:09.000
+So that's.
+
+00:47:09.000 --> 00:47:18.000
+This is a and then something that should have been a capital My gosh.
+
+00:47:18.000 --> 00:47:24.000
+Never get my spacing right. So yeah, so that's always.
+
+00:47:24.000 --> 00:47:32.000
+Yeah. Does it it's still going to be that same shape though. See, what I want is a sort of a flatter triangle arrow.
+
+00:47:32.000 --> 00:47:36.000
+So yeah, just it's not doesn't look exactly how I want it to look.
+
+00:47:36.000 --> 00:47:44.000
+But that's okay. It's supposed to be, like, a really fat triangle and then the line coming like that.
+
+00:47:44.000 --> 00:47:52.000
+So yeah, so apparently Google Slides has not is not embracing the URL, but what I'm going to do.
+
+00:47:52.000 --> 00:47:56.000
+So yeah, so these arrows are dependencies that means that you hold a field.
+
+00:47:56.000 --> 00:48:06.000
+Well no, it means that you're calling a method instantiated and calling a method on this object not necessarily even instantiate it you might have been fed the object so all it means is you're calling a method on an object of this type that's literally
+
+00:48:06.000 --> 00:48:08.000
+all this means.
+
+00:48:08.000 --> 00:48:25.000
+You can also have this arrow mean, be a stronger arrow. So the basic account might actually hold a field of loan calculator or a field of report printer, that's okay too, depending on the needs of your implementation.
+
+00:48:25.000 --> 00:48:41.000
+So I just want to point out that the underpinning principle and this is kind of a wrap up the underpinning principle for for refactoring generally. Is that what you're really trying to do is you're trying to localize changes as much as possible.
+
+00:48:41.000 --> 00:48:50.000
+Again, realizing that in like a full stack situation if you're trying to add a new feature, you're going to have to hit multiple places that's just the nature of the architecture.
+
+00:48:50.000 --> 00:49:09.000
+But, as much as possible within a component. The idea is that you would only change one place within the component. And that is, of course, because multiple locations of change D localized change are scattered change results in errors and omissions you
+
+00:49:09.000 --> 00:49:26.000
+might forget to change a certain place or you might change it wrong. And people are fallible and they will definitely commit typos and divergent changes are kind of that opposite side of the coin where if you put way too much stuff together, then you
+
+00:49:26.000 --> 00:49:45.000
+have these collisions, and a lack of clarity about your about your behavior. So, the perfect sort of utopian dream of software design is that you have every change, totally localized to one place, and only an each place is only changed for one reason.
+
+00:49:45.000 --> 00:49:58.000
+So that is the that's the utopian dream that refactoring is supposed to help you get closer to. Yeah, it wouldn't be good, it would be fantastic. And if you look at all of the code smells, they all kind of point you to the fact that that is has that underpinning
+
+00:49:58.000 --> 00:50:12.000
+principle has been violated, that you are like the even magic number is it so simple but you're having to make a change in multiple places instead of changing in one place, Gregor I think in 110 teaches this is the single point of control principle to
+
+00:50:12.000 --> 00:50:17.000
+people remember that from the very beginning of your journey and CS.
+
+00:50:17.000 --> 00:50:32.000
+Yeah. So this kind of concept of a single point of control, and that's exactly it that you want a single point of control for each kind of piece of behavior so that if you're trying to change or fix that behavior it only happens in one place, and not
+
+00:50:32.000 --> 00:50:34.000
+always possible.
+
+00:50:34.000 --> 00:50:41.000
+Like I said, if you have a framework where you necessarily have a layered architecture.
+
+00:50:41.000 --> 00:50:51.000
+Then, you can't necessarily like if you make a change to the look of something, it might propagate a change down, although you can try and still keep the responsibilities of each of the layers.
+
+00:50:51.000 --> 00:51:00.000
+Very clean so that maybe when you first introduced the feature you have to scatter it, but changes to the feature can then be localized.
+
+00:51:00.000 --> 00:51:07.000
+But realistically it's, it's kind of impossible because you don't always know where your code is going to go.
+
+00:51:07.000 --> 00:51:17.000
+This is why you have to become agile, with being able to do refactoring to facilitate your changes. So the idea is that you realize, Oh, I'm in a situation of technical debt.
+
+00:51:17.000 --> 00:51:24.000
+I have a change that has to happen in multiple places, or I'm going back to the same place, and I'm committing tangled changes. This is making my change difficult.
+
+00:51:24.000 --> 00:51:34.000
+I will refactor first of it it's one. There's a one to one relationship between my changes, and my places. Then I will make the change.
+
+00:51:34.000 --> 00:51:40.000
+And then it might actually get screwed up again because the code will evolve again and then you'll have, and then you'll have a change for a different reason.
+
+00:51:40.000 --> 00:51:47.000
+And you'll have to do it again. And so you'll have to reject the code so you can get that one to one relationship again.
+
+00:51:47.000 --> 00:51:56.000
+Or maybe not one to one, but as close to that as possible so that you aren't so that you aren't putting yourself at risk of introducing bugs.
+
+00:51:56.000 --> 00:52:02.000
+So that's the idea you refactor to get as close as you can to one to one.
+
+00:52:02.000 --> 00:52:04.000
+And then you make your change.
+
+00:52:04.000 --> 00:52:09.000
+Does that make sense.
+
+00:52:09.000 --> 00:52:23.000
+And what does empirically observed relevance. And, oh empirically observed means observed in practice. So it means like I'm seeing this with my own eyes I am seeing it in.
+
+00:52:23.000 --> 00:52:43.000
+I'm experiencing this and observed relevance means that it's that basically they are relevant. These places are that you, you're trying to make a change and these are all the relevant pieces of code for that change, so you don't just find all the code
+
+00:52:43.000 --> 00:52:50.000
+smells and fix all the code smells, you're like, well, these are the ones that are causing me problems right now.
+
+00:52:50.000 --> 00:53:02.000
+And underpinning principle is the name of what we fixed shotgun surgery, no underpinning principle is a total summary so summary.
+
+00:53:02.000 --> 00:53:09.000
+Entire the entire entire topic and underpinning principle there.
+
+00:53:09.000 --> 00:53:12.000
+Does that help.
+
+00:53:12.000 --> 00:53:22.000
+It's actually just the grand unifying principle of of software design and of refactoring specifically.
+
+00:53:22.000 --> 00:53:24.000
+Yeah. Okay.
+
+00:53:24.000 --> 00:53:38.000
+So, but that is from this book by Fowler and everybody else. All right, so any other questions about this example skills are here at the end.
+
+00:53:38.000 --> 00:53:46.000
+So please look at those for your quiz on this topic. And there are, I think there's a, there's an A.
+
+00:53:46.000 --> 00:53:56.000
+and, sort of, I think there's one of these activities somewhere in here maybe on the video project or something so make sure to go through and look for that.
+
+00:53:56.000 --> 00:54:08.000
+So somebody said so is it basically saying that you can't just arrange the classes perfectly when you start coding. Absolutely, you definitely can't because you will never know exactly where you're headed.
+
+00:54:08.000 --> 00:54:13.000
+And because trying to think up front about exactly where you're headed will.
+
+00:54:13.000 --> 00:54:24.000
+A probably be wrong and be will take you months and months of thinking and analysis in the world doesn't work like that anymore. And yeah, that's basically how they did it in the waterfall method they tried to pre think of everything and then pick the
+
+00:54:24.000 --> 00:54:36.000
+perfect decomposition. But even then, there was no perfect decomposition and that's why suffer was really hard and there was this big software crisis with bugs constantly arising, because it's very very hard to pick a single decomposition that will work
+
+00:54:36.000 --> 00:54:51.000
+work for your entire your entire program or for the life of your program. Unless you're Gregor no I would say Gregor would definitely say that there is no there is no single decomposition that will work.
+
+00:54:51.000 --> 00:55:04.000
+He tried to introduce a new decomposition that works. I would say even there, you probably will have to refactor, and he actually he and I think his you know the the people who were kind of at the forefront of thinking about that actually had a great
+
+00:55:04.000 --> 00:55:13.000
+name for it which was the tyranny of the dominant decomposition. And that meant that you know you decompose your code in one way, but now you realize you needed it another way.
+
+00:55:13.000 --> 00:55:23.000
+So what do you do their response was to introduce this new unit abstraction of the aspects, but refactoring his response was to say no, just get really good at moving things around.
+
+00:55:23.000 --> 00:55:25.000
+So, yeah.
+
+00:55:25.000 --> 00:55:48.000
+So yeah, two different approaches very, very interesting very complementary.
+

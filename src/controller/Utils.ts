@@ -29,4 +29,21 @@ export class Utils {
 	public static lessThan(a: number, b: number) {
 		return a < b;
 	}
+
+	// Returns true if list contains correct items
+	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+		required.forEach((field: any) => {
+			if (!list.includes(field)) {
+				return false;
+			}
+		});
+		list.forEach((thing) =>{
+			if (!required.includes(thing)) {
+				if (!optional.includes(thing)) {
+					return false;
+				}
+			}
+		});
+		return true;
+	}
 }

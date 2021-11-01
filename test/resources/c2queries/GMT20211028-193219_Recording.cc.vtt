@@ -1,0 +1,1406 @@
+WEBVTT
+
+00:00:58.000 --> 00:01:09.000
+is just a second. Perfect. Sorry, I forgot to enable the transcript but.
+
+00:01:09.000 --> 00:01:11.000
+Ok.
+
+00:01:11.000 --> 00:01:22.000
+So the interesting thing there is that you have one server that has a bunch of information on it and you have different clients doing different kinds of behavior, accessing kind of the same information on the server.
+
+00:01:22.000 --> 00:01:26.000
+And just to recap what I talked about last time.
+
+00:01:26.000 --> 00:01:33.000
+Originally, all of this was somewhat developed as a single kind of thing.
+
+00:01:33.000 --> 00:01:42.000
+mostly because companies were responsible for all the clients and all the services like it was kind of a single a single effort.
+
+00:01:42.000 --> 00:01:54.000
+But now there's been this big decoupling between services and clients so you can download. Many, many web browsers which are clients, and they all interact with all of these different services and they all do it their own way.
+
+00:01:54.000 --> 00:02:08.000
+So there are lots of, lots of different clients and ways of interacting with all these commonly held services. So like, met there is a map service there's a Twitter API that's public you can write a Twitter client that looks at Twitter in a certain way.
+
+00:02:08.000 --> 00:02:22.000
+You don't just have to use the client but Twitter provides right. I think read it. I don't know if ever anybody's ever heard of Reddit, probably not. It's really like secret website that nobody's heard of but, um, but I think it has an API so you can
+
+00:02:22.000 --> 00:02:36.000
+write and read it, a Reddit client that maybe helps you browse Reddit post differently, but then of course there is one that the company also provides is the company never provided a client then that might be kind of strange because then if you know they
+
+00:02:36.000 --> 00:02:44.000
+would want to at least get people started using it and then maybe people can go out and find their own clients and, or, you know, develop different clients.
+
+00:02:44.000 --> 00:02:57.000
+So, And so, the big change that happened was that rather than having everything feel like it's part of one application instead you had a very clear separation between the client and the service.
+
+00:02:57.000 --> 00:03:16.000
+And so, so really fielding for his PhD work and subsequent work, introduced this concept of rest, which said that basically what what you wanted was to have a lot of information, held on the service, and then clients have a very clean way of interacting
+
+00:03:16.000 --> 00:03:17.000
+with it.
+
+00:03:17.000 --> 00:03:31.000
+The reason that it was called rest was because it was supposed to refer to representational state, transfer. Now, that isn't, it's you know it's, I think he wanted the word rest because the idea was it would be sort of relaxing for developers in a way
+
+00:03:31.000 --> 00:03:46.000
+developers would have a much more uniform way of interacting with the service of the client side developers would have a much more uniform way of interacting with services and server side developers would have much more sort of determinism about the way
+
+00:03:46.000 --> 00:03:53.000
+that clients would want to interact, so there was a lot more certainty on both sides which would induce a kind of restful this.
+
+00:03:53.000 --> 00:04:05.000
+But to get the word rest. What really fielding did was he said okay like it means representational state transfer and, and we're not going to obsess about why he chose those words.
+
+00:04:05.000 --> 00:04:19.000
+So, let's not worry about it too much but there's a little bit of text here that you won't be tested this, you won't be tested on what's sitting right here but there's a couple interesting, interesting sort of quotes and and a YouTube interview that talks
+
+00:04:19.000 --> 00:04:31.000
+about the, I think the development of rest. But the main thing with rest was that Roy fielding noticed that web pages like Wikipedia, have a very clean interface to the user.
+
+00:04:31.000 --> 00:04:36.000
+So when a user is clicking a web browser like clicking you know you go to Wikipedia.
+
+00:04:36.000 --> 00:04:51.000
+And you see a bunch of links and maybe you search something and you get back a page that has some links in it, the user has no responsibility whatsoever for understanding what's going on behind the scenes of Wikipedia, all you're doing is you type in
+
+00:04:51.000 --> 00:05:08.000
+a search, and then you click links, and then you would as a human being read the content. And, you know, Wikipedia is probably a very complicated least stored thing probably with many databases living in different islands places, but the user has no concept
+
+00:05:08.000 --> 00:05:16.000
+of that the client, the user the client the browser is the client that user is the sort of manipulator if the client doesn't have to know any of that.
+
+00:05:16.000 --> 00:05:26.000
+All they have to know is that they can send a request to get a page, and then they can send another request to get another page based on the information that's on this page so there, they can kind of click links.
+
+00:05:26.000 --> 00:05:43.000
+And this was the metaphor that Roy fielding wanted for web services, generally, that a client would just be a sing a simple interact or with a service just like a user is a simple interact or with a Wikipedia style web page.
+
+00:05:43.000 --> 00:05:45.000
+So that was the motivation.
+
+00:05:45.000 --> 00:05:52.000
+The architecture of the web was what he wanted to really capitalize on so.
+
+00:05:52.000 --> 00:06:04.000
+So let me just talk a little bit about how all that works. So, this is a bit of a recap of of what happened, a little in the extra bit of the video after class so for those of you who had to leave class early last time and didn't get to come back to the
+
+00:06:04.000 --> 00:06:15.000
+video this is kind of what we talked about. So there are kind of two sides there's a client, and there's a server. So the client is what you as the user see and your minute and you're sort of interacting with.
+
+00:06:15.000 --> 00:06:22.000
+And then what happens is a client sends a request across the internet to a server.
+
+00:06:22.000 --> 00:06:36.000
+And that's a URL, basically, right. So the client is sends some you know you sort of type into your web browser that the address of the URL that is a get request it sort of sends a request over to the server and the server when it receives that request
+
+00:06:36.000 --> 00:06:49.000
+it has some technology and you're going to be looking at that more in checkpoint three, I'm not going to get into the depths of technology right now, but later Kathryn and I think she's Zuko are going to make videos about how the behind the scenes of
+
+00:06:49.000 --> 00:07:02.000
+a little bit more. The server will then respond with some data so right now I just want you to think of it in terms of you you interacting with Wikipedia, So you type in and you click a link in Wikipedia that sends a request to the server, the server
+
+00:07:02.000 --> 00:07:09.000
+sends you back a response which is the web page at the end of that link. So if your client is a browser.
+
+00:07:09.000 --> 00:07:28.000
+Then, this just looks it's very, very simple. Your, your browser sends a URL request, and I'm just going to call it that, to the server, and then the server response back with HTML now HTML is the representation that comes back so in that word representational
+
+00:07:28.000 --> 00:07:41.000
+state transfer the representation part refers to the type of data that's coming back. So in the case of a web browser getting data from a server it's always pretty much HTML.
+
+00:07:41.000 --> 00:07:45.000
+I guess it is HTML, so HTML comes back in the browser renders the HTML.
+
+00:07:45.000 --> 00:08:02.000
+Now if the client has an application and not a browser that really only understands HTML, then it can do more interesting stuff. So, the, the application, like a, you know, an app on your phone or something can send a request and it's still an HTTP request
+
+00:08:02.000 --> 00:08:18.000
+so this URL is actually also an HTTP request HTTP just means hypertext transfer protocol and hypertext of course is the age and HTTP and HTML Hypertext Markup Language and.
+
+00:08:18.000 --> 00:08:29.000
+And there were four kinds of HTTP requests there's four things that the internet knows how to do. And it. These are the four things these get put post and delete.
+
+00:08:29.000 --> 00:08:43.000
+And so the application will send one of those four requests at a time to this restful service or to this internet service, and the restful service will send back some structured data.
+
+00:08:43.000 --> 00:08:49.000
+And actually the UI is kind of not like actually your eyes and exactly right.
+
+00:08:49.000 --> 00:08:55.000
+So I'm going to cover that up because actually I don't know why this picture has it sort of typo almost.
+
+00:08:55.000 --> 00:09:05.000
+Yeah, exactly. Just a second. So I'm going to say, going to just do a weird thing with my gonna copy and paste this piece of text, because the UI is actually up here it says to request to our URL, just like when you're typing a web browser address an
+
+00:09:05.000 --> 00:09:14.000
+I was actually up here it says the request to our URL, just like when you're typing a web browser address an address in the web browser you're, you're typing in a URL.
+
+00:09:14.000 --> 00:09:27.000
+That means location and I, which is I stand for I feel like I forget this every time but it's like universal resource indicator, it's not an L. So it's not a locator it's an indicator, or something but identifiers that doesn't really matter what the is
+
+00:09:27.000 --> 00:09:33.000
+Doesn't really matter what the eye is it's just like the end of the message and sometimes these are called end points.
+
+00:09:33.000 --> 00:09:43.000
+So you send an HTTP request to a particular endpoint or Uri, And then you get back some structured data.
+
+00:09:43.000 --> 00:09:54.000
+For instance, and I'll do a little for instance box here, you might get back JSON or XML or an image or.
+
+00:09:54.000 --> 00:10:02.000
+Usually it's not, you know, no, yeah, it could be a raw image, it could be an image with some extra day like it could be an image embedded in JSON.
+
+00:10:02.000 --> 00:10:13.000
+It could be so it could be JPG it could be any any format basically could be a 64 could be taxed could be any of these things, so it sends back some structured data.
+
+00:10:13.000 --> 00:10:25.000
+And then your application, usually is asking for it in a particular format, generally speaking, or at least knows what format is going to be coming back and kind of expected, and then it will render it.
+
+00:10:25.000 --> 00:10:41.000
+So like if you so in our little Kenna find thing where we're like oh I've, I, you know, what are all of the items that were lost in this location, you might put in a request for a particular location and you might get back a JSON list of items, maybe
+
+00:10:41.000 --> 00:10:52.000
+you know JSON less with some you know have JSON looks it has tags and everything, and it would have maybe a list of items that were named that were left in that location, or maybe even a set of images that were all are links to images or something like
+
+00:10:52.000 --> 00:10:58.000
+that so some data like that, that you your application will that know how to navigate.
+
+00:10:58.000 --> 00:11:09.000
+So rest actually has design principles which, which is why it sort of fits into this part of the course. So rest has these four important things that you need to know about there's a lot of text on this slide.
+
+00:11:09.000 --> 00:11:18.000
+All of this text is broken out in subsequent slides so I'm not going to delve deeply on this slide, I'm going to get into them and the next one, but basically there are two.
+
+00:11:18.000 --> 00:11:32.000
+There are two categories, not categories, there are two kind of ways to think about restful principles one is the relationships, the behavioral relationship or the interaction relationship rather between the client and the service.
+
+00:11:32.000 --> 00:11:49.000
+So, the client and the service, always interacts there they're very strict rules for the nouns and verbs in the system. So, when I say that what I mean is that, like, if you think about a program that you're writing.
+
+00:11:49.000 --> 00:11:59.000
+You can almost think of methods as verbs right like there's sort of something that that is done. And so you can kind of define your own verbs and your system.
+
+00:11:59.000 --> 00:12:12.000
+But in restful systems you don't get to define your own verbs you're stuck with the for verbs that HTTP knows about so this get put post and delete you can only use those for verbs.
+
+00:12:12.000 --> 00:12:28.000
+And the other aspect is that the endpoints that exist on the server so those locations and the server, cannot be verbs themselves so they shouldn't be named as verbs like of course we know that we can make any HTML page we want we can call it whatever
+
+00:12:28.000 --> 00:12:45.000
+we want like this HTML lecture room that I typed in to get to this class, I could have made that a verb I could have made it go to lecture room and that would have felt appropriate also, but no in rest at these endpoints these locations are always nouns.
+
+00:12:45.000 --> 00:12:52.000
+So you have very very clear separation between nouns and verbs and don't worry if you don't totally anchor that yet because I'm going to get to it.
+
+00:12:52.000 --> 00:12:59.000
+Just a second I need it.
+
+00:12:59.000 --> 00:13:10.000
+Yes. And there are more keywords than those just than just those four options like patch, or we're not going to talk about patch we're doing like original rest.
+
+00:13:10.000 --> 00:13:12.000
+We're not gonna, we're not going to.
+
+00:13:12.000 --> 00:13:23.000
+We're not going to delve into the depths of it but you'll, you'll get there like if you get deeper interest you'll realize hey there are a couple of other good ones will patch is the one that I know about this super helpful, and we can talk a little bit
+
+00:13:23.000 --> 00:13:27.000
+about it when we get into it into the weeds a little bit more.
+
+00:13:27.000 --> 00:13:41.000
+And, but then there. And then there are two kind of ideological principles for rest. And these are these ones in purple. So, the first ideological principle is that the client is the one that maintains the state of the client.
+
+00:13:41.000 --> 00:13:57.000
+So, and I'm going to get into this more but just as a brief overview so say you were trying to do a sequence of steps like, like, like look at, so you've gotten a bunch of images back from this finding website like you've said, Tell me all of the things
+
+00:13:57.000 --> 00:14:07.000
+things that were lost at this bus stop and you get a bunch of those back. The client is the one that would then say okay well are you going to, you're going to want to look at these in sequence and would show you the sequence so like, you know, like you
+
+00:14:07.000 --> 00:14:23.000
+get. So, like from Instagram or whatever you get a bunch of images back and sometimes there are multiple images have you seen these multiple images sometimes, like they have maybe little dots and you can kind of swipe and see more than one thing.
+
+00:14:23.000 --> 00:14:33.000
+Two people know what I'm talking about, like a, like a tiny little album. So, the client is the one who keeps track of where you are in that album, the server just gives you the images, it's not like, oh you're on number three.
+
+00:14:33.000 --> 00:14:46.000
+Next I'll give you number four. No, no, it gives all eight, and then you scroll through them and the client is the one who remembers where you are, if it needs to get number four next it goes back and says, Give me a number for the server won't remember
+
+00:14:46.000 --> 00:14:54.000
+which one you were on it's just like okay I'll give you a for. It's a very kind of dumb almost library system server, the server just gives what it's allowed to give.
+
+00:14:54.000 --> 00:15:02.000
+Let's not get into authentication everybody always is like but what if you're not allowed. That's okay of course some things are not allowed by all user types.
+
+00:15:02.000 --> 00:15:13.000
+But in the simplest level we can just think of a server is just something that just responds to stuff it's not keeping track of anything. It's just holding the data and it's just giving it back when it's asked.
+
+00:15:13.000 --> 00:15:26.000
+So that's the client maintaining the application stage, the servers on the other hand, have the responsibility to maintain the resource structure. So the clients shouldn't remember the structure of the resources that are living on the, on the server.
+
+00:15:26.000 --> 00:15:39.000
+So what that means is like say you have Wikipedia. So, you know if any of you have ever browsed or said IMDb, or something now maybe Wikipedia let's go Wikipedia So does anybody ever looked up a show on Wikipedia.
+
+00:15:39.000 --> 00:15:56.000
+Have you ever looked at that, like looked up a TV show. And then sometimes. The show is, I think, like it has a set of cast members, and then maybe it has a list of episodes but if it has seasons, then maybe won't have a list of episodes straightaway,
+
+00:15:56.000 --> 00:16:02.000
+it'll have a list of seasons and then you can click into the season and see the episode.
+
+00:16:02.000 --> 00:16:21.000
+Okay. So, imagine if you the user had to remember what order things would go like you were basically shielded from view you weren't allowed to see and you had to say, Okay, I want the fifth episode of the second season so that'll be the 14th link or something
+
+00:16:21.000 --> 00:16:22.000
+like that.
+
+00:16:22.000 --> 00:16:37.000
+And you would have to remember how to interact with Wikipedia, you would have to say, okay, that would be a name like, TV shows, episodes, did it at a slash seasons slash whatever but some of them aren't, they're not all stored exactly the same way that
+
+00:16:37.000 --> 00:16:54.000
+would feel like a lot of work for you as a Wikipedia user, right. If you basically got back your Wikipedia page but with no hyperlinks and you had to guess the URL at the end of each thing you wanted to see how would that feel to you as a user.
+
+00:16:54.000 --> 00:17:07.000
+So, yeah, what is the point of the world's at the top of the slide these ones. Oh, I'll get to those debate Can people empathize with what I'm saying that it would be kind of problematic to unusable.
+
+00:17:07.000 --> 00:17:21.000
+It would be unusable. And the reason is that you would have to somehow have internally modeled, what Wikipedia was stored like and what if they changed it, then they would have to send you an email and say hey Lisa sorry now we don't have things under
+
+00:17:21.000 --> 00:17:30.000
+seasons everything's just episodes but it's index like this as a one year, whatever. And then you would have to look for that and like it would be a nightmare we totally unusable.
+
+00:17:30.000 --> 00:17:44.000
+So, and you know unfortunately for previous clients and the before times before rest, that was kind of how you had to remember stuff you had to kind of remember that the server was storing things in certain ways, and you had to the client had to be responsible
+
+00:17:44.000 --> 00:17:51.000
+for navigating the resources that lived on the server. And so really feel like that. No no no, that is not a good idea.
+
+00:17:51.000 --> 00:18:04.000
+The server will give back the links, so if you need to browse around the server, the server will lead you there the server will give you links. So yes, you have to remember the starting URL and of course you have to remember some structure about it on
+
+00:18:04.000 --> 00:18:18.000
+the client side like you have to know kind of what's coming back, but in the grand scheme of things, there's discover ability, you will be able to figure out where things where to go next for the next piece of information.
+
+00:18:18.000 --> 00:18:30.000
+Okay, so does that make sense to people and don't worry too much if it doesn't make sense because we have a whole bunch of slides now dedicated the rest, you know, we have four more slides dedicated to looking at this.
+
+00:18:30.000 --> 00:18:32.000
+We have a.
+
+00:18:32.000 --> 00:18:36.000
+We have any question.
+
+00:18:36.000 --> 00:18:47.000
+Can they can there be okay so can there be logic coded into the server. And what do you mean exactly.
+
+00:18:47.000 --> 00:18:50.000
+Oh, like, okay, so there was a follow up.
+
+00:18:50.000 --> 00:19:06.000
+Like, for example to log server users from accessing certain data. Absolutely. And this is where those session IDs come in and authentication comes in. Of course, you need to have a URL with all the right credentials to be able to get a response for that
+
+00:19:06.000 --> 00:19:22.000
+URL right like you, and like that. Absolutely that that's that's part of it that's all kind of part of that payload that you're sort of passing over a request that that is certified and there would be some session information held on the side of the server.
+
+00:19:22.000 --> 00:19:39.000
+That's okay, that sort of level is necessary, the type of clients maintain the, the thing that servers shouldn't have to remember is that behavioral stuff that's happening on the side of the client, like the client shouldn't, the server shouldn't care
+
+00:19:39.000 --> 00:19:50.000
+if you're going through the images alphabetically or sequentially in time. For instance, it doesn't care about that. It definitely cares if you're allowed to see the images.
+
+00:19:50.000 --> 00:20:08.000
+We're not going to worry in this class at all about authentication. So if you're asking just out of general interest that yes that that is handled authentication need all that information needs to be stored on the server, but ok so there's now a question
+
+00:20:08.000 --> 00:20:15.000
+would sorting be handled by the server or the user. And I think it depends. So you can.
+
+00:20:15.000 --> 00:20:31.000
+Yeah. Yeah, exactly. It can be either way. So, it can either be like, if you have a service that has the power to be able to send back sort of lists of things so that a client could easily iterate over then that's a service that the server could decide
+
+00:20:31.000 --> 00:20:34.000
+to provide.
+
+00:20:34.000 --> 00:20:50.000
+But maybe it's like, No, I'm not going to bother sorting these for you, a very standard thing is pagination. I don't know if you've noticed this in URLs before but a very standard thing is a client asking for certain number of responses and so the server
+
+00:20:50.000 --> 00:21:00.000
+would get back a certain number like one 250. And then that client would display those and then the client would ask for okay now give me 60 to 100 or something like that.
+
+00:21:00.000 --> 00:21:07.000
+And what about if the server only gives a response in a certain order.
+
+00:21:07.000 --> 00:21:20.000
+Um, yeah. So, I think, like the server should be. Why don't we like get into it a little bit more. And, and you can maybe see how it works, I think.
+
+00:21:20.000 --> 00:21:35.000
+I think a lot of, uh, you know how the server gives it back is sort of. That's kind of like what the service providers have decided is the case and the client will then be working with whatever they decided is the case maybe the server provided a service
+
+00:21:35.000 --> 00:21:45.000
+that says sorted lists in on a variant on various axes, or maybe it just gets gets back a lack of JSON and says you sort of yourself,
+
+00:21:45.000 --> 00:22:07.000
+somebody asks what is the relationship between an HTTP request and the URL to the HTTP request is sort of targeted at a URL, and then the watching side the server listener is watching for requests on that port, basically on that end point on that URL.
+
+00:22:07.000 --> 00:22:21.000
+And I'm not going to get into the details of this because that is going to be the purview of of the checkpoint three indoctrination. So I'm going to let I'm going to, because we could be a very long discussion so we're going I'm going to pause that one,
+
+00:22:21.000 --> 00:22:22.000
+if that's okay.
+
+00:22:22.000 --> 00:22:33.000
+Um, any other questions about this overview and now we're going to get into the weeds a little bit. I'm just going to pause for other questions about that.
+
+00:22:33.000 --> 00:22:48.000
+And I will let Catherine and Shizuka know that you would like to make sure to give you more details about how that listening happens but I think when you start using when you start implementing your own restful service and client you'll understand that
+
+00:22:48.000 --> 00:22:49.000
+much better.
+
+00:22:49.000 --> 00:22:55.000
+And that will all come through and checkpoint three.
+
+00:22:55.000 --> 00:23:08.000
+You're thinking of the server providing a certain algorithm. And, yeah, if this is a service that you're providing then absolutely so you can maybe think of like a search service and you could use different search tunings or something like that.
+
+00:23:08.000 --> 00:23:28.000
+Your service can be whatever you want it to be. There are no limits on what your service can do, or all of the different ways that your service can behave in the background, except for these two are these limits, and that this limit is is a limit on the
+
+00:23:28.000 --> 00:23:44.000
+service, and it just means that whatever client it is that you are that you're catering to, you don't need to worry about what the user is doing, you might have a service that provides back a certain sort or a certain algorithm, a certain AI thing or
+
+00:23:44.000 --> 00:23:46.000
+certain whatever.
+
+00:23:46.000 --> 00:23:59.000
+And the end the client will get that information from you and will display it however they want, and the server doesn't need to worry about that.
+
+00:23:59.000 --> 00:24:11.000
+Okay. Just a second. So like for search you can give all the information have the client search through them. That's true. Although, usually what you end up, usually search is implemented on the side of the server, you would send a search term over and
+
+00:24:11.000 --> 00:24:24.000
+say give me all the items that relate to this, you know that have this in it. And then the server can do that work because it's a very standard thing for a server to be able to do to search through its records and get back all the ones that contain a
+
+00:24:24.000 --> 00:24:41.000
+keyword or or somehow comply with the search terms, and then it would package it up, maybe in JSON or XML or something. Maybe in text, however, however the server has decided to do it sometimes they often offer multiple representations like JSON and XML
+
+00:24:41.000 --> 00:24:55.000
+and text, and then they send it back over the wire in in a response. So what happens is the client sends a request, and then pulls for the response. This is where some of this basic stuff happens poles for response.
+
+00:24:55.000 --> 00:25:08.000
+And when that response comes back, that contains the response from the server. So that's how the client connects to the server it sort of watching the response from the server.
+
+00:25:08.000 --> 00:25:16.000
+And yes, everybody who's super in love with this idea, please take 317 that will deeply get into it.
+
+00:25:16.000 --> 00:25:26.000
+So, yeah, but ok so somebody is asking let's say make a web game and the game has to respond in real time based on user input, with the game engine be run on the server or the client.
+
+00:25:26.000 --> 00:25:43.000
+So I think in that, like it really depends on on so much stuff like how big you want your client to be if the, if the game is running on a watch, then maybe you don't have tons of them are although I feel like watches now have a ton of memory, but it
+
+00:25:43.000 --> 00:25:58.000
+on the constraints like if you don't want to be pulling down a lot of data from the server which is probably likely, then it would probably be that a lot of the lot of the lot of stuff would sit on the server and the client would pull the server for the
+
+00:25:58.000 --> 00:26:11.000
+data. Very frequently. Now, if your internet connection is slow, but you don't have a data memory problem on your client side, then you would maybe do something else and you might pre fetch a lot of stuff from the server.
+
+00:26:11.000 --> 00:26:21.000
+How's it on the client, so that you can quickly interact with that stuff that's on the server. So, these things are, you know, 317 definitely take it.
+
+00:26:21.000 --> 00:26:30.000
+And you, you know, these things are based on your the topology of the system that you're building basically.
+
+00:26:30.000 --> 00:26:33.000
+And then it probably wouldn't be through rest, either.
+
+00:26:33.000 --> 00:26:46.000
+I don't know, I think, you know, I think the idea, I don't know like I actually only know about HTTP communication so I oh they use remote procedure calls but those are still over HTTP I think you still have to.
+
+00:26:46.000 --> 00:26:59.000
+You're still talking on the web, the way the web knows how to talk. So, this is remote procedure calls this is this example that I had before, was remote procedure called the RPC approach where you are talking in terms of all kinds of very specialized
+
+00:26:59.000 --> 00:27:12.000
+verbs wouldn't be surprised. That's an interesting point that maybe games still use this because they need, they don't you know maybe rest isn't overly polite way for clients and servers to talk, but also maybe because it's, as I said before, different
+
+00:27:12.000 --> 00:27:26.000
+groups developing the client and the server, whereas a game client would probably be developed by the game server, and if it was a service that could allow any clients, and then maybe they would they would probably use a restful interface to try and make
+
+00:27:26.000 --> 00:27:33.000
+client side development easier, or at least a model, you know, something that resembles a restful interface.
+
+00:27:33.000 --> 00:27:45.000
+Okay, so now let's get into the weeds here a little bit more. So first let's talk about nouns and this actually can come down here.
+
+00:27:45.000 --> 00:27:54.000
+So, um, alright. So, what does the URL look like.
+
+00:27:54.000 --> 00:28:01.000
+They look kind of like this so this is very tiny Can people read this.
+
+00:28:01.000 --> 00:28:03.000
+Okay, great.
+
+00:28:03.000 --> 00:28:16.000
+If you go to Piazza which I cannot be also has a beautiful I can tell like just by interacting with the system they have a beautiful RESTful API, you can you can you can just feel it just by the way that everything is interacting, and I believe it used
+
+00:28:16.000 --> 00:28:22.000
+to be the case that you could make your own PR to clients maybe that's why the developed it like that. I don't think you can anymore.
+
+00:28:22.000 --> 00:28:30.000
+But I think there was a brief period where they made this choice to do really good restful design, which is really nice.
+
+00:28:30.000 --> 00:28:44.000
+But, but he also Your eyes are always nouns restful URLs are always nouns. So for instance, here's a Twitter API of hashtags and we see twitter.com slash hashtag.
+
+00:28:44.000 --> 00:28:51.000
+This isn't a real one. I don't think slash hashtag slash ID slash tweets or something like that.
+
+00:28:51.000 --> 00:29:07.000
+Can you make a PR client on the Discord. I don't know if you can make pizza clients anymore. Actually, I don't, I don't know, I don't know, but you could you could probably find out you could Google like pizza REST API and see if it's still open.
+
+00:29:07.000 --> 00:29:18.000
+But, but yes, this would be an example of a UI. So, the way that you can tell is that it ends in a noun a singular or plural noun.
+
+00:29:18.000 --> 00:29:30.000
+This would not be an example of a, of a good well formed restful URL. That's not to say that these URL, your eyes don't exist in fact I think the Twitter API has a bunch of herbs is we'll look at in a bit.
+
+00:29:30.000 --> 00:29:38.000
+The Twitter API isn't a purely RESTful API of fails fails our tests for restful this.
+
+00:29:38.000 --> 00:29:56.000
+I think because it was doing a, you know, it various reasons, which we won't get into I think that there were, you know, it uses it uses the post request for lots of things but anyway doesn't matter, and maybe because, you know, it just, I don't know
+
+00:29:56.000 --> 00:30:06.000
+I guess it made a whole bunch of design decisions, maybe because of the ways that some browser works, some browsers work that made restful design a little bit problematic for them.
+
+00:30:06.000 --> 00:30:10.000
+Although I still feel like they should have done a more RESTful API.
+
+00:30:10.000 --> 00:30:26.000
+But this this part would have been restful ending in a noun, but the fact that this says delete all is a verb, and in restful design as I said before, the only verbs that you can use our get put post and delete.
+
+00:30:26.000 --> 00:30:43.000
+And you always have to be get getting putting posting or deleting at a target URL that is a noun. So it's always a verb noun combo get put post delete, that's the, those are the verbs, and then the noun is the resource that you are that you're targeting
+
+00:30:43.000 --> 00:30:54.000
+it up on the side of the server. So all of these are good examples, and they usually have this kind of somewhat hierarchical structure, I think I have a nice pizza resource picture here.
+
+00:30:54.000 --> 00:30:57.000
+so here we can see that we have.
+
+00:30:57.000 --> 00:31:09.000
+And I'll come back to this when we start talking about verbs in a second, but we have like notes, and then the note that notes have an ID, and then there's within the ID there's always remember those like when you look at these there's always an instruction
+
+00:31:09.000 --> 00:31:14.000
+response a student response, a list of follow up so that would have a plural.
+
+00:31:14.000 --> 00:31:30.000
+Each follow up then has an ID with the follow up, and then the each follow up can have replies and then each, each ID. Each reply would have an ID, and those would all be addressed in this kind of linear way.
+
+00:31:30.000 --> 00:31:43.000
+So to get to reply number one for follow up number two for note number five, you would say http colon slash slash whatever
+
+00:31:43.000 --> 00:31:58.000
+dot slash slash or not, no dot, maybe no just whatever slash notes slash five follow ups to slash reply slash one and that would get you the text of this reply.
+
+00:31:58.000 --> 00:32:06.000
+Okay, so those are the nouns. So nouns are never verbs. Is everybody happy with that as a concept.
+
+00:32:06.000 --> 00:32:18.000
+Before I answer this next question. Someone says so the resources have to be organized in a kind of tree structure. They don't have to be organized in a tree structure, they just always have to be nouns.
+
+00:32:18.000 --> 00:32:36.000
+So, but generally speaking, data, when is tree ish you know there's usually a bit of a bit of tree ish like natural and emergent structure in data. So, like when we're thinking about our are finding application, then you would probably have a list of
+
+00:32:36.000 --> 00:32:45.000
+locations and then each of those lists of locations would have a list of items found in those locations so there'll be a kind of hierarchy there as well.
+
+00:32:45.000 --> 00:32:58.000
+So, so yeah usually there's a kind of a kind of hierarchy, but Strictly speaking, that's not the restful requirement the restful requirement. Is it just has to be now.
+
+00:32:58.000 --> 00:33:03.000
+That's all. Does that make sense.
+
+00:33:03.000 --> 00:33:20.000
+Okay, great. Um, so, and then, and then somebody says, and then there are the ones with question marks. That's right. Those are usually parameters that are being sent over the wire to, to the request, so sometimes the URL, the URL can accept some little
+
+00:33:20.000 --> 00:33:30.000
+parameters for something often search terms have parameters like question mark search equals keyword, something, something and then the actual keyword gets sent over.
+
+00:33:30.000 --> 00:33:34.000
+So I think even in my.
+
+00:33:34.000 --> 00:33:46.000
+Yeah, there's no question mark in the URL for this for this slide, but, you know, sometimes there is like if I'm sending you to a particular slide that it would have a question mark slide equals something so those are just those are just parameters.
+
+00:33:46.000 --> 00:33:53.000
+So really this is just a protocol for clients and service to be able to talk kind of programmatically to one another.
+
+00:33:53.000 --> 00:34:07.000
+And. Okay, so let's talk about verbs. Now, as I said, Only four verbs are allowed except for patch we're not talking about. I have a very tiny little note about patchy or just lip service it exists.
+
+00:34:07.000 --> 00:34:08.000
+But let's not worry about it.
+
+00:34:08.000 --> 00:34:27.000
+It's kind of like a put part, but get simply gets a resource. so whenever you type a URL into your URL bar, you are issuing a get request for that HTML, which then sends back the HTML, the representation is HTML.
+
+00:34:27.000 --> 00:34:34.000
+So everybody's comfortable with the concept of getting some things that right.
+
+00:34:34.000 --> 00:34:48.000
+Everyone's comfortable with that. Okay, um, what's the what's the point of physically, writing, get.
+
+00:34:48.000 --> 00:34:57.000
+Okay Wait What do you mean.
+
+00:34:57.000 --> 00:35:06.000
+Oh, so you. So, the thing is ok so the question was what's the point of basically writing get since it gets stuff by default it doesn't get it doesn't actually get anything by default.
+
+00:35:06.000 --> 00:35:15.000
+You're not often there you're not always making GET request to the server you can make any of these four requests, you have to indicate what kind it is.
+
+00:35:15.000 --> 00:35:18.000
+So when you're sending it over you would.
+
+00:35:18.000 --> 00:35:32.000
+So actually I don't, I can't remember just second, let's see, do I have an example of what these kind of look like. So, the so in your code you might have something that kind of looks like this you would have get the word the keyword get, and then you'll
+
+00:35:32.000 --> 00:35:48.000
+be using some framework that would that would do all the HTML HTTP stuff for you. And then you would have the URL that you were wanting to get, and then that would package it up, send it to the restful service that would come back with some, some content.
+
+00:35:48.000 --> 00:35:57.000
+So, yes. All right, so does that make sense. So and I could have put put here except that I wouldn't have worked or post which wouldn't have worked.
+
+00:35:57.000 --> 00:36:04.000
+The only thing we can do on this UI perhaps is get, but, but it's not necessarily the case that you're getting by default.
+
+00:36:04.000 --> 00:36:16.000
+So you write that right in your code and then your web framework or your internet your sort of internet framework that you're using, lets you send that request to the server and then the server which also has a framework with sort of special language
+
+00:36:16.000 --> 00:36:21.000
+features that lets you send a response, lets you send the response back.
+
+00:36:21.000 --> 00:36:39.000
+Okay so ignore this word item potent for now so we have get, then we have delete. So, delete, what do you send to delete request to your URL, what do you think it does.
+
+00:36:39.000 --> 00:36:48.000
+Like if I said, if I spent like a delete to this URL.
+
+00:36:48.000 --> 00:36:54.000
+Oops.
+
+00:36:54.000 --> 00:36:56.000
+What do you reckon it would do.
+
+00:36:56.000 --> 00:37:02.000
+Yeah, it deletes the resource on the server, of course if you're allowed, or if the resource exists.
+
+00:37:02.000 --> 00:37:14.000
+But if the resource exists, then it deletes it, so if you want it. So when you're on PR and you're like oh I want to delete my reply. This is the request you're sending you're sending delete request to that URL, and if you are the one who has permission
+
+00:37:14.000 --> 00:37:19.000
+to delete it, then it will, it will delete the resource.
+
+00:37:19.000 --> 00:37:24.000
+You also can't delete replies, really
+
+00:37:24.000 --> 00:37:35.000
+interesting. I didn't know that. I think I have super user status as an instructor and field so maybe you can't you can't even edit them if you do a follow up, really.
+
+00:37:35.000 --> 00:37:47.000
+That seems so restrictive. I didn't realize that, okay well let's imagine you had super user status and you were able to delete your questions. This is how you would do it you would send a delete request, I can delete them because I'm the instructor.
+
+00:37:47.000 --> 00:37:59.000
+So, so I would send a delete request so if somebody emails me and says, Hey I accidentally posted my social insurance number on Piazza Can you delete it, I can go in and delete it and this is the request that I will be sending.
+
+00:37:59.000 --> 00:38:04.000
+And then we have the put request, what do you think put does.
+
+00:38:04.000 --> 00:38:11.000
+It's kind of an interesting one.
+
+00:38:11.000 --> 00:38:23.000
+Does anybody know but yeah, it just replaces it. So, if you're thinking about this in terms of code, then it will be x equals, like small x, x equals three.
+
+00:38:23.000 --> 00:38:38.000
+That would be like replacing the value of x to be three. It's basically just a replacement of that value like x could have been nine before, but now we're doing a pull request on X to set it to be three.
+
+00:38:38.000 --> 00:38:46.000
+So, this is generally speaking a wholesale replacement so if I say x equals nine. There's no.
+
+00:38:46.000 --> 00:38:54.000
+I don't like that it capitalizes it wholesale replaces it there's no memory that it used to be three it's doing a total replacement for the resource.
+
+00:38:54.000 --> 00:39:10.000
+And so someone asks, When get returns the resources does it have to provide links to the related resources. Yes it does. We're going to get to that when we get to connectedness, because exactly like was Wikipedia if it came back with no links than Wikipedia
+
+00:39:10.000 --> 00:39:25.000
+would be useless. So, so what happens is when you do a get request. It comes with all of these down pointers so that the client can also go to those and load all of those resources, absolutely excellent question.
+
+00:39:25.000 --> 00:39:40.000
+And that is a rule of restful design, it has to provide those down resources so that the so that the client can can operate properly without having to recall the locations of all the little things.
+
+00:39:40.000 --> 00:39:47.000
+Okay, so put simply replaces a resource. And, and now I'm going to talk about these three before.
+
+00:39:47.000 --> 00:39:52.000
+So, okay so somebody has asked what happens when you edit a post.
+
+00:39:52.000 --> 00:40:12.000
+Great question. Let's think about the behavior when you're editing a post you your browser your client would have gotten you the posts that you had that you had edited or that you would submit it before.
+
+00:40:12.000 --> 00:40:25.000
+that yet. So would have gotten that. And then your client would have known that you were wanting to edit it right so it would have loaded that text into an edit Windows Server doesn't know you're editing.
+
+00:40:25.000 --> 00:40:38.000
+It would have loaded that text into an editing window, then you make changes. And that could be a total change you could be deleting the whole all of the text and replacing it yourself, or it could be just fixing the little typo.
+
+00:40:38.000 --> 00:40:52.000
+Either of those, you might be doing, then you hit submit and and so that submit just takes whatever is in that text box, doesn't matter if you changed all of it, or just a teeny typo or change none of it at all.
+
+00:40:52.000 --> 00:41:13.000
+And it sends a request back to the server to completely replace it. So like if x had been, I need see one health or something like that. And then you, then you're like oh I wanted to edit that the next one will be I really need to see what help is something
+
+00:41:13.000 --> 00:41:14.000
+like that.
+
+00:41:14.000 --> 00:41:24.000
+And so even though it's just a little change, you're not. You're not only changing the teeny parts that you're changing, you're replacing the entire thing you're resetting the whole thing.
+
+00:41:24.000 --> 00:41:27.000
+So you're doing a complete.
+
+00:41:27.000 --> 00:41:39.000
+Put request that just replaces the resource of what is in that text resource. Does that make sense,
+
+00:41:39.000 --> 00:41:45.000
+and someone says, If we think of put as a function does it need to parameters.
+
+00:41:45.000 --> 00:41:57.000
+The two parameters that I can think of would be the resource that you're putting two, and the new contents. Is that what you were thinking.
+
+00:41:57.000 --> 00:42:17.000
+Yeah, exactly. So, that's right. So you're saying, put where to put it. What to put, that's basically you get only really needs one of these, what to get and delete only needs one, which is what to delete, but put your right, it needs to.
+
+00:42:17.000 --> 00:42:31.000
+OK, so now let's talk about this word item potent item potent means that you can do the request, again and again and again in an integrated into that and pull, and pull, and pull, and pull, and pull and sentence in essence and has no cumulative effect.
+
+00:42:31.000 --> 00:42:51.000
+So if I say equals three here, and then I say it again. And then I say it again and again and again and again and again and again.
+
+00:42:51.000 --> 00:43:03.000
+why would I be sending it a lot of times, maybe because I haven't yet received a response back from the server and I just don't want to do basic stuff or whatever so I'm just like sending sending sending and I'm just waiting for it to.
+
+00:43:03.000 --> 00:43:16.000
+Or maybe I you know I'm in a loop and I'm just waiting for it to send or maybe I lost internet connectivity, right here, and I'm not sure if my request got all the way through so I'm just going to send it again just to be sure.
+
+00:43:16.000 --> 00:43:20.000
+I think yes somebody in the chat says repeatedly refreshing.
+
+00:43:20.000 --> 00:43:37.000
+Absolutely. So like saying, like, I'm sure, with SSC to load as a see what marks come out really like Refresh. Refresh. Refresh. Refresh. That's you doing a get request on SSC, and you can send that as many times as you want, and it won't have a cumulative
+
+00:43:37.000 --> 00:43:44.000
+effect, like, at some point the content will come back to you because at some point, it will be available which is great.
+
+00:43:44.000 --> 00:43:52.000
+So it's not that there isn't stuff happening on the side of the server it's not to say that you might like if you say, what is at.
+
+00:43:52.000 --> 00:44:00.000
+It's not to say that you might not get a different response back because of course if you refresh, a website.
+
+00:44:00.000 --> 00:44:14.000
+Then you'll get a different response back maybe if the server has changed what's on the website. But you won't get more of the website you won't get it twice, you won't get it before other people you just get it again.
+
+00:44:14.000 --> 00:44:22.000
+So, so that's what item potent means it just means no cumulative effect.
+
+00:44:22.000 --> 00:44:24.000
+Okay couple questions.
+
+00:44:24.000 --> 00:44:35.000
+Isn't there like an enterprise remaining thing for an HTTP request. So that is usually on the side of like the security people who are not wanting to allow denial of service request.
+
+00:44:35.000 --> 00:44:43.000
+That is a later thing, and not quite old now, but I mean it's not original HTTP.
+
+00:44:43.000 --> 00:44:57.000
+That kind of came out later when they realized that that was an attack that people could do. And that is, is implemented on the side of the server in which case, there is a bit of a cumulative effect on the side of the server they will keep track of how
+
+00:44:57.000 --> 00:45:05.000
+many times you've requested, and they'll block you at some point. That's true with the Twitter API as well that's true with, you know, really.
+
+00:45:05.000 --> 00:45:17.000
+Most good web services will now have a little bit of a gateway like that but we're not going to worry about that, because from the perspective of the client, other than what if you got blocked which is sad.
+
+00:45:17.000 --> 00:45:26.000
+From this perspective of the client, you're not getting, like if I say what is it x and then what is x again I'm not going to get double the ex back. Right.
+
+00:45:26.000 --> 00:45:30.000
+Does that make sense.
+
+00:45:30.000 --> 00:45:39.000
+So if the server wants to do its own housekeeping or data, keeping or whatever that's kind of its business but from the perspective of the client it's item, you can send that request again without worrying.
+
+00:45:39.000 --> 00:45:44.000
+Of course you have to not do a denial of service attack.
+
+00:45:44.000 --> 00:45:47.000
+In those cases, what are they blocking your IP.
+
+00:45:47.000 --> 00:46:00.000
+Yeah, I guess it would probably be your IP, I think, I don't know, is anybody a security expert here, I have to admit that this is not my area. I'm assuming they would be noticing where it was you were coming from, and then blocking that.
+
+00:46:00.000 --> 00:46:06.000
+Oh, like a hardware address, interesting. Yeah, I didn't know that that was, yeah maybe that's an option,
+
+00:46:06.000 --> 00:46:17.000
+or an access token. I love how much people in the chat now this is fantastic. Okay, so get put post delete those are all item potent. Now, or get put and delete or item potent.
+
+00:46:17.000 --> 00:46:38.000
+What is not item potent is post. So, post is a different, different interaction. So post, oops I wish I'd kept my little text message around here we go, post is more like this.
+
+00:46:38.000 --> 00:46:53.000
+That's what a POST request is. So a POST request is. This is the equivalent of the URL that you would be posting to so you would say my resource. So let's say my resource
+
+00:46:53.000 --> 00:46:59.000
+as add this thing, that is the parameter that you would be sending along.
+
+00:46:59.000 --> 00:47:07.000
+So, a POST request is always adding a new resource to an existing collection.
+
+00:47:07.000 --> 00:47:22.000
+So for that reason. If you say my resource dot add x, and then do it again and then do it again and then do it again how many X's do you have in your my resource.
+
+00:47:22.000 --> 00:47:40.000
+Not talking about sets. Just like if it's a basic array list or whatever. Yeah, potentially a lot right now it is possible that you have implemented my resource as a set, in which case you accidentally made post be item potent, but that's not the clients
+
+00:47:40.000 --> 00:47:49.000
+business. That's just the server gets to implement it how it wants maybe it's a little worried that people are going to spam and it'll have more than one thing that's up to the server.
+
+00:47:49.000 --> 00:48:05.000
+But the client should know that there's no guarantee that a resource will be implemented as a set, it could be implemented as a list. And if you add a bunch of things, the same thing multiple times maybe your internet connection fell out.
+
+00:48:05.000 --> 00:48:24.000
+You're like, Should I add that again. You can't add it again without maybe checking to see if it's there before adding it again. So maybe you would have to do like it is, you know, if not my resource
+
+00:48:24.000 --> 00:48:39.000
+dot contains or something like that so if not my resource contains x then my resource, add x, because there's no guarantee that you, that, that it won't be added multiple times.
+
+00:48:39.000 --> 00:48:42.000
+So how did you get my resource in the first place.
+
+00:48:42.000 --> 00:48:48.000
+Is it you know is it is, is a great question.
+
+00:48:48.000 --> 00:48:52.000
+So, probably.
+
+00:48:52.000 --> 00:49:02.000
+Let's have to add it. It has to add to an existing of this is exactly the question. If it has to add to an existing club collection, how do we create the new collection.
+
+00:49:02.000 --> 00:49:16.000
+Great question. Well the new collection may already exist on the server, but like in the case of Piazza it like it sort of automatically gets created right so.
+
+00:49:16.000 --> 00:49:25.000
+So you have a note, and it has, there's a list of notes already you can't make a new list of notes like that list of notes exists on the Piazza service.
+
+00:49:25.000 --> 00:49:40.000
+You can make a new note. So if you want to make a new note, then you would post a new note just like you posting a new note, that would make a new note it gives you back a new URL for your new note.
+
+00:49:40.000 --> 00:49:54.000
+As soon as that new note is created on Piazza a whole bunch of extra things get created as well, and instructor response gets created which may be, which is blank to start the student response gets created which is blank to start and a new collection
+
+00:49:54.000 --> 00:49:57.000
+of follow ups, get created.
+
+00:49:57.000 --> 00:50:08.000
+If you want. So the instructor response, if you want to update the instructor response which which request Do you think I would be sending to update this instructor response that starts out blank.
+
+00:50:08.000 --> 00:50:24.000
+Can people think through. Yeah, you would send a request to the instructor response. So, that would just replace the blank response with some text. Similarly, the student response, if you just, you wouldn't do a pull request to replace the student response
+
+00:50:24.000 --> 00:50:35.000
+because there's only one of each of those. However, if you want to add a follow up you can have an arbitrary number of follow ups, right. So you're in Piazza and you're typing in your follow up.
+
+00:50:35.000 --> 00:50:55.000
+And then what happens is you would hit, what could very well be a Post button or a submit button, and that submit or Post button would send a POST request to this URL, this URL I have follow ups, it will create a new follow up with an ID that you would
+
+00:50:55.000 --> 00:51:06.000
+then get back, and then it would be empty. To start, and then you would be able to put to your new follow up to populate it with text.
+
+00:51:06.000 --> 00:51:12.000
+Does that make sense.
+
+00:51:12.000 --> 00:51:25.000
+I mean, it might also be that you can send through the text in one go so you don't have to do the double back of putting, but in the purest version, what you do is you send say hey I want a new follow up.
+
+00:51:25.000 --> 00:51:43.000
+Give me one of those posts to follow up, you get a URL back and then you do a put to that text field of the URL and post can also include content. So you can also have posted the entire message body, and said submit and that would go over that parameter
+
+00:51:43.000 --> 00:51:53.000
+that would that so it would populate it, and then if you click Edit, what would happen. So, so then Piazza renders and you can see your follow up right.
+
+00:51:53.000 --> 00:51:56.000
+Then you click Edit and then what happens.
+
+00:51:56.000 --> 00:52:02.000
+You sent the Edit, you've clicked, edit, so now what's,
+
+00:52:02.000 --> 00:52:03.000
+what's happening there.
+
+00:52:03.000 --> 00:52:17.000
+So, yeah, so what's happening there is actually Piazza has already probably gotten the text. So the edit button is probably totally client side, actually, it probably doesn't have to do another request, probably just has to say okay I'll render it in
+
+00:52:17.000 --> 00:52:26.000
+an edit window now. So when you click edit something client side is happening it's like, okay, I'll render it in and edit window I'll take all this text and I'm already rendering for you.
+
+00:52:26.000 --> 00:52:37.000
+I'll put it in this edit window, and then you'll change it, and then you'll hit submit. And that goes over as a pull request to replace the content.
+
+00:52:37.000 --> 00:52:44.000
+Does everybody following.
+
+00:52:44.000 --> 00:52:45.000
+Okay, great.
+
+00:52:45.000 --> 00:52:59.000
+Alright. Awesome. So that's how nouns and verbs kind of work together. And there's never a just to just to reinforce this there's never delete all follow ups, you are I like you can't do a pull request or a get request or a POST request to a delete all
+
+00:52:59.000 --> 00:53:01.000
+follow ups.
+
+00:53:01.000 --> 00:53:05.000
+That's considered bad manners in rest.
+
+00:53:05.000 --> 00:53:13.000
+Okay, so now let's look at these two more responsibility oriented
+
+00:53:13.000 --> 00:53:23.000
+principles. First of all, let's talk about so and you can look here, we've already talked about all of this, so I'm not going to go over that again but this is kind of a resource for you.
+
+00:53:23.000 --> 00:53:41.000
+Haha, that was a pun. Anyway, um, okay. So now let's talk about statelessness and connectedness so what does statelessness means. It means means, what does this mean it means that the server doesn't remember doesn't have to kind of keep track of where
+
+00:53:41.000 --> 00:53:58.000
+the user is in their user interface interaction. So, the server is only responsible for serving up the results of these requests. It doesn't have anything like a get next kind of a behavior where it will be like, I know where you were last time.
+
+00:53:58.000 --> 00:54:13.000
+So I'll give you the next one. It doesn't have that it, this is in response to how it used to be where there was definitely a get next, there was absolutely used to be service that would keep track of our clients were and be like okay now you're here
+
+00:54:13.000 --> 00:54:25.000
+and all of this sort of thing and became, you know, it became problematic because different clients might like to navigate things differently and then the service is trying to keep track of all the different kinds of clients.
+
+00:54:25.000 --> 00:54:36.000
+Finally was like no no the client keeps track of its own navigation through this set of resources, of course. That is not to say that all clients can access all resources that's clearly not true.
+
+00:54:36.000 --> 00:54:46.000
+For instance, you can experience this by, you can't delete posts in Piazza and I can because I am logged in as an instructor. So there's definitely some authentication there.
+
+00:54:46.000 --> 00:54:57.000
+There's some checking about what are you allowed to do this thing and then an error response would be sent back sorry you're not allowed to do that thing if you know or maybe the client doesn't even display the button because you're just not allowed to
+
+00:54:57.000 --> 00:54:58.000
+do it.
+
+00:54:58.000 --> 00:55:02.000
+But even if it did display the button and you tried to do it.
+
+00:55:02.000 --> 00:55:06.000
+You wouldn't be allowed the server would be like no you don't have the right credentials for that.
+
+00:55:06.000 --> 00:55:22.000
+And that is fine. That is definitely on the side of the server, but the client would remember for instance like if you have. So it's let's imagine that you could open and close, different.
+
+00:55:22.000 --> 00:55:36.000
+Different follow ups, so you could like fold them. Do people know what I mean by folding like you could expand and collapse, follow ups, say, on Piazza, the client would know which ones you would expand it and collapsed, the server, wouldn't it would
+
+00:55:36.000 --> 00:55:39.000
+just know that it gave you that note.
+
+00:55:39.000 --> 00:55:47.000
+And maybe the client would be like oh you're expanding that I have to get that from the server and the server be like okay I am allowed to give you that follow up so I'll give you that follow.
+
+00:55:47.000 --> 00:55:59.000
+Now, and that would then the client would expand it, but the server isn't knowing whether you're expanding and collapsing it doesn't know anything all it knows is that you requested a thing that you're allowed to see so I'm giving it to you.
+
+00:55:59.000 --> 00:56:07.000
+Does that make sense.
+
+00:56:07.000 --> 00:56:11.000
+Everybody kind of with me on that.
+
+00:56:11.000 --> 00:56:27.000
+Okay, awesome. And then the. So then I'm going to go to. So the reason for that is just kind of written right here, this, you know, before this was a situation that led to a very tight coupling between the client.
+
+00:56:27.000 --> 00:56:42.000
+The all the clients, and the service, as I said, the service had to remember a lot about the client. I remember when we at the very beginning of this topic I said, the thing that rest was trying to solve with the propagation of change from the client
+
+00:56:42.000 --> 00:56:53.000
+to the server and the server to the client. So, Imagine so what do I mean my propagation of change I mean that if you make a change on the client to the server need to also change.
+
+00:56:53.000 --> 00:57:07.000
+So let's say the client always goes through things alphabetically. If you had some sort of get next behavior on the part of the server, the server would have to be like, oh, that client remembers go through alphabetically so when I'm giving them the next
+
+00:57:07.000 --> 00:57:09.000
+one, I should do it alphabetically.
+
+00:57:09.000 --> 00:57:19.000
+Then if the client was like, No, I think I'm going to go through them chronologically. The server would need to change the way it responded, the way it gets it's getting next responded.
+
+00:57:19.000 --> 00:57:32.000
+And again, this is not referring to a generic, you know, getting next or something in this in the, in the server where this, you know, well I guess it is it is kind of referring to that you shouldn't you shouldn't have that on the side of the server,
+
+00:57:32.000 --> 00:57:44.000
+simply because then it's like the server is having to respond to two changes in the client. Okay, so that was the propagation, that was always occurring from client to server you change the client.
+
+00:57:44.000 --> 00:57:55.000
+Oh no, the server also has to change that's bad. So, this statelessness meant that there was a barrier between the client and the server so if the client changed the server didn't really care.
+
+00:57:55.000 --> 00:58:03.000
+Everybody understand that concept of propagation of change and how this kind of helps.
+
+00:58:03.000 --> 00:58:23.000
+Awesome. Okay, great. So connectedness, is the opposite, sort of for the connected for the, for the propagation of change what used to happen is that the server side would change its service or its resource structure and the client would have to change.
+
+00:58:23.000 --> 00:58:27.000
+So this is the opposite direction of propagation of change.
+
+00:58:27.000 --> 00:58:36.000
+Oh, just a second. So we have a question, client could request resources scholars scattered all over the server and the server doesn't have any suspicions that's, That's right.
+
+00:58:36.000 --> 00:58:43.000
+So the client can just make all of its requests and the servers like yeah sure you're allowed to see all those things I don't really care.
+
+00:58:43.000 --> 00:58:56.000
+So that was so the statelessness was to, to ensure that there was no propagation of change from the, from the client to the server client makes a change over doesn't care connectedness is the opposite This is server makes a change client doesn't care
+
+00:58:56.000 --> 00:59:12.000
+server can make changes to its resource structure, it might, you know it might move things around, it might say okay we're no longer having a generic like hashtags list in Twitter anymore now you have to do a search to get a hashtag and then do this we're
+
+00:59:12.000 --> 00:59:19.000
+not having some sort of universal list because it just got too long it was making pagination difficult. All of these kinds of things.
+
+00:59:19.000 --> 00:59:33.000
+But the point is the client side shouldn't have to remember what each of the numbers are or what where each of the links go. Yes, it's true, you have to remember sort of general topology so you have to remember kind of a path through like I can get from
+
+00:59:33.000 --> 00:59:47.000
+here to there. Yes, of course there is a there is obviously an awareness of what the service gives you that is a necessary relationship the client is never completely oblivious to what the service gives you.
+
+00:59:47.000 --> 01:00:02.000
+But if the server is making underlying changes, then the connectedness, all those links that it will send back although all those down links will make it so that the client is robust to any underlying changes.
+
+01:00:02.000 --> 01:00:15.000
+So, yeah, and that means that that the client can be developed with a certain amount of confidence that it won't have to update every single time the service changes its underlying structure a little bit.
+
+01:00:15.000 --> 01:00:30.000
+And this is why I asked about the Facebook API, actually, because, as far as I know, I actually haven't checked this out is that it can it somebody Google and find out if Facebook has a doubt it has a RESTful API, I mean, just Facebook allow other clients
+
+01:00:30.000 --> 01:00:32.000
+do people know this actually don't know.
+
+01:00:32.000 --> 01:00:37.000
+Can you write a second Facebook client or does it have to be a plugin within Facebook, how does it work.
+
+01:00:37.000 --> 01:00:43.000
+Right. It does, right, it definitely does yeah and right it has a RESTful API. Yeah.
+
+01:00:43.000 --> 01:00:58.000
+But, but Facebook's API is not public and if you're a Facebook developer then you're trying to work in with their like with their kind of plugin API or whatever, which is you know more, I think more remote procedure Cali, and oh wow this is fascinating
+
+01:00:58.000 --> 01:01:05.000
+someone says Facebook runs a version of Facebook in a browser and then wraps or changes on top of it. Oh, okay, well now I'm interested in I'm going to look at the architecture.
+
+01:01:05.000 --> 01:01:19.000
+But what I do know from talking to many developers about API usage is that Facebook will sometimes changes API, and I think I asked about this before, has anybody tried developing a Facebook API and had a change out from under them Is that still the case
+
+01:01:19.000 --> 01:01:21.000
+for people.
+
+01:01:21.000 --> 01:01:23.000
+I wonder if any of those folks are here.
+
+01:01:23.000 --> 01:01:40.000
+Anyway, Facebook does change their API. And the clients these plugin developers have to change in response to Facebook's changes. And so, that is them not coming through with this connectedness and they're not being sort of stable and the way that they
+
+01:01:40.000 --> 01:01:53.000
+provide their API. And when you're a big private company that doesn't really care that much about developer those tiny tiny developers who are trying to make some cash of some sort of like Facebook game or something.
+
+01:01:53.000 --> 01:01:58.000
+You know they don't they just say look this is not the new API, work with it.
+
+01:01:58.000 --> 01:02:08.000
+But most API's are not like that most API's are sort of grassroots or open source or something. And they're hoping that there will be lots of different clients and.
+
+01:02:08.000 --> 01:02:19.000
+And so they want client side development to be facilitated and robust and that is maintained through this connectedness of the RESTful API.
+
+01:02:19.000 --> 01:02:21.000
+So, yeah.
+
+01:02:21.000 --> 01:02:33.000
+So, somebody says they have a marketing API and an insights API, you can use their SDK is so their software development kits, and they have some rest in there too as well okay so this is fascinating and I should probably talk less about Facebook given
+
+01:02:33.000 --> 01:02:38.000
+how little I know about their setup. I will go and find out more about it.
+
+01:02:38.000 --> 01:02:58.000
+But, but, I think, as a case study. The idea is that the takeaway here is that you if you're an API developer, you are wanting to provide your clients with a robustness and a kind of stability that restful design gets you because of this quality of connectedness.
+
+01:02:58.000 --> 01:03:13.000
+So, when you're sending a response back, the server sends back all those down links. So when I say downlinks I mean all of these links sends those downloads back in the response, and that allows the client to kind of navigate and get the information that
+
+01:03:13.000 --> 01:03:19.000
+they need, without having to remember how to access each of those downloads.
+
+01:03:19.000 --> 01:03:20.000
+Okay.
+
+01:03:20.000 --> 01:03:26.000
+Um. Alright, so if we really look at our, our kind of find our like server.
+
+01:03:26.000 --> 01:03:43.000
+Our searcher finder API. And we can rework it into a RESTful API kind of nicely. There are two different zones. So there's the searcher zone and the Finder zone and it's you know it's possible that these would actually be to kind of sessions or two authentication
+
+01:03:43.000 --> 01:03:47.000
+or something, I don't know we don't care that much.
+
+01:03:47.000 --> 01:03:52.000
+In this class, 317 I think you might care deeply but not here.
+
+01:03:52.000 --> 01:03:58.000
+And so what you would do is you would if you were searching for something you might
+
+01:03:58.000 --> 01:04:09.000
+you might search for, you know, a specific location and get back a bunch of images based on that. Yeah, sorry, I'm, this is really cool of me to do
+
+01:04:09.000 --> 01:04:20.000
+you what my search for an image like you might have an image of a toy and you might say is this toy even found anywhere and then there's some a I think back there that's like doing image recognition to see if your toys been founded any bus stop.
+
+01:04:20.000 --> 01:04:31.000
+Or you might be giving you know some coordinates or you might give a specific coordinate and a radius and there might be various ways that you could send search queries over to your Search API.
+
+01:04:31.000 --> 01:04:40.000
+And then if you're the Finder, you might only be able to do posts. So you might be posting an image to a location and saying I found this image.
+
+01:04:40.000 --> 01:04:53.000
+And then the image and then like yes I allow you to see my location client side application and you send that over and then it stores it, and then a whole bunch of backend stuff happens it tags things it indexes things it does a whole bunch of stuff that
+
+01:04:53.000 --> 01:05:11.000
+probably has a database back there, don't care. The point is that when a searcher file is looking for it, it's seeing these resources that have been posted by the finders so that that would kind of be the clean relationship there any questions about this
+
+01:05:11.000 --> 01:05:14.000
+Description.
+
+01:05:14.000 --> 01:05:26.000
+Okay. Now sometimes when we're talking about these we put them into tables, these, these resources and get put post and delete we put these into tables you would have seen one of these tables before.
+
+01:05:26.000 --> 01:05:38.000
+Here, if you look in the Wikipedia page for HTTP it has exactly one of these tables. And so, sometimes you'll, you will see these tables, other times like all the stuff is just listed in a list.
+
+01:05:38.000 --> 01:05:47.000
+So, so don't worry about the tables necessarily but anyway. So here we have some resources that might exist in this application we have photos.
+
+01:05:47.000 --> 01:06:03.000
+That's a list. So, when you get a list, you get the resource list back so you get you the URL is all the URLs for each of the things you wouldn't get back the whole content of every single thing that would be a very large response I mean, maybe but that
+
+01:06:03.000 --> 01:06:12.000
+would be a weird thing for the server to do more standard Lee you would get back your eyes to, you would get a JSON with a bunch of your eyes on it.
+
+01:06:12.000 --> 01:06:26.000
+If you a user try and put an entire list of photos like replace the entire list of photos, you might get a no, you can't do that, that would come back as some sort of error code so if you look at HTTP error codes as a whole bunch of them, and we don't
+
+01:06:26.000 --> 01:06:28.000
+care about them right now.
+
+01:06:28.000 --> 01:06:45.000
+You might care about them and C three. So, Catherine and Shizuka will go over that. But we don't care, all we all we care about is that is the message that comes back that says, No, and then the right way to interact with this photos list is, if you're
+
+01:06:45.000 --> 01:07:03.000
+adding a resource, which is sort of like similar to.ad. And when you do a POST request to this plural resource, it creates a new photo resource. So, you would have sent the payload of the photo over in the post request would have created a new resource
+
+01:07:03.000 --> 01:07:05.000
+populated it with that payload.
+
+01:07:05.000 --> 01:07:19.000
+And then returned back the URL, like said, Okay, well, this is where that is located so that you can maybe see it, you can check on the status of it or something in that, in, in the application.
+
+01:07:19.000 --> 01:07:29.000
+And then finally, delete, you can usually delete an entire list of things unless it's a list that you yourself created generally resources are pre created.
+
+01:07:29.000 --> 01:07:40.000
+Just like you can't delete as a px, I can't delete all of the notes in a PR, of course, I can delete one at a time, but I can't delete the fact of notes.
+
+01:07:40.000 --> 01:07:44.000
+So delete usually doesn't work on resources.
+
+01:07:44.000 --> 01:07:46.000
+And so you can't do that.
+
+01:07:46.000 --> 01:08:02.000
+So when in the chat asks, this is an example of an API of what requests, of which request can be done on what your eyes. Yes, that's right. This is an example of all of the have an API, which is indexed by these resources and then all of the things we
+
+01:08:02.000 --> 01:08:03.000
+can do to that.
+
+01:08:03.000 --> 01:08:07.000
+All of the requests, we can send them what happens when we make those requests.
+
+01:08:07.000 --> 01:08:17.000
+So now if we look at a specific photo. The list of things that we can do is different. So, if we get a specific photo will get the photo will get the image back.
+
+01:08:17.000 --> 01:08:20.000
+And if you do a put on the photo.
+
+01:08:20.000 --> 01:08:33.000
+You can maybe replace the image like maybe you're the person who found thing. And you're like, click Post post that and then you get a UI back and then you're like, Oh, that's a terrible photo my finger was in the way or something.
+
+01:08:33.000 --> 01:08:46.000
+You could maybe have the option to edit it without creating a new resource so you can maybe replace the photo, so you might have a. Have you seen replace links in in photo uploads before.
+
+01:08:46.000 --> 01:08:54.000
+And people saying these like if you're. Yeah, replacing your profile pic you can't add a new, like you get one profile pic and you're doing a replace.
+
+01:08:54.000 --> 01:09:05.000
+And that's done through this pull request. So, when, so maybe the resource was already pre created in this case, and usually profile pics are pre created with a blank image and then you can replace that blank image.
+
+01:09:05.000 --> 01:09:13.000
+In this case our dynamic was that we, we put one in there, to start using the post request, it's the same basic concept.
+
+01:09:13.000 --> 01:09:22.000
+So putting the ID would replace the entire photo, maybe the only person who can do that is the person who created it so there might be a bit of authentication there.
+
+01:09:22.000 --> 01:09:24.000
+So that's okay.
+
+01:09:24.000 --> 01:09:36.000
+If you wanted to post to the photo. You can't do that because, like, how would you add a little bit to the photo that doesn't make any sense and deleting could delete the photo resource and if you're the one who created it maybe you also get to delete
+
+01:09:36.000 --> 01:09:37.000
+it.
+
+01:09:37.000 --> 01:09:43.000
+So maybe I'll put maybe if you are the creator.
+
+01:09:43.000 --> 01:09:53.000
+Like if you say oh actually the person came and found it right well I was standing there I'm going to delete my. I'm going to delete this because this thing is no longer lost yeah maybe you're allowed to do that.
+
+01:09:53.000 --> 01:10:04.000
+And so the others, sort of go along the same route. the only really interesting one is the search jobs, which we're not going to get into it all so don't worry.
+
+01:10:04.000 --> 01:10:08.000
+I don't think we're going to get into but don't worry too much about this.
+
+01:10:08.000 --> 01:10:17.000
+But it's interesting searching for things in a RESTful API so usually what happens is you can send a POST request to a search jobs list like to a list of searches.
+
+01:10:17.000 --> 01:10:21.000
+And then it will create a new search.
+
+01:10:21.000 --> 01:10:38.000
+Yeah, searches, searches a verb, but search jobs is kind of gets you around it a little bit. It's the search jobs list, so that's officially announced, you're posting a new search, which is a noun, to the search jobs list which is another now the thing
+
+01:10:38.000 --> 01:10:40.000
+that's happening in the background is searching.
+
+01:10:40.000 --> 01:10:50.000
+And you're doing a POST request to that so you're adding a new noun search to this list of searches. And then in the background.
+
+01:10:50.000 --> 01:11:07.000
+It will search, and what will happen is it will give you back the in the purest form of restful searching, it will give you back and you arrive, it says here's the UI that you can keep getting and pulling until it's populated with something so you know
+
+01:11:07.000 --> 01:11:09.000
+this is where your results will appear, basically.
+
+01:11:09.000 --> 01:11:23.000
+And that's how restful searching kind of work so I just wanted to give people a sense of how those how those things might work. And if you want to kill your search job then you can delete the specific job that is returned to you.
+
+01:11:23.000 --> 01:11:27.000
+You can delete the entire search jobs list.
+
+01:11:27.000 --> 01:11:33.000
+And okay, and everybody with me on this page.
+
+01:11:33.000 --> 01:11:43.000
+Okay. And we can describe the Piazza resources, exactly the same way we have notes we have notes and Id follow ups follow up ideas and we can talk about those in exactly the same way.
+
+01:11:43.000 --> 01:11:47.000
+And that's just a real representation of kind of what we had here.
+
+01:11:47.000 --> 01:11:53.000
+So you can look at that kind of, you know, if you need more detail on that you can look at that yourself.
+
+01:11:53.000 --> 01:12:09.000
+Twitter interestingly, at least at the last time I checked, didn't have a purely RESTful API. So it actually test test had verbs in the resources and it also never used port requests or delete requests.
+
+01:12:09.000 --> 01:12:25.000
+And I think something about and somebody on here is definitely going to know the answer to this but it's something about certain browsers, originally not supporting put in delete and they only supported get an post, is this is my cup web memory correct
+
+01:12:25.000 --> 01:12:29.000
+here people, do you know about this.
+
+01:12:29.000 --> 01:12:45.000
+Usually somebody is able to fill in the gap here but I'm pretty sure that's what happened. I think what happened was, Twitter was working with a sort of very standard web API scope and originally wasn't as rich, you know, delete and put weren't necessarily
+
+01:12:45.000 --> 01:12:55.000
+supported so they made everything work with POST requests. But now, and now they're kind of locked in, because you know they're a bunch of people, implementing against their API.
+
+01:12:55.000 --> 01:13:08.000
+But if we were to do the transformation of what a post statuses destroy request would be it would be a delete request for users ID status, right, That would be how that would look.
+
+01:13:08.000 --> 01:13:23.000
+And if we were to do a rework of the post statuses update which was an update to your status which is when you're basically, I think status is what is the status is that I don't think that's the tweet, I think that's the.
+
+01:13:23.000 --> 01:13:31.000
+I don't know what the status is in Twitter Do people know.
+
+01:13:31.000 --> 01:13:34.000
+I can't remember what that is but anyway.
+
+01:13:34.000 --> 01:13:44.000
+So I guess the statuses might be like a user status is like I'm here or something I don't know, maybe it is a tweet I'm not sure, but any case, you in Twitter's API.
+
+01:13:44.000 --> 01:13:58.000
+Last time I checked, you had to post an update and send the payload of the message or whatever. Whereas, really, it should probably an update which is meaning that there's one that's existing and you're replacing it which is, you should use a pull request
+
+01:13:58.000 --> 01:14:00.000
+for that.
+
+01:14:00.000 --> 01:14:07.000
+Somebody mentioned in the chat, I'm not sure but I feel like most rest API's I've used only use GET and POST.
+
+01:14:07.000 --> 01:14:13.000
+Yeah, that's probably because they are maybe complying with the same.
+
+01:14:13.000 --> 01:14:28.000
+There may be like up against the same constraint as Twitter was up against. But that's more sort of this, this soap approach to this RPC style approach where you have these specialized verbs.
+
+01:14:28.000 --> 01:14:37.000
+So they are resting there. They're, I mean they're at their web API's, but they're not purely RESTful APIs. Does that make sense.
+
+01:14:37.000 --> 01:14:41.000
+Like they say they're restful but not really that restful.
+
+01:14:41.000 --> 01:14:57.000
+They're just saying that because people have come to associate rest with these requests and so now it's like flexing Kleenex like not every kind of tissue with Kleenex but now every, every tissue was Kleenex, and every API is a RESTful API if you're making
+
+01:14:57.000 --> 01:15:02.000
+requests to it but that's not what it means in the purest of forms.
+
+01:15:02.000 --> 01:15:10.000
+Okay, so we only have a couple of minutes left and that you know we have a couple of, you know, examples here.
+
+01:15:10.000 --> 01:15:25.000
+But what I really, but I wanted to get moving in people's minds was the kind of the creation of a service. So let's very very quickly in our last three minutes, imagine like so Spotify actually has a beautiful RESTful API i think i think it has not sure
+
+01:15:25.000 --> 01:15:34.000
+sure but I'm pretty sure it has a really good RESTful API, somebody should look it up, I will also look it up I haven't gone to the trouble of looking at the entire thing but anyway.
+
+01:15:34.000 --> 01:15:41.000
+The other thing that has a really great RESTful API is actually call tracks has a really good RESTful API.
+
+01:15:41.000 --> 01:15:53.000
+So, but anyway so as a music listener. Let's think about a use a user story as a music listener, I want to be able to listen to the songs on my playlist in sequence.
+
+01:15:53.000 --> 01:16:07.000
+So, so here we have some client behavior so what does the client going to do let's just talk it through, we're not programming obviously this isn't a programming model, but let's just talk through how would we realize this user story on the side of the
+
+01:16:07.000 --> 01:16:11.000
+client. Two people tell me what they would do.
+
+01:16:11.000 --> 01:16:28.000
+So let's say, let's say that the server behavior that you start out with that you know you've navigated to user slash and playlists are stored on Spotify, right.
+
+01:16:28.000 --> 01:16:34.000
+So users slash ID slash
+
+01:16:34.000 --> 01:16:40.000
+playlist. I think you could have playlist on Spotify I'm pretty sure it's like the whole point.
+
+01:16:40.000 --> 01:16:42.000
+playlist, and then the ID.
+
+01:16:42.000 --> 01:16:59.000
+And so, we would know what this UI was, and in sequence would be defined by the client person in chat very good so we are defining the sequence.
+
+01:16:59.000 --> 01:17:01.000
+Put this as a comment.
+
+01:17:01.000 --> 01:17:14.000
+So, maybe the sequence that we're saying, we're just going to do it simply this time no we're just going to do it in order of in the playlist order.
+
+01:17:14.000 --> 01:17:23.000
+Okay, so we're not going to do anything fancy could be chronological could be whatever, but just because we only have a minute we're just gonna do it in playlist order so what would we do.
+
+01:17:23.000 --> 01:17:27.000
+What's the first thing that we would do.
+
+01:17:27.000 --> 01:17:36.000
+And we know that this resources provided, we've, we've managed to find our way there.
+
+01:17:36.000 --> 01:17:47.000
+Yes. Okay, so we would do a get request on this, so we would say, get this, so actually, so will be a JSON probably they'll come back.
+
+01:17:47.000 --> 01:17:51.000
+json, and this is not in any program.
+
+01:17:51.000 --> 01:17:54.000
+But like let's say JSON song list.
+
+01:17:54.000 --> 01:17:56.000
+equals.
+
+01:17:56.000 --> 01:18:05.000
+Get users.id De De De De De ok and then we would do for song in song list.
+
+01:18:05.000 --> 01:18:20.000
+I guess I've turned this into Python. And this and like this song would these be whole files of songs, or would they be your eyes of songs, what do you think
+
+01:18:20.000 --> 01:18:27.000
+they would be where I so let's do first song you are I in song list.
+
+01:18:27.000 --> 01:18:42.000
+Get song you are I and I'm assuming it's going to be the whole path because I don't want to necessarily do any concatenation myself so i'm doing i'm assuming it's the whole path and I'll say song equals and sorry about all this capitalization.
+
+01:18:42.000 --> 01:18:53.000
+Crazy song equals get song you ri. And then, and then we're assuming there's some beautiful method called play a song.
+
+01:18:53.000 --> 01:19:06.000
+Great. And that would be our, that would be our code. And so then we would know that there would be a song URI that would live somewhere we have no idea where these songs are going to live right it could be like songs.
+
+01:19:06.000 --> 01:19:11.000
+Artists album.
+
+01:19:11.000 --> 01:19:25.000
+Blah blah blah blah blah, it could be, you know, it could literally just be a resources hash with a whole bunch of numbers and things in it maybe not a percent those fields kind of meaningful but like, you know, bunch of numbers and some hash thingy and
+
+01:19:25.000 --> 01:19:39.000
+thingy and then that could be a URL for a song anything could be a URL for a song, and we don't care because we're getting it back from our song list, and the server doesn't care where we are in the song list, it's just going to be responding with the
+
+01:19:39.000 --> 01:19:48.000
+that we can then play. So I hope that gives a good feeling of the relationship between client and server. We are out of time, so.
+
+01:19:48.000 --> 01:20:06.000
+Oh, just a second, somebody has a quick question for you do JSON equal song list equals get on the client you may need to start. Oh yeah, maybe you can optionally sort so like sort by chronology or something as long as I don't know why.
+
+01:20:06.000 --> 01:20:12.000
+Or, you know, something like that there might be some data associated with this song list.
+
+01:20:12.000 --> 01:20:24.000
+You know, you would have to look in the JSON and see if it had like metadata for each song or whatever. So, yeah, you would have to parse this JSON a little bit so probably parse the JSON.
+
+01:20:24.000 --> 01:20:27.000
+I actually said Jason,
+
+01:20:27.000 --> 01:20:34.000
+do a thing like that there's a little bit of, there's a little bit of, you know, work to do in there in between.
+
+01:20:34.000 --> 01:20:53.000
+to get you know the list of your eyes out and to decide the ordering of the your eyes decide ordering etc etc and then that would be your internal URI list, and maybe that's the thing that you're actually navigating because you did a bit of, you know,
+
+01:20:53.000 --> 01:21:23.000
+so there isn't you so you. You've got the list, you did some housekeeping on it and now you're going through it in this very specific way.
+

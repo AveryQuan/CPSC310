@@ -2,6 +2,7 @@ import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFou
 import JSZip = require("jszip");
 import {Utils} from "./Utils";
 import Min = Mocha.reporters.Min;
+import Decimal from "decimal.js";
 
 export class EnumDataItem {
 	public mode: InsightDataset;
@@ -56,7 +57,8 @@ export default class InsightFacade implements IInsightFacade {
 	// [0] is InsightDataset meta data for course id
 	// [1] is EnumDataItem[] => buffer for JSON data
 	public data: Map<string, any[]>;
-	private static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid"];
+	private static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
+		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
 	private static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
@@ -95,9 +97,7 @@ export default class InsightFacade implements IInsightFacade {
 				});
 			});
 		}).catch((err) => {
-			console.log(err);
-			// eslint-disable-next-line @typescript-eslint/no-empty-function
-			return new Promise<string[]>((resolve, reject) => {});
+			return Promise.reject(err);
 		});
 	}
 
@@ -232,9 +232,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		switch (key) {
 		case "AND": {
-			return this.queryLogic(query[keys[0]], Utils.intersection, not).catch((err)=> {
-				return err;
-			});
+			return this.queryLogic(query[keys[0]], Utils.intersection, not);
 		}
 		case "OR": {
 			return this.queryLogic(query[keys[0]], Utils.union, not);
@@ -260,7 +258,8 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
-	private options(results: any, query: any): Promise<any> {
+	// eslint-disable-next-line max-lines-per-function
+	private options(results: any, query: any): Promise<never> | Promise<any[]> {
 		let keys = Object.keys(query);
 		keys.forEach((k) => {
 			if (!["COLUMNS", "ORDER"].includes(k)) {
@@ -294,17 +293,31 @@ export default class InsightFacade implements IInsightFacade {
 				retval.push(newRow);
 			});
 			if (keys.includes("ORDER")) {
-				let orderField: string = query["ORDER"];
+				let orderField: string = query["ORDER"]["keys"];
+				let dir = query["ORDER"]["dir"];
+				if (orderField === undefined || dir === undefined){
+					return Promise.reject(new InsightError("order fields missing"));
+				}// eslint-disable-next-line max-lines
 				if (!columns.includes(orderField)) {
 					return Promise.reject(new InsightError("order field not in columns"));
-				}// eslint-disable-next-line max-lines
+				}
+				InsightFacade.order([retval, results[1]], query["ORDER"]) ;
 
-				retval = retval.sort((a, b) => a[orderField].toString().localeCompare(b[orderField].toString()));
+				if (keys.includes("TRANSFORMATIONS")) {
+					return InsightFacade.transformations([retval, results[1]], query["TRANSFORMATIONS"])!;
+				}
 			}
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
+	}
+	private static order(results: any, query: any) {
+		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
+		if (Object.keys(query) !== ["dir", "keys"]) {
+			throw new InsightError("invalid order");
+		}
+		InsightFacade.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
 	}
 
 	private static up(a: any, b: any) {
@@ -327,13 +340,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	private order(results: any, query: any) {
-		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
-		if (Object.keys(query) !== ["dir", "keys"]) {
-			return Promise.reject(new InsightError("invalid order"));
-		}
-		InsightFacade.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
-	}
+
 // takes set of rows and groups by list of keys, returns map[key values, list of rows]
 	private static group(results: any, keys: any) {
 		const groups = new Map();
@@ -351,15 +358,16 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	private static sum(rows: [any], field: string){
-		let sum = 0;
+		let sum = new Decimal(0);
 		rows.forEach((row) => {
-			sum += row[field];
+			sum.add(new Decimal(row[field]));
 		});
-		return sum;
+		return Number(sum.toFixed(2));
 	}
 
 	private static avg(rows: [any], field: string){
-		return InsightFacade.sum(rows,field) / rows.length;
+		let avg: number = InsightFacade.sum(rows,field) / rows.length;
+		return Number(avg.toFixed(2));
 	}
 
 	private static max(rows: [any], field: string) {
@@ -395,8 +403,9 @@ export default class InsightFacade implements IInsightFacade {
 		return count;
 	}
 
-	private transformations(results: any, query: any) {
-		const APPLYTOKENS = ["MAX" , "MIN" , "AVG" , "COUNT" , "SUM"];
+	private static transformations(results: any, query: any) {
+		const APPLY = new Map([["MAX" , InsightFacade.max],["MIN" , InsightFacade.min],
+			["AVG" , InsightFacade.avg], [ "COUNT" , InsightFacade.count],[ "SUM", InsightFacade.sum]]);
 		let keys = Object.keys(query);
 		if (!keys.includes("GROUP")) {
 			return Promise.reject(new InsightError("Must include group"));
@@ -419,26 +428,36 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			let fieldName = Object.keys(apply)[0];
 			let applyToken = apply[fieldName];
-			if (APPLYTOKENS.indexOf(applyToken) === -1) {
+
+			let applyTokenValueSplit = apply[fieldName][applyToken].split("_", 2);
+			// TODO check applyTokenValue is a valid room field, wait for yvonne to add rooms
+			if (applyTokenValueSplit[0] !== results[1]) {
+				return Promise.reject(new InsightError(applyTokenValueSplit[0] + "refers to different dataset"));
+			}
+			if (!APPLY.has(applyToken)) {
 				return Promise.reject(new InsightError(applyToken + "is an invalid apply field"));
 			}
-			let applyTokenValue = apply[fieldName][applyToken];
-			// TODO check applyTokenValue is a valid room field, wait for yvonne to add rooms
+			let func = APPLY.get(applyToken)!;
+			let groups = results[0].keys();
+			let result: any[] = [];
+			let groupName: string = groupSplit[1];
+			groups.forEach((group: any)=> {
+				result.push(new Set([[groupName, group], [fieldName, func(results[0], applyTokenValueSplit[1])]]));
+			});
+			return Promise.resolve(result);
+
 		} else if (keys.length > 1) {
 			return Promise.reject(new InsightError(keys + " contains an invalid key"));
 		}
-
-
 	}
 
 	public performQuery(query: any): Promise<any[]> {
-		if(typeof query !== "object" || !InsightFacade.isEqual(Object.keys(query), [ "WHERE", "OPTIONS" ])) {
+		if(typeof query !== "object" ||
+			!Utils.listFormatChecker(Object.keys(query), ["WHERE", "OPTIONS"], ["TRANSFORMATIONS"])) {
 			return Promise.reject(new InsightError("invalid query"));
 		} else {
 			return this.nextQuery(query["WHERE"], false).then((queryResults) => {
 				return this.options(queryResults, query["OPTIONS"]);
-			}).catch((err) => {
-				return Promise.reject(err);
 			});
 		}
 	}
