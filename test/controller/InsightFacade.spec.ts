@@ -312,7 +312,7 @@ describe("InsightFacade", function () {
 		// encode contents into base64
 			courses = fileBuffer.toString("base64");
 			insight = new InsightFacade();
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+			return insight.addDataset("rooms", courses, InsightDatasetKind.Courses);
 		});
 
 		interface Input {
@@ -340,28 +340,95 @@ describe("InsightFacade", function () {
 		}
 
 		testFolder<Input, Output, Error>(
-			"query tests",                               // suiteName
+			"query tests",             	                  // suiteName
 			(input: Input): Promise<Output> => insight.performQuery(input),      // target
 			"./test/resources/queries",                   // path
 			{
-				assertOnResult: assertResult,
+				errorValidator(error: any): error is Error {
+					return error === "InsightError" || error === "ResultTooLargeError";
+				},
 				assertOnError: assertError,                 // options
+				assertOnResult: assertResult,
+			}
+		);
+
+		testFolder<Input, Output, Error>(
+			"query tests",             	                  // suiteName
+			(input: Input): Promise<Output> => insight.performQuery(input),      // target
+			"./test/resources/queries",                   // path
+			{
+				errorValidator(error: any): error is Error {
+					return error === "InsightError" || error === "ResultTooLargeError";
+				},
+				assertOnError: assertError,                 // options
+				assertOnResult: assertResult,
 			}
 		);
 
 		it ("test", function (){
 			return insight.performQuery({
-				WHERE: {},
+
+				WHERE: {
+
+					AND: [{
+
+						IS: {
+
+							rooms_furniture: "*Tables*"
+
+						}
+
+					}, {
+
+						GT: {
+
+							rooms_seats: 300
+
+						}
+
+					}]
+
+				},
+
 				OPTIONS: {
+
 					COLUMNS: [
-						"courses_dept",
-						"courses_id",
-						"courses_avg"
+
+						"rooms_shortname",
+
+						"maxSeats"
+
 					],
-					ORDER: "courses_avg"
+
+					ORDER: {
+
+						dir: "DOWN",
+
+						keys: ["maxSeats"]
+
+					}
+
+				},
+
+				TRANSFORMATIONS: {
+
+					GROUP: ["rooms_shortname"],
+
+					APPLY: [{
+
+						maxSeats: {
+
+							MAX: "rooms_seats"
+
+						}
+
+					}]
+
 				}
-			}).then( (a) => {
-				console.log(a);
+
+			}).then((a: any) => {
+				// eslint-disable-next-line max-len
+				expect(a).to.deep.equal({result:[{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]});
 			});
 		});
 

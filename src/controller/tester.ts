@@ -1,4 +1,5 @@
-let a = ["gay", "whiel"];
-let b = ["gay", "whiel"];
-console.log(JSON.stringify(a) === JSON.stringify(b));
+const unique: [any]  = [null];
+unique.push("gay");
+console.log(unique[0]);
+
 

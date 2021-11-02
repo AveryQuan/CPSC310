@@ -1,0 +1,116 @@
+import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
+
+export class Utils {
+	public static intersection(setA: any, setB: any) {
+		let intersect = new Set();
+		setB[0].forEach((elem: unknown) => {
+			if (setA[0].has(elem)) {
+				intersect.add(elem);
+			}
+		});
+		return Promise.resolve(intersect);
+	}
+
+	public static union(setA: any, setB: any) {
+		let retval = new Set(setA[0]);
+
+		setB[0].forEach((elem: unknown) => {
+			retval.add(elem);
+		});
+		return Promise.resolve(retval);
+	}
+
+	public static equals(a: number, b: number) {
+		return a === b;
+	}
+
+	public static greaterThan(a: number, b: number) {
+		return a > b;
+	}
+
+	public static lessThan(a: number, b: number) {
+		return a < b;
+	}
+
+	public static checkDataKind(input: InsightDatasetKind) {
+		if (input === InsightDatasetKind.Courses || input === InsightDatasetKind.Rooms){
+			return true;
+		}
+		return false;
+	}
+}
+
+
+export class RoomData {
+	public rooms_fullname: string;
+	public rooms_shortname: string;
+	public rooms_number: string;
+	public rooms_name: string;
+	public rooms_address: string;
+	public rooms_lat: number;
+	public rooms_lon: number;
+	public rooms_seats: number;
+	public rooms_type: string;
+	public rooms_furniture: string;
+	public rooms_href: string;
+
+
+	constructor(){
+		this.rooms_fullname = "";
+		this.rooms_shortname = "";
+		this.rooms_number = "";
+		this.rooms_name = "";
+		this.rooms_address = "";
+		this.rooms_lat = Number.NaN;
+		this.rooms_lon = Number.NaN;
+		this.rooms_seats = 0;
+		this.rooms_type = "";
+		this.rooms_furniture = "";
+		this.rooms_href = "";
+	}
+}
+
+export class EnumDataItem {
+	public mode: InsightDataset;
+	public data;
+
+	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
+		let buffer = JSON.parse(result);
+		let count = 0;
+		for (const key in buffer.result) {
+			count++;
+		}
+		this.data = buffer;
+		this.mode = {
+			id: _id,
+			kind: _kind,
+			numRows: count
+		};
+	}
+
+	public has(element: any) {
+		for (const row of this.data["result"]) {
+			if(row === element) {
+				return true;
+			}
+		}
+
+
+	// Returns true if list contains correct items
+	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+		required.forEach((field: any) => {
+			if (!list.includes(field)) {
+				return false;
+			}
+		});
+		list.forEach((thing) =>{
+			if (!required.includes(thing)) {
+				if (!optional.includes(thing)) {
+					return false;
+				}
+			}
+		});
+		return true;
+
+	}
+}
