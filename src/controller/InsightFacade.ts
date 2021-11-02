@@ -19,6 +19,7 @@ export default class InsightFacade implements IInsightFacade {
 	private static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
+
 	constructor() {
 		this.data = new Map();
 	}
@@ -68,7 +69,7 @@ export default class InsightFacade implements IInsightFacade {
 						}));
 					});
 					Promise.all(promises).then((value: any[]) => {
-						this.data.set(id, combineBuffer(buildings, dataSet));
+						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
 						resolve([id]);
 					});
 				});
@@ -76,10 +77,9 @@ export default class InsightFacade implements IInsightFacade {
 				return Promise.reject(new InsightError("Error: Read room failed"));
 			});
 
-		}).catch((err) => {
-			return Promise.reject(err);
-		});
+		}
 	}
+
 
 	public removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
