@@ -28,9 +28,15 @@ describe("InsightFacade", function () {
 		let courses: string;
 		let invalid: string;
 		let courseCopy: string;
+		let rooms: string;
 		before(function () {
-			let filepath = "test/resources/archives/courses2.zip";
+			let filepath = "test/resources/archives/rooms.zip";
 			let fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			rooms = fileBuffer.toString("base64");
+
+			filepath = "test/resources/archives/courses2.zip";
+			fileBuffer = fs.readFileSync(filepath);
 			// encode contents into base64
 			courses2 = fileBuffer.toString("base64");
 
@@ -145,16 +151,18 @@ describe("InsightFacade", function () {
 			});
 		});
 
-		// it("add 1 rooms dataset", function () {
-		// 	return insight.addDataset("first", courses, InsightDatasetKind.Rooms)
-		// 		.then((err) => {
-		// 			throw new Error(`Resolved with: ${err}`);
-		// 		})
-		// 		.catch((x) => {
-		// 			expect(x).to.be.instanceof(InsightError);
-		// 		});
-
-		// });
+		it("add 1 rooms dataset", function () {
+			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms)
+				.then((x) => {
+					expect(x).to.deep.equal(["rooms"]);
+					return insight.listDatasets().then((dataset) => {
+						expect(dataset).to.deep.equal([{
+							id: "rooms",
+							kind: InsightDatasetKind.Rooms,
+						}]);
+					});
+				});
+		});
 
 
 		it("add dataset with invalid id", function () {

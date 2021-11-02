@@ -61,6 +61,23 @@ export class Utils {
 		}
 		return false;
 	}
+
+// 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+// 		required.forEach((field: any) => {
+// 			if (!list.includes(field)) {
+// 				return false;
+// 			}
+// 		});
+// 		list.forEach((thing) =>{
+// 			if (!required.includes(thing)) {
+// 				if (!optional.includes(thing)) {
+// 					return false;
+// 				}
+// 			}
+// 		});
+// 		return true;
+//
+// 	}
 }
 
 
@@ -100,18 +117,14 @@ export class EnumDataItem {
 	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
 		let buffer = JSON.parse(result);
 		let count = 0;
-		let val = Number.NaN;
+
+		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
 		for (const key in buffer.result) {
-			switch (key) {
-			case ("Avg"):
-			case ("Pass"):
-			case ("Fail"):
-			case ("Audit"):
-			case ("Year"):
-				val = parseInt(buffer.result[key], 10);
+			if (FIELDS.includes(key)){
+				let val = parseInt(buffer.result[key], 10);
 				buffer.result[key] = val;
-				break;
 			}
+			count++;
 		}
 		this.data = buffer;
 		this.mode = {
