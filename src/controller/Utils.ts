@@ -1,6 +1,28 @@
 import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
 
 export class Utils {
+	// Returns true if list contains correct items
+	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+		required.forEach((field: any) => {
+			if (!list.includes(field)) {
+				return false;
+			}
+		});
+		list.forEach((thing) => {
+			if (!required.includes(thing)) {
+				if (!optional.includes(thing)) {
+					return false;
+				}
+			}
+		});
+		return true;
+
+	}
+
+	private static isEqual(a: any, b: any) {
+		return JSON.stringify(a) === JSON.stringify(b);
+	}
+
 	public static intersection(setA: any, setB: any) {
 		let intersect = new Set();
 		setB[0].forEach((elem: unknown) => {
@@ -20,6 +42,7 @@ export class Utils {
 		return Promise.resolve(retval);
 	}
 
+
 	public static equals(a: number, b: number) {
 		return a === b;
 	}
@@ -33,7 +56,7 @@ export class Utils {
 	}
 
 	public static checkDataKind(input: InsightDatasetKind) {
-		if (input === InsightDatasetKind.Courses || input === InsightDatasetKind.Rooms){
+		if (input === InsightDatasetKind.Courses || input === InsightDatasetKind.Rooms) {
 			return true;
 		}
 		return false;
@@ -77,8 +100,18 @@ export class EnumDataItem {
 	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
 		let buffer = JSON.parse(result);
 		let count = 0;
+		let val = Number.NaN;
 		for (const key in buffer.result) {
-			count++;
+			switch (key) {
+			case ("Avg"):
+			case ("Pass"):
+			case ("Fail"):
+			case ("Audit"):
+			case ("Year"):
+				val = parseInt(buffer.result[key], 10);
+				buffer.result[key] = val;
+				break;
+			}
 		}
 		this.data = buffer;
 		this.mode = {
@@ -90,27 +123,11 @@ export class EnumDataItem {
 
 	public has(element: any) {
 		for (const row of this.data["result"]) {
-			if(row === element) {
+			if (row === element) {
 				return true;
 			}
 		}
-
-
-	// Returns true if list contains correct items
-	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
-		required.forEach((field: any) => {
-			if (!list.includes(field)) {
-				return false;
-			}
-		});
-		list.forEach((thing) =>{
-			if (!required.includes(thing)) {
-				if (!optional.includes(thing)) {
-					return false;
-				}
-			}
-		});
-		return true;
-
 	}
+
 }
+
