@@ -52,26 +52,32 @@ export function traverseRooms(input: any, readCase: string): any[] {
 }
 
 export function getTables(input: any): any {
+
 	if (input === null) {
+
 		return null;
 	}
 	// DFS to find child with nodeName "table"
 	let todo: any[] = [];
 	todo.push(input);
 
+
 	while(todo.length !== 0){
 		let n = todo.length;
 		while(n > 0){
 			let foo = todo.shift();
 			console.log(foo.nodeName);
+
 			if (foo.nodeName === "table"){
 				return foo;
 			}
 			let child = foo.childNodes;
+
 			console.log(child);
 			for (let rc of child){
 				todo.push(rc);
 			}
+
 			n = n - 1;
 		}
 	}
@@ -89,7 +95,9 @@ export function parseTableChild(item: any, readCase: string): any[] {
 		return [];
 	}
 	let ret = [];
+
 	for (let atr of child){
+
 		// atr.nodeName does not work
 		// parse to JSON with buffer
 		let buffer1 = JSON.parse(atr);
@@ -102,7 +110,9 @@ export function parseTableChild(item: any, readCase: string): any[] {
 				return [];
 			} else {
 				// iterate over childNodes of tbody
+
 				for (let itt of children){
+
 					let buffer2 = JSON.parse(itt);
 					let bufferJSON = null;
 					switch(readCase){
@@ -139,7 +149,9 @@ export function makeBuildingsJSON(child: any): any{
 		let ret = new RoomData();
 		let children = child.childNodes;
 		// make data structure from values in td
+
 		for (let cl of children){
+
 			let itt = JSON.parse(cl);
 			if (itt.nodeName === "td"){
 				let switchCase = itt.attrs.value;
@@ -191,7 +203,9 @@ export function makeRoomsJSON(child: any): any {
 		let ret = new RoomData();
 		let children = child.childNodes;
 		// make data structure from values in td
+
 		for (let cl of children){
+
 			let itt = JSON.parse(cl);
 			if (itt.nodeName === "td"){
 				let switchCase = itt.attrs.value;
@@ -236,14 +250,18 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 		return [];
 	}
 	// RoomData
+
 	for (let rs of rooms){
+
 		let data = JSON.parse(rs);
 		// read in rooms_name and remove dash and course number
 		let val = data.rooms_name.split("-")[0];
 
 		if (val !== undefined){
 			data.rooms_shortname = val;
+
 			for (let bs of buildings){
+
 				let dataB = JSON.parse(bs);
 				if (val === dataB.rooms_shortname){
 					data.rooms_fullname = dataB.rooms_fullname;
@@ -258,6 +276,7 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 	return [];
 }
 
+
 export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): any {
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
@@ -266,6 +285,7 @@ export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: 
 	// traverse tables in "index.htm" and format as RoomData
 	let buffer1 = traverseRooms(buildings, "buildings");
 	console.log("buffer 1");
+
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
 	// and format as RoomData
 	dataSet.map((x) => traverseRooms(x, "rooms"));
@@ -278,3 +298,4 @@ export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: 
 	ret.unshift(mode);
 	return ret;
 }
+

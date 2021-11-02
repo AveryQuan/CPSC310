@@ -69,7 +69,9 @@ export default class InsightFacade implements IInsightFacade {
 						}));
 					});
 					Promise.all(promises).then((value: any[]) => {
+
 						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
+
 						resolve([id]);
 					});
 				});
@@ -77,7 +79,9 @@ export default class InsightFacade implements IInsightFacade {
 				return Promise.reject(new InsightError("Error: Read room failed"));
 			});
 
+
 		}
+
 	}
 
 
