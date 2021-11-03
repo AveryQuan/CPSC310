@@ -320,7 +320,7 @@ describe("InsightFacade", function () {
 		// encode contents into base64
 			courses = fileBuffer.toString("base64");
 			insight = new InsightFacade();
-			return insight.addDataset("rooms", courses, InsightDatasetKind.Courses);
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
 		});
 
 		interface Input {

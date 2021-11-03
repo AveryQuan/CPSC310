@@ -62,22 +62,24 @@ export class Utils {
 		return false;
 	}
 
-// 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
-// 		required.forEach((field: any) => {
-// 			if (!list.includes(field)) {
-// 				return false;
-// 			}
-// 		});
-// 		list.forEach((thing) =>{
-// 			if (!required.includes(thing)) {
-// 				if (!optional.includes(thing)) {
-// 					return false;
-// 				}
-// 			}
-// 		});
-// 		return true;
-//
-// 	}
+	// // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
+	// public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+	// 	required.forEach((field: any) => {
+	// 		if (!list.includes(field)) {
+	// 			return false;
+	// 		}
+	// 	});
+	// 	list.forEach((thing) =>{
+	// 		if (!required.includes(thing)) {
+	// 			if (!optional.includes(thing)) {
+	// 				return false;
+	// 			}
+	// 		}
+	// 	});
+	// 	return true;
+	//
+	// }
+
 }
 
 
@@ -124,6 +126,7 @@ export class EnumDataItem {
 				let val = parseInt(buffer.result[key], 10);
 				buffer.result[key] = val;
 			}
+
 			count++;
 		}
 		this.data = buffer;
@@ -140,6 +143,25 @@ export class EnumDataItem {
 				return true;
 			}
 		}
+
+
+// 	// Returns true if list contains correct items
+// 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+// 		required.forEach((field: any) => {
+// 			if (!list.includes(field)) {
+// 				return false;
+// 			}
+// 		});
+// 		list.forEach((thing) =>{
+// 			if (!required.includes(thing)) {
+// 				if (!optional.includes(thing)) {
+// 					return false;
+// 				}
+// 			}
+// 		});
+// 		return true;
+
+
 	}
 
 }
