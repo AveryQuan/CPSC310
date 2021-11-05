@@ -16,6 +16,7 @@ export default class InsightFacade implements IInsightFacade {
 	public data: Map<string, any[]>;
 	private static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
 		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
+
 	private static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
@@ -24,7 +25,6 @@ export default class InsightFacade implements IInsightFacade {
 		this.data = new Map();
 	}
 
-	
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
@@ -35,58 +35,59 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Error: courses - Invalid ID"));
 		}
 		return new Promise<string[]>((resolve, reject) => {
-				JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
-						if (kind === InsightDatasetKind.Courses){zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
-								let path = relativePath.substr(id.length + 1);
-								promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
-									let item = new EnumDataItem(result, path, kind);
-									dataSet.push(item);
-									total = total + item.mode.numRows;
-								}));
-							});
-						Promise.all(promises).then((value: any[]) => {
-							if (dataSet.length === 0){
-								reject(new InsightError("Error: courses - Read invalid"));
-							} else {
-								dataSet.unshift([{id:id, kind:kind, numrows:total}]);
-								this.data.set(id, dataSet);
-								resolve([id]);
-							}
-						})
+			JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
+				if (kind === InsightDatasetKind.Courses){
+					zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
+						let path = relativePath.substr(id.length + 1);
+						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+							let item = new EnumDataItem(result, path, kind);
+							dataSet.push(item);
+							total = total + item.mode.numRows;
+						}));
+					});
+					Promise.all(promises).then((value: any[]) => {
+						if (dataSet.length === 0){
+							reject(new InsightError("Error: courses - Read invalid"));
 						} else {
-							promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
-								buildings = parse5.parse(result);
-							}));
-							zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
-								promises.push(zip.folder(path)?.file(file.name)?.async("string").then((buff: string) => {
-									dataSet.push(parse5.parse(buff));
-								}));
-							});
-							Promise.all(promises).then((value: any[]) => {
-								this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
-								resolve([id]);
-							});
+							dataSet.unshift([{id:id, kind:kind, numrows:total}]);
+							this.data.set(id, dataSet);
+							resolve([id]);
 						}
-				}).catch((err) => {
-					return Promise.reject(new InsightError("Error: Read courses failed"));
-				});
-			})
-	};
+					});
+				} else {
+					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
+						buildings = parse5.parse(result);
+					}));
+					zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
+						promises.push(zip.folder(path)?.file(file.name)?.async("string").then((buff: string) => {
+							dataSet.push(parse5.parse(buff));
+						}));
+					});
+					Promise.all(promises).then((value: any[]) => {
+						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
+						resolve([id]);
+					});
+				}
+			}).catch((err) => {
+				return Promise.reject(new InsightError("Error: Read courses failed"));
+			});
+		});
+	}
 
 	removeDataset(id: string): Promise<string> {
-			if (!checkCourseFormat(id)) {
-				return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
-			}
-			if (!this.data.has(id)) {
-				return Promise.reject(new NotFoundError("Error: No dataset found with ID given"));
-			}
-			this.data.forEach((value, key) => {
-				if (key === id){
-					this.data.delete(id);
-				}
-			});
-			return Promise.resolve(id);
+		if (!checkCourseFormat(id)) {
+			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
+		if (!this.data.has(id)) {
+			return Promise.reject(new NotFoundError("Error: No dataset found with ID given"));
+		}
+		this.data.forEach((value, key) => {
+			if (key === id){
+				this.data.delete(id);
+			}
+		});
+		return Promise.resolve(id);
+	}
 
 
 	private queryComparator(query: any, comparator: any, not: boolean){
@@ -204,30 +205,30 @@ export default class InsightFacade implements IInsightFacade {
 			key = map.get(key);
 		}
 		switch (key) {
-		case "AND": {
-			return this.queryLogic(query[keys[0]], Utils.intersection, not);
-		}
-		case "OR": {
-			return this.queryLogic(query[keys[0]], Utils.union, not);
-		}
-		case "EQ": {
-			return this.queryComparator(query[key], Utils.equals, not);
-		}
-		case "GT": {
-			return this.queryComparator(query[key], Utils.greaterThan, not);
-		}
-		case "LT": {
-			return this.queryComparator(query[key], Utils.lessThan, not);
-		}
-		case "NOT": {
-			return this.queryNot(query[key], not);
-		}
-		case "IS": {
-			return this.querySComparator(query[key], not);
-		}
-		default: {
-			return Promise.reject(new InsightError("Invalid Json"));
-		}
+			case "AND": {
+				return this.queryLogic(query[keys[0]], Utils.intersection, not);
+			}
+			case "OR": {
+				return this.queryLogic(query[keys[0]], Utils.union, not);
+			}
+			case "EQ": {
+				return this.queryComparator(query[key], Utils.equals, not);
+			}
+			case "GT": {
+				return this.queryComparator(query[key], Utils.greaterThan, not);
+			}
+			case "LT": {
+				return this.queryComparator(query[key], Utils.lessThan, not);
+			}
+			case "NOT": {
+				return this.queryNot(query[key], not);
+			}
+			case "IS": {
+				return this.querySComparator(query[key], not);
+			}
+			default: {
+				return Promise.reject(new InsightError("Invalid Json"));
+			}
 		}
 	}
 
@@ -285,6 +286,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return Promise.resolve(retval);
 	}
+
 	private static order(results: any, query: any) {
 		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
 		if (Object.keys(query) !== ["dir", "keys"]) {
@@ -442,6 +444,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.resolve(list);
 	}
+
 	private getDataset(dataset: any) {
 		let temp = this.data.get(dataset);
 		if (temp) {
@@ -449,6 +452,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return undefined;
 	}
+
 	private queryNot(query: any, not: boolean){
 		let keys = Object.keys(query);
 		if(keys.length !== 1) {
@@ -456,6 +460,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return Promise.resolve(this.nextQuery(query, !not));
 	}
+
 	private static isEqual(a: any, b: any) {
 		return JSON.stringify(a) === JSON.stringify(b);
 	}
