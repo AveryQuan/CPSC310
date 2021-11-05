@@ -38,6 +38,23 @@ export class Utils {
 		}
 		return false;
 	}
+
+	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
+		required.forEach((field: any) => {
+			if (!list.includes(field)) {
+				return false;
+			}
+		});
+		list.forEach((thing) =>{
+			if (!required.includes(thing)) {
+				if (!optional.includes(thing)) {
+					return false;
+				}
+			}
+		});
+		return true;
+	}
+
 }
 
 
@@ -77,7 +94,14 @@ export class EnumDataItem {
 	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
 		let buffer = JSON.parse(result);
 		let count = 0;
+		let val = Number.NaN;
+		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
 		for (const key in buffer.result) {
+			if (FIELDS.includes(key)){
+				val = parseInt(buffer.result[key], 10);
+				buffer.result[key] = val;
+				break;
+			}
 			count++;
 		}
 		this.data = buffer;
@@ -88,29 +112,16 @@ export class EnumDataItem {
 		};
 	}
 
+
 	public has(element: any) {
 		for (const row of this.data["result"]) {
 			if(row === element) {
 				return true;
 			}
+
 		}
+	}
+}
 
 
 	// Returns true if list contains correct items
-	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
-		required.forEach((field: any) => {
-			if (!list.includes(field)) {
-				return false;
-			}
-		});
-		list.forEach((thing) =>{
-			if (!required.includes(thing)) {
-				if (!optional.includes(thing)) {
-					return false;
-				}
-			}
-		});
-		return true;
-
-	}
-}

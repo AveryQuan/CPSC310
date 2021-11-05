@@ -19,9 +19,11 @@ export default class InsightFacade implements IInsightFacade {
 	private static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
+
 	constructor() {
 		this.data = new Map();
 	}
+
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
@@ -31,10 +33,9 @@ export default class InsightFacade implements IInsightFacade {
 		if (!checkCourseFormat(id) || this.data.has(id) || !Utils.checkDataKind(kind)) {
 			return Promise.reject(new InsightError("Error: courses - Invalid ID"));
 		}
-		switch (kind) {
-		case InsightDatasetKind.Courses:
-			return new Promise<string[]>((resolve, reject) => {
-				JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
+		return new Promise<string[]>((resolve, reject) => {
+			JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
+				if (kind === InsightDatasetKind.Courses){
 					zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 						let path = relativePath.substr(id.length + 1);
 						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
@@ -52,13 +53,7 @@ export default class InsightFacade implements IInsightFacade {
 							resolve([id]);
 						}
 					});
-				});
-			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read courses failed"));
-			});
-		case InsightDatasetKind.Rooms:
-			return new Promise<string[]>((resolve, reject) => {
-				JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
+				} else {
 					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
 						buildings = parse5.parse(result);
 					}));
@@ -68,20 +63,17 @@ export default class InsightFacade implements IInsightFacade {
 						}));
 					});
 					Promise.all(promises).then((value: any[]) => {
-						this.data.set(id, combineBuffer(buildings, dataSet));
+						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
 						resolve([id]);
 					});
-				});
+				}
 			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read room failed"));
+				return Promise.reject(new InsightError("Error: Read courses failed"));
 			});
-
-		}).catch((err) => {
-			return Promise.reject(err);
 		});
 	}
 
-	public removeDataset(id: string): Promise<string> {
+	removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
@@ -95,6 +87,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.resolve(id);
 	}
+
 
 	private queryComparator(query: any, comparator: any, not: boolean){
 		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];

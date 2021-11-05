@@ -1,4 +1,5 @@
 import parse5 = require("parse5");
+import { chdir } from "process";
 import {Utils, EnumDataItem, RoomData} from "./Utils";
 let XMLHttpRequest = require("xhr2");
 let apiAdr = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team110/";
@@ -39,81 +40,75 @@ export function checkRoomFormat(input: string, buffer: string): boolean {
 }
 
 export function traverseRooms(input: any, readCase: string): any[] {
-	// get tables
 	let table = getTables(input);
-	// parseTableChild()
-	// if table is null or has no children => return []
-	// otherwise returns data as an array
 	let output = parseTableChild(table, readCase);
-	if (output !== []){
-		return output;
-	}
-	return [];
+	return output;
 }
 
 export function getTables(input: any): any {
-	if (input === null || input === undefined) {
+	if (input === null) {
 		return null;
 	}
 	// DFS to find child with nodeName "table"
 	let todo: any[] = [];
 	todo.push(input);
+	console.log("pong");
+
 	while(todo.length !== 0){
 		let n = todo.length;
 		while(n > 0){
-			let foo = todo[0];
+			let foo = todo.shift();
 			if (foo.nodeName === "table"){
+				console.log("TABLE FOUND");
 				return foo;
 			}
-			let child = foo.childNodes;
-			for (let rc in child){
-				todo.push(rc);
+			let child: any[] = foo.childNodes;
+			if (child !== undefined){
+				for (let i = 0; i < child.length; i++){
+					let rc = child[i];
+					todo.push(rc);
+				}
 			}
-			// remove foo from todo list
-			todo.shift();
 			n = n - 1;
 		}
 	}
 	return null;
 }
 
-
+// item is table as html tag
 export function parseTableChild(item: any, readCase: string): any[] {
-	if (item === null){
+	if (item === "" || item === null || item === undefined){
 		return [];
 	}
 	// get childNodes of the table
 	let child = item.childNodes;
-	if (child === [] || child === null || child === undefined){
+	if (child === "" || child === null || child === undefined){
 		return [];
 	}
+	console.log("in parseTableChild()");
 	let ret = [];
-	for (let atr in child){
-		// atr.nodeName does not work
+	for (let i = 0; i < child.length; i++){
+		let atr = child[i];
 		// parse to JSON with buffer
-		let buffer1 = JSON.parse(atr);
-		let name = buffer1.nodeName;
+		let name = atr.nodeName;
 		// go to tbody childNodes of the table
 		if (name === "tbody"){
 			// get tbody childNodes
-			let children = buffer1.childNodes;
-			if (children === [] || children === null || children === undefined){
-				return [];
-			} else {
-				// iterate over childNodes of tbody
-				for (let itt in children){
-					let buffer2 = JSON.parse(itt);
+			let children = atr.childNodes;
+			if (children !== [] && children !== null && children !== undefined){
+				for (let j = 0; j < children.length; j++){
+					let itt = children[j];
 					let bufferJSON = null;
 					switch(readCase){
 					case ("buildings"):
-						bufferJSON = makeBuildingsJSON(buffer2);
-						if (bufferJSON !== null){
+						bufferJSON = makeBuildingsJSON(itt);
+						if (bufferJSON !== null && bufferJSON !== false){
 							ret.push(bufferJSON);
 						}
 						break;
 					case ("rooms"):
-						bufferJSON = makeRoomsJSON(buffer2);
-						if (bufferJSON !== null){
+						bufferJSON = makeRoomsJSON(itt);
+						if (bufferJSON !== null && bufferJSON !== false){
 							ret.push(bufferJSON);
 						}
 						break;
@@ -134,32 +129,32 @@ export function makeBuildingsJSON(child: any): any{
 	// if the nodeName is 'tr'
 	let name = child.nodeName;
 	if (name === "tr") {
-		// initiate return value
 		let ret = new RoomData();
 		let children = child.childNodes;
-		// make data structure from values in td
-		for (let cl in children){
-			let itt = JSON.parse(cl);
-			if (itt.nodeName === "td"){
-				let switchCase = itt.attrs.value;
-				let val = itt.childNodes["#text"].value.trim();
-				switch (switchCase){
-				case ("views-field views-field-field-building-code"):
-					ret.rooms_shortname = val;
-					break;
-				case ("views-field views-field-title"):
-					ret.rooms_fullname = val;
-					break;
-				case ("views-field views-field-field-building-address"):
-					ret.rooms_address = val;
-					break;
-				default:
-					break;
+		if (children !== null){
+			for (let i = 0; i < children.length; i++){
+				let itt = children[i];
+				if (itt.nodeName === "td"){
+					let switchCase = itt.attrs[0].value;
+					switch (switchCase){
+					case ("views-field views-field-field-building-code"):
+						ret.rooms_shortname = itt.childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-title"):
+						ret.rooms_fullname = itt.childNodes[1].childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-field-building-address"):
+						ret.rooms_address = itt.childNodes[0].value.trim();
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
 		// set lon and lat
 		let url = apiAdr.concat(encodeURIComponent(ret.rooms_address));
+		console.log("url " + url);
 		let xhr = new XMLHttpRequest();
 		xhr.open("GET", url);
 		xhr.onload = function () {
@@ -171,10 +166,9 @@ export function makeBuildingsJSON(child: any): any{
 			}
 		};
 		xhr.send();
-		// return array as JSON or string
 		return ret;
 	} else {
-		return null;
+		return false;
 	}
 }
 
@@ -190,14 +184,15 @@ export function makeRoomsJSON(child: any): any {
 		let ret = new RoomData();
 		let children = child.childNodes;
 		// make data structure from values in td
-		for (let cl in children){
+		for (let i = 0; i < children.length; i++){
+			let cl = children[i];
 			let itt = JSON.parse(cl);
 			if (itt.nodeName === "td"){
-				let switchCase = itt.attrs.value;
+				let switchCase = itt.attrs[0].value;
 				let val = itt.childNodes["#text"].value.trim();
 				switch (switchCase){
 				case ("views-field views-field-field-room-number"):
-					val = itt.childNodes["a"].attrs.childNodes["#text"].value.trim();
+					val = itt.childNodes["a"].attrs[0].childNodes["#text"].value.trim();
 					ret.rooms_number = val;
 					break;
 				case ("views-field views-field-field-room-capacity"):
@@ -210,7 +205,7 @@ export function makeRoomsJSON(child: any): any {
 					ret.rooms_type = val;
 					break;
 				case ("views-field views-field-nothing"):
-					val = itt.childNodes["a"].attrs.value.trim();
+					val = itt.childNodes["a"].attrs[0].value.trim();
 					ret.rooms_href = val;
 					break;
 				default:
@@ -222,10 +217,9 @@ export function makeRoomsJSON(child: any): any {
 		if (str !== undefined){
 			ret.rooms_name = str;
 		}
-		// return array as JSON or string
 		return ret;
 	} else {
-		return null;
+		return false;
 	}
 
 }
@@ -235,14 +229,14 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 		return [];
 	}
 	// RoomData
-	for (let rs in rooms){
+	for (let rs of rooms){
 		let data = JSON.parse(rs);
 		// read in rooms_name and remove dash and course number
 		let val = data.rooms_name.split("-")[0];
 
 		if (val !== undefined){
 			data.rooms_shortname = val;
-			for (let bs in buildings){
+			for (let bs of buildings){
 				let dataB = JSON.parse(bs);
 				if (val === dataB.rooms_shortname){
 					data.rooms_fullname = dataB.rooms_fullname;
@@ -257,19 +251,23 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 	return [];
 }
 
-export function combineBuffer(buildings: any, dataSet: any[]): any {
+export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): any {
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
+	console.log("ping");
 	// traverse tables in "index.htm" and format as RoomData
 	let buffer1 = traverseRooms(buildings, "buildings");
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
 	// and format as RoomData
-	dataSet.map((x) => traverseRooms(x, "rooms"));
+	// dataSet.map((x) => traverseRooms(x, "rooms"));
 	// resulting dataSet is missing fullname, address, lat and lon
 	// get issing values from RoomData with matching shortname in buffer1
-	dataSet = matchRoomBuilding(dataSet, buffer1);
+	// dataSet = matchRoomBuilding(dataSet, buffer1);
+
 	// combine arrays
-	let ret = buffer1.concat(dataSet);
-	return ret;
+	// let ret = buffer1.concat(dataSet);
+	// let mode = {id: id, kind: kind};
+	// ret.unshift(mode);
+	return null;
 }
