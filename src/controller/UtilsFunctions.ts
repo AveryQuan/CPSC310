@@ -1,5 +1,8 @@
 import parse5 = require("parse5");
+<<<<<<< HEAD
 import { resolve } from "path";
+=======
+>>>>>>> 0248ae4 (WIP rooms)
 import { chdir } from "process";
 import {Utils, EnumDataItem, RoomData} from "./Utils";
 let XMLHttpRequest = require("xhr2");
@@ -40,6 +43,15 @@ export function checkRoomFormat(input: string, buffer: string): boolean {
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+export function traverseRooms(input: any, readCase: string): any[] {
+	let table = getTables(input);
+	let output = parseTableChild(table, readCase);
+	return output;
+}
+
+>>>>>>> 0248ae4 (WIP rooms)
 export function getTables(input: any): any {
 	if (input === null) {
 		return null;
@@ -47,6 +59,8 @@ export function getTables(input: any): any {
 	// DFS to find child with nodeName "table"
 	let todo: any[] = [];
 	todo.push(input);
+	console.log("pong");
+
 	while(todo.length !== 0){
 		let n = todo.length;
 		while(n > 0){
@@ -69,7 +83,11 @@ export function getTables(input: any): any {
 }
 
 // item is table as html tag
+<<<<<<< HEAD
 export async function parseBuildingChild(item: any): Promise<any[]> {
+=======
+export function parseTableChild(item: any, readCase: string): any[] {
+>>>>>>> 0248ae4 (WIP rooms)
 	if (item === "" || item === null || item === undefined){
 		return [];
 	}
@@ -82,6 +100,7 @@ export async function parseBuildingChild(item: any): Promise<any[]> {
 	let ret = [];
 	for (let i = 0; i < child.length; i++){
 		let atr = child[i];
+<<<<<<< HEAD
 		let name = atr.nodeName;
 		let children = atr.childNodes;
 		if (name === "tbody" && children !== [] && children !== undefined){
@@ -90,6 +109,34 @@ export async function parseBuildingChild(item: any): Promise<any[]> {
 				let bufferJSON = await makeBuildingsJSON(itt);
 				if (bufferJSON !== null && bufferJSON !== false){
 					ret.push(bufferJSON);
+=======
+		// parse to JSON with buffer
+		let name = atr.nodeName;
+		// go to tbody childNodes of the table
+		if (name === "tbody"){
+			// get tbody childNodes
+			let children = atr.childNodes;
+			if (children !== [] && children !== null && children !== undefined){
+				for (let j = 0; j < children.length; j++){
+					let itt = children[j];
+					let bufferJSON = null;
+					switch(readCase){
+					case ("buildings"):
+						bufferJSON = makeBuildingsJSON(itt);
+						if (bufferJSON !== null && bufferJSON !== false){
+							ret.push(bufferJSON);
+						}
+						break;
+					case ("rooms"):
+						bufferJSON = makeRoomsJSON(itt);
+						if (bufferJSON !== null && bufferJSON !== false){
+							ret.push(bufferJSON);
+						}
+						break;
+					default:
+						break;
+					}
+>>>>>>> 0248ae4 (WIP rooms)
 				}
 			}
 		}
@@ -102,6 +149,7 @@ export function parseRoomChild(item: any): any{
 	if (item === "" || item === null || item === undefined){
 		return [];
 	}
+<<<<<<< HEAD
 	let child = item.childNodes;
 	if (child === "" || child === null || child === undefined){
 		return [];
@@ -128,6 +176,37 @@ export function parseRoomChild(item: any): any{
 export function getLatLon(url: string): Promise<number[]> {
 	return new Promise((resolve, reject) => {
 		let arr: number[] = [NaN, NaN];
+=======
+	// if the nodeName is 'tr'
+	let name = child.nodeName;
+	if (name === "tr") {
+		let ret = new RoomData();
+		let children = child.childNodes;
+		if (children !== null){
+			for (let i = 0; i < children.length; i++){
+				let itt = children[i];
+				if (itt.nodeName === "td"){
+					let switchCase = itt.attrs[0].value;
+					switch (switchCase){
+					case ("views-field views-field-field-building-code"):
+						ret.rooms_shortname = itt.childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-title"):
+						ret.rooms_fullname = itt.childNodes[1].childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-field-building-address"):
+						ret.rooms_address = itt.childNodes[0].value.trim();
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+		// set lon and lat
+		let url = apiAdr.concat(encodeURIComponent(ret.rooms_address));
+		console.log("url " + url);
+>>>>>>> 0248ae4 (WIP rooms)
 		let xhr = new XMLHttpRequest();
 		xhr.open("GET", url, true);
 		xhr.send();
@@ -142,6 +221,7 @@ export function getLatLon(url: string): Promise<number[]> {
 			}
 			reject(arr);
 		};
+<<<<<<< HEAD
 	});
 }
 
@@ -179,6 +259,9 @@ export async function makeBuildingsJSON(child: any): Promise<any>{
 		let response = await getLatLon(url);
 		ret.rooms_lat = response[0];
 		ret.rooms_lon = response[1];
+=======
+		xhr.send();
+>>>>>>> 0248ae4 (WIP rooms)
 		return ret;
 	} else {
 		return false;
@@ -196,6 +279,7 @@ export function makeRoomsJSON(child: any): any {
 		// initiate return value
 		let ret = new RoomData();
 		let children = child.childNodes;
+<<<<<<< HEAD
 		if (children !== null || children !== undefined){
 			for (let i = 0; i < children.length; i++){
 				let itt = children[i];
@@ -223,6 +307,35 @@ export function makeRoomsJSON(child: any): any {
 					default:
 						break;
 					}
+=======
+		// make data structure from values in td
+		for (let i = 0; i < children.length; i++){
+			let cl = children[i];
+			let itt = JSON.parse(cl);
+			if (itt.nodeName === "td"){
+				let switchCase = itt.attrs[0].value;
+				let val = itt.childNodes["#text"].value.trim();
+				switch (switchCase){
+				case ("views-field views-field-field-room-number"):
+					val = itt.childNodes["a"].attrs[0].childNodes["#text"].value.trim();
+					ret.rooms_number = val;
+					break;
+				case ("views-field views-field-field-room-capacity"):
+					ret.rooms_seats = val;
+					break;
+				case ("views-field views-field-field-room-furniture"):
+					ret.rooms_furniture = val;
+					break;
+				case ("views-field views-field-field-room-type"):
+					ret.rooms_type = val;
+					break;
+				case ("views-field views-field-nothing"):
+					val = itt.childNodes["a"].attrs[0].value.trim();
+					ret.rooms_href = val;
+					break;
+				default:
+					break;
+>>>>>>> 0248ae4 (WIP rooms)
 				}
 			}
 		}
@@ -240,6 +353,7 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
+<<<<<<< HEAD
 	let buffer = [];
 	let bufferPos2 = [];
 
@@ -262,6 +376,23 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 				if (name === val.rooms_shortname){
 					match = val;
 					break;
+=======
+	// RoomData
+	for (let rs of rooms){
+		let data = JSON.parse(rs);
+		// read in rooms_name and remove dash and course number
+		let val = data.rooms_name.split("-")[0];
+
+		if (val !== undefined){
+			data.rooms_shortname = val;
+			for (let bs of buildings){
+				let dataB = JSON.parse(bs);
+				if (val === dataB.rooms_shortname){
+					data.rooms_fullname = dataB.rooms_fullname;
+					data.rooms_address = dataB.rooms_address;
+					data.rooms_lat = dataB.rooms_lat;
+					data.rooms_lon = dataB.rooms_lon;
+>>>>>>> 0248ae4 (WIP rooms)
 				}
 			}
 			for (let i: number = 0; i < item.length; i++) {
@@ -278,3 +409,27 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 	buffer.push(bufferPos2);
 	return buffer;
 }
+<<<<<<< HEAD
+=======
+
+export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): any {
+	if (buildings === null && dataSet === null){
+		return new Error("Error: No rooms read");
+	}
+	console.log("ping");
+	// traverse tables in "index.htm" and format as RoomData
+	let buffer1 = traverseRooms(buildings, "buildings");
+	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
+	// and format as RoomData
+	// dataSet.map((x) => traverseRooms(x, "rooms"));
+	// resulting dataSet is missing fullname, address, lat and lon
+	// get issing values from RoomData with matching shortname in buffer1
+	// dataSet = matchRoomBuilding(dataSet, buffer1);
+
+	// combine arrays
+	// let ret = buffer1.concat(dataSet);
+	// let mode = {id: id, kind: kind};
+	// ret.unshift(mode);
+	return null;
+}
+>>>>>>> 0248ae4 (WIP rooms)
