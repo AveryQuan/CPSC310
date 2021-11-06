@@ -131,7 +131,7 @@ export function makeBuildingsJSON(child: any): any{
 	if (name === "tr") {
 		let ret = new RoomData();
 		let children = child.childNodes;
-		if (children !== null){
+		if (children !== null || children !== undefined){
 			for (let i = 0; i < children.length; i++){
 				let itt = children[i];
 				if (itt.nodeName === "td"){
@@ -154,7 +154,6 @@ export function makeBuildingsJSON(child: any): any{
 		}
 		// set lon and lat
 		let url = apiAdr.concat(encodeURIComponent(ret.rooms_address));
-		console.log("url " + url);
 		let xhr = new XMLHttpRequest();
 		xhr.open("GET", url);
 		xhr.onload = function () {
@@ -183,33 +182,33 @@ export function makeRoomsJSON(child: any): any {
 		// initiate return value
 		let ret = new RoomData();
 		let children = child.childNodes;
-		// make data structure from values in td
-		for (let i = 0; i < children.length; i++){
-			let cl = children[i];
-			let itt = JSON.parse(cl);
-			if (itt.nodeName === "td"){
-				let switchCase = itt.attrs[0].value;
-				let val = itt.childNodes["#text"].value.trim();
-				switch (switchCase){
-				case ("views-field views-field-field-room-number"):
-					val = itt.childNodes["a"].attrs[0].childNodes["#text"].value.trim();
-					ret.rooms_number = val;
-					break;
-				case ("views-field views-field-field-room-capacity"):
-					ret.rooms_seats = val;
-					break;
-				case ("views-field views-field-field-room-furniture"):
-					ret.rooms_furniture = val;
-					break;
-				case ("views-field views-field-field-room-type"):
-					ret.rooms_type = val;
-					break;
-				case ("views-field views-field-nothing"):
-					val = itt.childNodes["a"].attrs[0].value.trim();
-					ret.rooms_href = val;
-					break;
-				default:
-					break;
+		if (children !== null || children !== undefined){
+			for (let i = 0; i < children.length; i++){
+				let itt = children[i];
+				if (itt.nodeName === "td"){
+					let switchCase = itt.attrs[0].value;
+					let val = "";
+					switch (switchCase){
+					case ("views-field views-field-field-room-number"):
+						val = itt.childNodes[1].childNodes[0].value.trim();
+						ret.rooms_number = val;
+						break;
+					case ("views-field views-field-field-room-capacity"):
+						ret.rooms_seats = itt.childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-field-room-furniture"):
+						ret.rooms_furniture = itt.childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-field-room-type"):
+						ret.rooms_type = itt.childNodes[0].value.trim();
+						break;
+					case ("views-field views-field-nothing"):
+						val = itt.childNodes[1].attrs[0].value.trim();
+						ret.rooms_href = val;
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
@@ -217,6 +216,7 @@ export function makeRoomsJSON(child: any): any {
 		if (str !== undefined){
 			ret.rooms_name = str;
 		}
+		// ret.print();
 		return ret;
 	} else {
 		return false;
@@ -224,20 +224,21 @@ export function makeRoomsJSON(child: any): any {
 
 }
 
-export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
+export function matchRoomBuilding(rooms: any[], buildings: any[]): boolean {
 	if (rooms === [] || buildings === []){
-		return [];
+		return false;
 	}
-	// RoomData
-	for (let rs of rooms){
-		let data = JSON.parse(rs);
-		// read in rooms_name and remove dash and course number
-		let val = data.rooms_name.split("-")[0];
-
-		if (val !== undefined){
+	console.log("matching ...");
+	console.log(rooms);
+	let data = rooms[0];
+	console.log(data);
+	let val = data[0].rooms_name.split("-")[0];
+	console.log(val);
+	for (let i = 0; i < rooms.length; i++){
+		if (val !== undefined && val !== ""){
 			data.rooms_shortname = val;
-			for (let bs of buildings){
-				let dataB = JSON.parse(bs);
+			for ( let j = 0; j < buildings.length; j++ ){
+				let dataB = buildings[j];
 				if (val === dataB.rooms_shortname){
 					data.rooms_fullname = dataB.rooms_fullname;
 					data.rooms_address = dataB.rooms_address;
@@ -245,10 +246,9 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 					data.rooms_lon = dataB.rooms_lon;
 				}
 			}
-
 		}
 	}
-	return [];
+	return true;
 }
 
 export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): any {
@@ -260,10 +260,11 @@ export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: 
 	let buffer1 = traverseRooms(buildings, "buildings");
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
 	// and format as RoomData
-	// dataSet.map((x) => traverseRooms(x, "rooms"));
+	console.log("map");
+	let buffer2 = dataSet.map((x) => traverseRooms(x, "rooms"));
 	// resulting dataSet is missing fullname, address, lat and lon
 	// get issing values from RoomData with matching shortname in buffer1
-	// dataSet = matchRoomBuilding(dataSet, buffer1);
+	matchRoomBuilding(buffer2, buffer1);
 
 	// combine arrays
 	// let ret = buffer1.concat(dataSet);

@@ -85,6 +85,21 @@ export class RoomData {
 		this.rooms_furniture = "";
 		this.rooms_href = "";
 	}
+
+	public print(){
+		console.log("============= room data set =============");
+		console.log("rooms_fullname: " + this.rooms_fullname);
+		console.log("rooms_shortname: " + this.rooms_shortname);
+		console.log("rooms_number: " + this.rooms_number);
+		console.log("rooms_name: " + this.rooms_name);
+		console.log("rooms_address: " + this.rooms_address);
+		console.log("rooms_lat: " + this.rooms_lat );
+		console.log("rooms_lon: " + this.rooms_lon );
+		console.log("rooms_seats: " + this.rooms_seats );
+		console.log("rooms_type: " + this.rooms_type);
+		console.log("rooms_furniture: " + this.rooms_furniture);
+		console.log("rooms_href: " + this.rooms_href);
+	}
 }
 
 export class EnumDataItem {

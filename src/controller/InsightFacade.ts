@@ -48,7 +48,7 @@ export default class InsightFacade implements IInsightFacade {
 						if (dataSet.length === 0){
 							reject(new InsightError("Error: courses - Read invalid"));
 						} else {
-							dataSet.unshift([{id:id, kind:kind, numrows:total}]);
+							dataSet.unshift({id:id, kind:kind, numRows:total});
 							this.data.set(id, dataSet);
 							resolve([id]);
 						}
@@ -58,7 +58,7 @@ export default class InsightFacade implements IInsightFacade {
 						buildings = parse5.parse(result);
 					}));
 					zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
-						promises.push(zip.folder(path)?.file(file.name)?.async("string").then((buff: string) => {
+						promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
 							dataSet.push(parse5.parse(buff));
 						}));
 					});
