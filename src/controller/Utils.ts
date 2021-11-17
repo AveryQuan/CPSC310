@@ -114,18 +114,11 @@ export class EnumDataItem {
 		let count = 0;
 		let val = Number.NaN;
 		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-<<<<<<< HEAD
-		for (let key in output) {
-			if (FIELDS.includes(key)){
-				val = parseInt(buffer[key], 10);
-				buffer[key] = val;
-=======
 		for (const key in buffer.result) {
 			if (FIELDS.includes(key)){
 				val = parseInt(buffer.result[key], 10);
 				buffer.result[key] = val;
 				break;
->>>>>>> 0248ae4 (WIP rooms)
 			}
 			count++;
 		}
