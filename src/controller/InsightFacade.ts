@@ -1,7 +1,7 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import JSZip = require("jszip");
 import {Utils, EnumDataItem} from "./Utils";
-import {checkCourseFormat, traverseRooms, matchRoomBuilding, combineBuffer} from "./UtilsFunctions";
+import {checkCourseFormat, combineBuffer} from "./UtilsFunctions";
 import parse5 = require("parse5");
 import Min = Mocha.reporters.Min;
 import Decimal from "decimal.js";
@@ -14,6 +14,7 @@ import {C2Query} from "./C2Query";
 export default class InsightFacade implements IInsightFacade {
 	// [0] is InsightDataset meta data for course id
 	// [1] is EnumDataItem[] => buffer for JSON data
+	// [1] is any[] => buffer for JSON data
 	public data: Map<string, any[]>;
 	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
 		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
@@ -21,64 +22,64 @@ export default class InsightFacade implements IInsightFacade {
 	public static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
+
 	constructor() {
 		this.data = new Map();
 	}
 
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
 		let promises: any[] = [];
 		let total = 0;
 		let buildings: parse5.Document;
 		if (!checkCourseFormat(id) || this.data.has(id) || !Utils.checkDataKind(kind)) {
-			return Promise.reject(new InsightError("Error: courses - Invalid ID"));
+			return Promise.reject(new InsightError("Error: Invalid ID or Dataset already has Id"));
+		}
+		let zip = await JSZip.loadAsync(content, {base64: true});
+		if (zip === undefined || zip === null){
+			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
 		}
 		return new Promise<string[]>((resolve, reject) => {
-			JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
 
-				if (kind === InsightDatasetKind.Courses){
-					zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
-						let path = relativePath.substr(id.length + 1);
-						// eslint-disable-next-line max-nested-callbacks
-						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
-							let item = new EnumDataItem(result, path, kind);
-							dataSet.push(item);
-							total = total + item.mode.numRows;
-						}));
-					});
-					Promise.all(promises).then((value: any[]) => {
-						if (dataSet.length === 0){
-							reject(new InsightError("Error: courses - Read invalid"));
-						} else {
-							dataSet.unshift({id:id, kind:kind, numRows:total});
-							this.data.set(id, dataSet);
-							resolve([id]);
-						}
-					});
-				} else {
-					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
-						buildings = parse5.parse(result);
+			if (kind === InsightDatasetKind.Courses){
+				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
+					let path = relativePath.substr(id.length + 1);
+					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+						let item = new EnumDataItem(result, path, kind);
+						dataSet.concat(item.data);
+						total = total + item.mode.numRows;
 					}));
-					zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
-						// eslint-disable-next-line max-nested-callbacks
-						promises.push(zip.folder(path)?.file(file.name)?.async("string").then((buff: string) => {
-							dataSet.push(parse5.parse(buff));
-						}));
-					});
-					Promise.all(promises).then((value: any[]) => {
-						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
+				});
+				Promise.all(promises).then((value: any[]) => {
+					if (dataSet.length === 0){
+						reject(new InsightError("Error: Courses - Read invalid"));
+					} else {
+						dataSet.unshift({id:id, kind:kind, numRows:total});
+						this.data.set(id, dataSet);
 						resolve([id]);
-					});
-				}
-			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read courses failed"));
-			});
-
+					}
+				});
+			} else if (kind === InsightDatasetKind.Rooms) {
+				promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
+					buildings = parse5.parse(result);
+				}));
+				zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
+					promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
+						dataSet.push(parse5.parse(buff));
+					}));
+				});
+				Promise.all(promises).then(async (value: any[]) => {
+					this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
+					resolve([id]);
+				});
+			}
+		}).catch((err) => {
+			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
 		});
 	}
 
-	// eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
-	removeDataset(id: string): Promise<string> {
+	public removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
@@ -270,5 +271,4 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return Promise.resolve(this.nextQuery(query, !not));
 	}
-
 }
