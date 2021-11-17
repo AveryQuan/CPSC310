@@ -27,51 +27,53 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
 		let promises: any[] = [];
 		let total = 0;
 		let buildings: parse5.Document;
 		if (!checkCourseFormat(id) || this.data.has(id) || !Utils.checkDataKind(kind)) {
-			return Promise.reject(new InsightError("Error: courses - Invalid ID"));
+			return Promise.reject(new InsightError("Error: Invalid ID or Dataset already has Id"));
+		}
+		let zip = await JSZip.loadAsync(content, {base64: true});
+		if (zip === undefined || zip === null){
+			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
 		}
 		return new Promise<string[]>((resolve, reject) => {
-			JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
-				if (kind === InsightDatasetKind.Courses){
-					zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
-						let path = relativePath.substr(id.length + 1);
-						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
-							let item = new EnumDataItem(result, path, kind);
-							dataSet.push(item.data);
-							total = total + item.mode.numRows;
-						}));
-					});
-					Promise.all(promises).then((value: any[]) => {
-						if (dataSet.length === 0){
-							reject(new InsightError("Error: courses - Read invalid"));
-						} else {
-							dataSet.unshift({id:id, kind:kind, numRows:total});
-							this.data.set(id, dataSet);
-							resolve([id]);
-						}
-					});
-				} else if (kind === InsightDatasetKind.Rooms) {
-					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
-						buildings = parse5.parse(result);
+			if (kind === InsightDatasetKind.Courses){
+				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
+					let path = relativePath.substr(id.length + 1);
+					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+						let item = new EnumDataItem(result, path, kind);
+						dataSet.push(item.data);
+						total = total + item.mode.numRows;
 					}));
-					zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
-						promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
-							dataSet.push(parse5.parse(buff));
-						}));
-					});
-					Promise.all(promises).then(async (value: any[]) => {
-						this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
+				});
+				Promise.all(promises).then((value: any[]) => {
+					if (dataSet.length === 0){
+						reject(new InsightError("Error: courses - Read invalid"));
+					} else {
+						dataSet.unshift({id:id, kind:kind, numRows:total});
+						this.data.set(id, dataSet);
 						resolve([id]);
-					});
-				}
-			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read courses failed"));
-			});
+					}
+				});
+			} else if (kind === InsightDatasetKind.Rooms) {
+				promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
+					buildings = parse5.parse(result);
+				}));
+				zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
+					promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
+						dataSet.push(parse5.parse(buff));
+					}));
+				});
+				Promise.all(promises).then(async (value: any[]) => {
+					this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
+					resolve([id]);
+				});
+			}
+		}).catch((err) => {
+			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
 		});
 	}
 

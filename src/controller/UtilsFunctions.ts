@@ -100,7 +100,6 @@ export function parseRoomChild(item: any): any{
 	if (child === "" || child === null || child === undefined){
 		return [];
 	}
-	console.log("in parseRoomChild()");
 	let ret = [];
 	for (let atr of child){
 		let name = atr.nodeName;
@@ -244,10 +243,10 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 		bufferPos2.push(itt);
 	}
 	for (let item of buffer2){
-		let itt = item[0];
-		if (itt !== undefined){
-			let match = itt;
-			let name = itt.rooms_name.split("-")[0];
+		let itm = item[0];
+		if (itm !== undefined){
+			let match = itm;
+			let name = itm.rooms_name.split("-")[0];
 			for (let val of buffer1){
 				if (name === val.rooms_shortname){
 					match = val;
