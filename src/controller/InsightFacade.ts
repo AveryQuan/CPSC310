@@ -54,7 +54,7 @@ export default class InsightFacade implements IInsightFacade {
 							resolve([id]);
 						}
 					});
-				} else {
+				} else if (kind === InsightDatasetKind.Rooms) {
 					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
 						buildings = parse5.parse(result);
 					}));
