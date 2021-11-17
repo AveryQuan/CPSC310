@@ -64,6 +64,7 @@ export function getTables(input: any): any {
 			}
 			let child: any[] = foo.childNodes;
 			if (child !== undefined){
+				// eslint-disable-next-line @typescript-eslint/prefer-for-of
 				for (let i = 0; i < child.length; i++){
 					let rc = child[i];
 					todo.push(rc);
@@ -87,6 +88,7 @@ export function parseTableChild(item: any, readCase: string): any[] {
 	}
 	// console.log("in parseTableChild()");
 	let ret = [];
+	// eslint-disable-next-line @typescript-eslint/prefer-for-of
 	for (let i = 0; i < child.length; i++){
 		let atr = child[i];
 		// parse to JSON with buffer
@@ -96,6 +98,7 @@ export function parseTableChild(item: any, readCase: string): any[] {
 			// get tbody childNodes
 			let children = atr.childNodes;
 			if (children !== [] && children !== null && children !== undefined){
+				// eslint-disable-next-line @typescript-eslint/prefer-for-of
 				for (let j = 0; j < children.length; j++){
 					let itt = children[j];
 					let bufferJSON = null;
@@ -132,6 +135,7 @@ export function makeBuildingsJSON(child: any): any{
 		let ret = new RoomData();
 		let children = child.childNodes;
 		if (children !== null || children !== undefined){
+			// eslint-disable-next-line @typescript-eslint/prefer-for-of
 			for (let i = 0; i < children.length; i++){
 				let itt = children[i];
 				if (itt.nodeName === "td"){
@@ -183,6 +187,7 @@ export function makeRoomsJSON(child: any): any {
 		let ret = new RoomData();
 		let children = child.childNodes;
 		if (children !== null || children !== undefined){
+			// eslint-disable-next-line @typescript-eslint/prefer-for-of
 			for (let i = 0; i < children.length; i++){
 				let itt = children[i];
 				if (itt.nodeName === "td"){
@@ -234,9 +239,11 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): boolean {
 	console.log(data);
 	let val = data[0].rooms_name.split("-")[0];
 	console.log(val);
+	// eslint-disable-next-line @typescript-eslint/prefer-for-of
 	for (let i = 0; i < rooms.length; i++){
 		if (val !== undefined && val !== ""){
 			data.rooms_shortname = val;
+			// eslint-disable-next-line @typescript-eslint/prefer-for-of
 			for ( let j = 0; j < buildings.length; j++ ){
 				let dataB = buildings[j];
 				if (val === dataB.rooms_shortname){

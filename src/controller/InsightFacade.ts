@@ -297,7 +297,8 @@ export default class InsightFacade implements IInsightFacade {
 		const orderConvert = new Map([["UP",Utils.up], ["DOWN", Utils.down]]);
 		if (!this.isEqual(Object.keys(query), ["dir", "keys"])) {
 			throw new InsightError("invalid order");
-		}
+		}// eslint-disable-next-line max-lines
+
 		Utils.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
 	}
 
@@ -317,6 +318,7 @@ export default class InsightFacade implements IInsightFacade {
 		return groups;
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	private transformations(results: any, query: any) {
 		const APPLY = new Map([["MAX" , Utils.max],["MIN" , Utils.min],
 			["AVG" , Utils.avg], [ "COUNT" , Utils.count],[ "SUM", Utils.sum]]);
