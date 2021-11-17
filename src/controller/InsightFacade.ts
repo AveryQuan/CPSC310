@@ -75,7 +75,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	removeDataset(id: string): Promise<string> {
+	public removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}

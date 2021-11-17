@@ -51,7 +51,6 @@ export function getTables(input: any): any {
 		while(n > 0){
 			let foo = todo.shift();
 			if (foo.nodeName === "table"){
-				console.log(" FOUND");
 				return foo;
 			}
 			let child: any[] = foo.childNodes;
@@ -76,7 +75,6 @@ export async function parseBuildingChild(item: any): Promise<any[]> {
 	if (child === "" || child === null || child === undefined){
 		return [];
 	}
-	console.log("in parseTableChild()");
 	let ret = [];
 	for (let atr of child){
 		let name = atr.nodeName;
@@ -153,17 +151,17 @@ export async function makeBuildingsJSON(child: any): Promise<any>{
 				if (itt.nodeName === "td"){
 					let switchCase = itt.attrs[0].value;
 					switch (switchCase){
-					case ("views-field views-field-field-building-code"):
-						ret.rooms_shortname = itt.childNodes[0].value.trim();
-						break;
-					case ("views-field views-field-title"):
-						ret.rooms_fullname = itt.childNodes[1].childNodes[0].value.trim();
-						break;
-					case ("views-field views-field-field-building-address"):
-						ret.rooms_address = itt.childNodes[0].value.trim();
-						break;
-					default:
-						break;
+						case ("views-field views-field-field-building-code"):
+							ret.rooms_shortname = itt.childNodes[0].value.trim();
+							break;
+						case ("views-field views-field-title"):
+							ret.rooms_fullname = itt.childNodes[1].childNodes[0].value.trim();
+							break;
+						case ("views-field views-field-field-building-address"):
+							ret.rooms_address = itt.childNodes[0].value.trim();
+							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -195,25 +193,25 @@ export function makeRoomsJSON(child: any): any {
 					let switchCase = itt.attrs[0].value;
 					let val = "";
 					switch (switchCase){
-					case ("views-field views-field-field-room-number"):
-						val = itt.childNodes[1].childNodes[0].value.trim();
-						ret.rooms_number = val;
-						break;
-					case ("views-field views-field-field-room-capacity"):
-						ret.rooms_seats = itt.childNodes[0].value.trim();
-						break;
-					case ("views-field views-field-field-room-furniture"):
-						ret.rooms_furniture = itt.childNodes[0].value.trim();
-						break;
-					case ("views-field views-field-field-room-type"):
-						ret.rooms_type = itt.childNodes[0].value.trim();
-						break;
-					case ("views-field views-field-nothing"):
-						val = itt.childNodes[1].attrs[0].value.trim();
-						ret.rooms_href = val;
-						break;
-					default:
-						break;
+						case ("views-field views-field-field-room-number"):
+							val = itt.childNodes[1].childNodes[0].value.trim();
+							ret.rooms_number = val;
+							break;
+						case ("views-field views-field-field-room-capacity"):
+							ret.rooms_seats = itt.childNodes[0].value.trim();
+							break;
+						case ("views-field views-field-field-room-furniture"):
+							ret.rooms_furniture = itt.childNodes[0].value.trim();
+							break;
+						case ("views-field views-field-field-room-type"):
+							ret.rooms_type = itt.childNodes[0].value.trim();
+							break;
+						case ("views-field views-field-nothing"):
+							val = itt.childNodes[1].attrs[0].value.trim();
+							ret.rooms_href = val;
+							break;
+						default:
+							break;
 					}
 				}
 			}
