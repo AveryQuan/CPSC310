@@ -39,7 +39,6 @@ export class Utils {
 		return false;
 	}
 
-
 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
 		required.forEach((field: any) => {
 			if (!list.includes(field)) {
@@ -54,7 +53,6 @@ export class Utils {
 			}
 		});
 		return true;
-
 	}
 
 }
@@ -87,6 +85,21 @@ export class RoomData {
 		this.rooms_furniture = "";
 		this.rooms_href = "";
 	}
+
+	public print(){
+		console.log("============= room data set =============");
+		console.log("rooms_fullname: " + this.rooms_fullname);
+		console.log("rooms_shortname: " + this.rooms_shortname);
+		console.log("rooms_number: " + this.rooms_number);
+		console.log("rooms_name: " + this.rooms_name);
+		console.log("rooms_address: " + this.rooms_address);
+		console.log("rooms_lat: " + this.rooms_lat );
+		console.log("rooms_lon: " + this.rooms_lon );
+		console.log("rooms_seats: " + this.rooms_seats );
+		console.log("rooms_type: " + this.rooms_type);
+		console.log("rooms_furniture: " + this.rooms_furniture);
+		console.log("rooms_href: " + this.rooms_href);
+	}
 }
 
 export class EnumDataItem {
@@ -95,31 +108,33 @@ export class EnumDataItem {
 
 	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
 		let buffer = JSON.parse(result);
+		let output = buffer.result;
 		let count = 0;
 
-		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-		for (const key in buffer.result) {
-			if (FIELDS.includes(key)){
-				let val = parseInt(buffer.result[key], 10);
-				buffer.result[key] = val;
-			}
+		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
 
+		for (let key in output) {
 			count++;
 		}
-		this.data = buffer;
+		let prefix = "courses_";
 		this.mode = {
 			id: _id,
 			kind: _kind,
 			numRows: count
 		};
+		this.data = output;
 	}
+
 
 	public has(element: any) {
 		for (const row of this.data["result"]) {
 			if(row === element) {
 				return true;
 			}
+
 		}
+	}
+}
 
 
 // 	// Returns true if list contains correct items
@@ -139,5 +154,3 @@ export class EnumDataItem {
 // 		return true;
 
 
-	}
-}
