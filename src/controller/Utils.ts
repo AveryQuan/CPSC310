@@ -1,4 +1,5 @@
 import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
+import Decimal from "decimal.js";
 
 export class Utils {
 	public static intersection(setA: any, setB: any) {
@@ -55,6 +56,95 @@ export class Utils {
 		return true;
 	}
 
+	public static regexEquals(not: boolean, row: any, field: string, value: any, retval: Set<any>) {
+		let regexpNumber = new RegExp(value.split("*").join(".*"));
+		if (not) {
+			if (!regexpNumber.test(row[field])) {
+				retval.add(row);
+			}
+		}else if  (regexpNumber.test(row[field])) {
+			retval.add(row);
+		}
+	}
+
+	public static fieldEquals(not: boolean, row: any, field: string, value: any, retval: Set<any>) {
+		if (not) {
+			if (row[field] !== value) {
+				retval.add(row);
+			}
+		} else if (row[field] === value) {
+
+			retval.add(row);
+		}
+	}
+	public static sort(array: any, sortKeys: any, direction: any){
+		const zeroConvert = new Map([[1,1], [0, -1]]);
+		array.sort((a: any, b: any) => {
+			sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
+				let greater = direction(a[key], b[key]);
+				if (greater !== -1) {
+					return zeroConvert.get(greater);
+				}
+			});
+		});
+	}
+	public static sum(rows: [any], field: string){
+		let sum = new Decimal(0);
+		let rowValues = Array.from(rows.values())[0];
+		rowValues.forEach((row: { [x: string]: Decimal.Value; }) => {
+			sum.add(new Decimal(row[field]));
+		});
+		return Number(sum.toFixed(2));
+	}
+
+	public static avg(rows: [any], field: string){
+		let avg: number = Utils.sum(rows,field) / rows.length;
+		return Number(avg.toFixed(2));
+	}
+
+	public static max(rows: [any], field: string) {
+		let maximum = Number.MIN_VALUE;
+		let rowValues = Array.from(rows.values())[0];
+		rowValues.forEach((row: { [x: string]: number; }) => {
+			if (row[field] > maximum) {
+				maximum = row[field];
+			}
+		});
+		return maximum;
+	}
+
+	public static min(rows: [any], field: string) {
+		let minimum = Number.MAX_VALUE;
+		let rowValues = Array.from(rows.values())[0];
+		rowValues.forEach((row: { [x: string]: number; }) => {
+			if (row[field] < minimum) {
+				minimum = row[field];
+			}
+		});
+		return minimum;
+	}
+
+	public static count(rows: [any], field: string) {
+		const unique: any[]  = [];
+		let count = 0;
+		let rowValues = Array.from(rows.values())[0];
+		rowValues.forEach((row: any)=> {
+			let value: any = row[field];
+			if (!unique.includes(value)) {
+				unique.push(value);
+				count++;
+			}
+		});
+		return count;
+	}
+
+	public static up(a: any, b: any) {
+		return (a === b) ? -1 : a > b;
+	}
+
+	public static down(a: any, b: any) {
+		return (a === b) ? -1 : a < b;
+	}
 }
 
 

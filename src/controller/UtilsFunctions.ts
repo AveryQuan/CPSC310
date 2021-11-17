@@ -52,14 +52,14 @@ export function getTables(input: any): any {
 	// DFS to find child with nodeName "table"
 	let todo: any[] = [];
 	todo.push(input);
-	console.log("pong");
+	// console.log("pong");
 
 	while(todo.length !== 0){
 		let n = todo.length;
 		while(n > 0){
 			let foo = todo.shift();
 			if (foo.nodeName === "table"){
-				console.log("TABLE FOUND");
+				// console.log("TABLE FOUND");
 				return foo;
 			}
 			let child: any[] = foo.childNodes;
@@ -85,7 +85,7 @@ export function parseTableChild(item: any, readCase: string): any[] {
 	if (child === "" || child === null || child === undefined){
 		return [];
 	}
-	console.log("in parseTableChild()");
+	// console.log("in parseTableChild()");
 	let ret = [];
 	for (let i = 0; i < child.length; i++){
 		let atr = child[i];
@@ -255,20 +255,34 @@ export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: 
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
-	console.log("ping");
+	// console.log("ping");
 	// traverse tables in "index.htm" and format as RoomData
 	let buffer1 = traverseRooms(buildings, "buildings");
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
 	// and format as RoomData
-	console.log("map");
+	// console.log("map");
 	let buffer2 = dataSet.map((x) => traverseRooms(x, "rooms"));
 	// resulting dataSet is missing fullname, address, lat and lon
 	// get issing values from RoomData with matching shortname in buffer1
-	matchRoomBuilding(buffer2, buffer1);
+	// matchRoomBuilding(buffer2, buffer1);
 
 	// combine arrays
 	// let ret = buffer1.concat(dataSet);
 	// let mode = {id: id, kind: kind};
 	// ret.unshift(mode);
-	return null;
+	let buffer = [];
+	let bufferPos2 = [];
+	let mode = {id: id, kind: kind};
+	buffer.push(mode);
+	for (let itt of buffer1) {
+		bufferPos2.push(itt);
+	}
+	for (let item of buffer2){
+		for (let itt of item) {
+			bufferPos2.push(itt);
+		}
+	}
+	buffer.push(bufferPos2);
+	// console.log(buffer);
+	return buffer;
 }

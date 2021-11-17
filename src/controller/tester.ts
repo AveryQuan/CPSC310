@@ -1,5 +1,4 @@
-const unique: [any]  = [null];
-unique.push("gay");
-console.log(unique[0]);
+let g = "ga_y";
+console.log(g.split("_")[0]);
 
 

@@ -40,7 +40,7 @@ export default class InsightFacade implements IInsightFacade {
 						let path = relativePath.substr(id.length + 1);
 						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 							let item = new EnumDataItem(result, path, kind);
-							dataSet.push(item);
+							dataSet.push(item.data);
 							total = total + item.mode.numRows;
 						}));
 					});
@@ -73,7 +73,7 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	removeDataset(id: string): Promise<string> {
+	public removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
 		}
@@ -90,7 +90,7 @@ export default class InsightFacade implements IInsightFacade {
 
 
 	private queryComparator(query: any, comparator: any, not: boolean){
-		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
+		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year", "Lat" , "Lon" , "Seats"];
 		let keys = Object.keys(query);
 		if(keys.length !== 1) {
 			return Promise.reject(new InsightError("more than one number comparator"));
@@ -105,18 +105,19 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		let dataset = this.getDataset(datasetName);
 		if (dataset) {
+			if (this.getDatasetKind(datasetName) === "rooms") {
+				field = keys[0];
+			}
 			let retval = new Set();
-			dataset.forEach((elem: any) => {
-				let result = elem.data["result"];
-				result.forEach((row: any) => {
-					if (not) {
-						if (!comparator(row[field], value)) {
-							retval.add(row);
-						}
-					} else if (comparator(row[field], value)) {
+			dataset.forEach((row: any) => {
+
+				if (not) {
+					if (!comparator(row[field], value)) {
 						retval.add(row);
 					}
-				});
+				} else if (comparator(row[field], value)) {
+					retval.add(row);
+				}
 
 			});
 			return Promise.resolve([retval, datasetName]);
@@ -144,25 +145,27 @@ export default class InsightFacade implements IInsightFacade {
 		let retval = new Set();
 		if (dataset) {
 
-			dataset.forEach((elem: any) => {
-				let result = elem.data["result"];
-				result.forEach((row: any) => {
-					if(not) {
-						if (row[field] !== value) {
-							retval.add(row);
-						}
-					} else if (row[field] === value) {
-
-						retval.add(row);
-					}
-				});
+			// dataset.forEach((elem: any) => {
+				// let result = elem.data["result"];
+			if (this.getDatasetKind(datasetName) === "rooms") {
+				field = keys[0];
+			}
+			dataset.forEach((row: any) => {
+				if (value.includes("*")) {
+					Utils.regexEquals(not, row, field, value, retval);
+				} else {
+					Utils.fieldEquals(not, row, field, value, retval);
+				}
 			});
+
+			// });
 			return Promise.resolve([retval, datasetName]);
 
 		} else{
 			return Promise.reject(new InsightError("dataset doesnt exist"));
 		}
 	}
+
 
 	private queryLogic(query: any, logic: (a: any, b: any) => any, not: boolean): Promise<any>{
 		let keys = Object.keys(query);
@@ -242,6 +245,9 @@ export default class InsightFacade implements IInsightFacade {
 		let retval: any[] = [];
 		if (keys.includes("COLUMNS")) {
 			let columns = query["COLUMNS"];
+			if (results[2] !== undefined){
+				columns.concat(results[2]);
+			}
 			if (!columns) {
 				return Promise.reject(new InsightError("columns empty"));
 			}
@@ -261,136 +267,75 @@ export default class InsightFacade implements IInsightFacade {
 					if (specField !== "id") {
 						specField =  specField[0].toUpperCase() + specField.substring(1);
 					}
+					if (this.getDatasetKind(fieldSplit[0]) === "rooms") {
+						specField = field;
+					}
 					newRow[field] = row[specField];
 				});
 				retval.push(newRow);
 			});
 			if (keys.includes("ORDER")) {
-				let orderField: string = query["ORDER"]["keys"];
+				let orderField: any[string] = query["ORDER"]["keys"];
 				let dir = query["ORDER"]["dir"];
 				if (orderField === undefined || dir === undefined){
 					return Promise.reject(new InsightError("order fields missing"));
-				}// eslint-disable-next-line max-lines
-				if (!columns.includes(orderField)) {
-					return Promise.reject(new InsightError("order field not in columns"));
 				}
+				orderField.forEach((field: string) =>{
+					if (!columns.includes(field)) {
+						return Promise.reject(new InsightError("order field not in columns"));
+					}
+				});
 				InsightFacade.order([retval, results[1]], query["ORDER"]) ;
 
-				if (keys.includes("TRANSFORMATIONS")) {
-					return InsightFacade.transformations([retval, results[1]], query["TRANSFORMATIONS"])!;
-				}
 			}
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
-		return Promise.resolve(retval);
+		return Promise.resolve([retval, results[1]]);
 	}
 	private static order(results: any, query: any) {
-		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
-		if (Object.keys(query) !== ["dir", "keys"]) {
+		const orderConvert = new Map([["UP",Utils.up], ["DOWN", Utils.down]]);
+		if (!this.isEqual(Object.keys(query), ["dir", "keys"])) {
 			throw new InsightError("invalid order");
 		}
-		InsightFacade.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
+		Utils.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
 	}
-
-	private static up(a: any, b: any) {
-		return (a === b) ? -1 : a > b;
-	}
-
-	private static down(a: any, b: any) {
-		return (a === b) ? -1 : a < b;
-	}
-
-	private static sort(array: any, sortKeys: any, direction: any){
-		const zeroConvert = new Map([[1,1], [0, -1]]);
-		array.sort((a: any, b: any) => {
-			sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
-				let greater = direction(a[key], b[key]);
-				if (greater !== -1) {
-					return zeroConvert.get(greater);
-				}
-			});
-		});
-	}
-
 
 // takes set of rows and groups by list of keys, returns map[key values, list of rows]
 	private static group(results: any, keys: any) {
 		const groups = new Map();
 		results.forEach((row: any) => {
-			let  temp = [];
-			let rowValues = keys.forEach((key: any) => {
-				temp.push(row[key]);
+			let  rowValues: any[] = [];
+			keys.forEach((key: any) => {
+				rowValues.push(row[key]);
 			});
-			if (!groups.has(rowValues)){
-				groups.set(rowValues, []);
+			if (!groups.has(JSON.stringify(rowValues))){
+				groups.set(JSON.stringify(rowValues), []);
 			}
-			groups.get(rowValues).push(row);
+			groups.get(JSON.stringify(rowValues)).push(row);
 		});
 		return groups;
 	}
 
-	private static sum(rows: [any], field: string){
-		let sum = new Decimal(0);
-		rows.forEach((row) => {
-			sum.add(new Decimal(row[field]));
-		});
-		return Number(sum.toFixed(2));
-	}
-
-	private static avg(rows: [any], field: string){
-		let avg: number = InsightFacade.sum(rows,field) / rows.length;
-		return Number(avg.toFixed(2));
-	}
-
-	private static max(rows: [any], field: string) {
-		let maximum = Number.MIN_VALUE;
-		rows.forEach((row) => {
-			if (row[field] > maximum) {
-				maximum = row[field];
-			}
-		});
-		return maximum;
-	}
-
-	private static min(rows: [any], field: string) {
-		let minimum = Number.MAX_VALUE;
-		rows.forEach((row) => {
-			if (row[field] > minimum) {
-				minimum = row[field];
-			}
-		});
-		return minimum;
-	}
-
-	private static count(rows: [any], field: string) {
-		const unique: any[]  = [];
-		let count = 0;
-		rows.forEach((row: any)=> {
-			let value: any = row[field];
-			if (!unique.includes(value)) {
-				unique.push(value);
-				count++;
-			}
-		});
-		return count;
-	}
-
-	private static transformations(results: any, query: any) {
-		const APPLY = new Map([["MAX" , InsightFacade.max],["MIN" , InsightFacade.min],
-			["AVG" , InsightFacade.avg], [ "COUNT" , InsightFacade.count],[ "SUM", InsightFacade.sum]]);
+	private transformations(results: any, query: any) {
+		const APPLY = new Map([["MAX" , Utils.max],["MIN" , Utils.min],
+			["AVG" , Utils.avg], [ "COUNT" , Utils.count],[ "SUM", Utils.sum]]);
 		let keys = Object.keys(query);
 		if (!keys.includes("GROUP")) {
 			return Promise.reject(new InsightError("Must include group"));
 		}
-		let groupSplit = query["GROUP"].split("_",2);	// [0] is dataset name [1] is field to group on
+		let groupSplit = query["GROUP"][0].split("_",2);	// [0] is dataset name [1] is field to group on
 		if (groupSplit[0] !== results[1]) {
 			return Promise.reject(new InsightError(groupSplit[0] + " refers to different dataset"));
 		}
 		if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
 			return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
 		}
-		results[0] = InsightFacade.group(results[0], groupSplit[1]); // results[0] is now a map instead of a list
+		if (this.getDatasetKind(groupSplit[0]) === "rooms") {
+			results[0] = InsightFacade.group(results[0], query["GROUP"]);
+		} else {
+			results[0] = InsightFacade.group(results[0], groupSplit[1]); // results[0] is now a map instead of a list
+		}
 		if (keys.includes("APPLY")){
 			if (keys.length > 2) {
 				return Promise.reject(new InsightError(keys + " contains an invalid key"));
@@ -399,27 +344,38 @@ export default class InsightFacade implements IInsightFacade {
 			if (Object.keys(apply).length === 0) {
 				return Promise.reject(new InsightError("must have a field for apply"));
 			}
-			let fieldName = Object.keys(apply)[0];
-			let applyToken = apply[fieldName];
+			let fields = Object.keys(apply);
+			let funcs: any[] = [];
+			let columns: string[] = [];
+			fields.forEach((fieldIndex) => {
+				let fieldName = Object.keys(apply[fieldIndex])[0];
+				columns.push(fieldName);
+				let operation = Object.keys(apply[fieldIndex][fieldName])[0];
+				let applyTokenValueSplit = apply[fieldIndex][fieldName][operation].split("_", 2);
+				if (applyTokenValueSplit[0] !== results[1]) {
+					return Promise.reject(new InsightError(applyTokenValueSplit[0] + "refers to different dataset"));
+				}
 
-			let applyTokenValueSplit = apply[fieldName][applyToken].split("_", 2);
-			// TODO check applyTokenValue is a valid room field, wait for yvonne to add rooms
-			if (applyTokenValueSplit[0] !== results[1]) {
-				return Promise.reject(new InsightError(applyTokenValueSplit[0] + "refers to different dataset"));
-			}
-			if (!APPLY.has(applyToken)) {
-				return Promise.reject(new InsightError(applyToken + "is an invalid apply field"));
-			}
-			let func = APPLY.get(applyToken)!;
-			let groups = results[0].keys();
-			let result: any[] = [];
-			let groupName: string = groupSplit[1];
-			groups.forEach((group: any)=> {
-				result.push(new Set([[groupName, group], [fieldName, func(results[0], applyTokenValueSplit[1])]]));
+				if (!APPLY.has(operation)) {
+					return Promise.reject(new InsightError(operation + "is an invalid apply field"));
+				}
+				funcs.push([fieldName,apply[fieldIndex][fieldName][operation],  APPLY.get(operation)!]);
 			});
-			return Promise.resolve(result);
+			let groups = Array.from(results[0].keys());
+			let result: any[] = [];
+			let groupName: string = groupSplit[0] + "_" + groupSplit[1];
+			groups.forEach((group: any)=> {
+				let temp: any[any] = {groupName, group};
+				funcs.forEach((func)=> {
+					temp[func[0]] =  func[2](results[0], func[1]);
+				});
+				result.push(temp);
+			});
+			results[0] = result;
+			results.push(columns);
+			return Promise.resolve(results);
 
-		} else if (keys.length > 1) {
+		} else {
 			return Promise.reject(new InsightError(keys + " contains an invalid key"));
 		}
 	}
@@ -430,6 +386,11 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("invalid query"));
 		} else {
 			return this.nextQuery(query["WHERE"], false).then((queryResults) => {
+				if (Object.keys(query).includes("TRANSFORMATIONS")) {
+					return this.transformations(queryResults, query["TRANSFORMATIONS"]).then((results) => {
+						return this.options(results, query["OPTIONS"]);
+					});
+				}
 				return this.options(queryResults, query["OPTIONS"]);
 			});
 		}
@@ -449,6 +410,14 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return undefined;
 	}
+	private getDatasetKind(dataset: any) {
+		let temp = this.data.get(dataset);
+		if (temp) {
+			return temp[0]["kind"];
+		}
+		return undefined;
+	}
+
 	private queryNot(query: any, not: boolean){
 		let keys = Object.keys(query);
 		if(keys.length !== 1) {
@@ -459,4 +428,5 @@ export default class InsightFacade implements IInsightFacade {
 	private static isEqual(a: any, b: any) {
 		return JSON.stringify(a) === JSON.stringify(b);
 	}
+
 }
