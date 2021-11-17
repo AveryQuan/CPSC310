@@ -51,7 +51,7 @@ export default class InsightFacade implements IInsightFacade {
 				});
 				Promise.all(promises).then((value: any[]) => {
 					if (dataSet.length === 0){
-						reject(new InsightError("Error: courses - Read invalid"));
+						reject(new InsightError("Error: Courses - Read invalid"));
 					} else {
 						dataSet.unshift({id:id, kind:kind, numRows:total});
 						this.data.set(id, dataSet);

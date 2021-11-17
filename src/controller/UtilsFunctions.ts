@@ -234,11 +234,14 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 
 	let mode = {id: id, kind: kind};
 	buffer.push(mode);
+
 	let table2 = dataSet.map((x) => getTables(x));
 	let buffer2 = Array.from(table2.map((y) => parseRoomChild(y)));
 	let table1 = getTables(buildings);
 	let buffer1 = await parseBuildingChild(table1);
-	console.log("BUFFER 1 IS: " + buffer1);
+	if (buffer1 === [] || buffer2 === []){
+		return new Error("Error: Parse html failed/No tables found");
+	}
 	for (let itt of buffer1) {
 		bufferPos2.push(itt);
 	}
