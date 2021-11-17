@@ -108,23 +108,32 @@ export class EnumDataItem {
 
 	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
 		let buffer = JSON.parse(result);
+		// added
+		let output = buffer.result;
+		// end
 		let count = 0;
 		let val = Number.NaN;
 		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-		for (const key in buffer.result) {
+		for (let key in output) {
 			if (FIELDS.includes(key)){
-				val = parseInt(buffer.result[key], 10);
-				buffer.result[key] = val;
-				break;
+				val = parseInt(buffer[key], 10);
+				buffer[key] = val;
 			}
 			count++;
 		}
-		this.data = buffer;
+		// added
+		let prefix = "courses_";
+		// for (let key in buffer.result){
+		// 	buffer.result[prefix + key] = buffer.result[key];
+		// 	delete buffer.result[key];
+		// }
+		// end
 		this.mode = {
 			id: _id,
 			kind: _kind,
 			numRows: count
 		};
+		this.data = output;
 	}
 
 

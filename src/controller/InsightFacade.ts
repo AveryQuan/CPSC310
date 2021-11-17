@@ -1,7 +1,7 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import JSZip = require("jszip");
 import {Utils, EnumDataItem} from "./Utils";
-import {checkCourseFormat, traverseRooms, matchRoomBuilding, combineBuffer} from "./UtilsFunctions";
+import {checkCourseFormat, combineBuffer} from "./UtilsFunctions";
 import parse5 = require("parse5");
 import Min = Mocha.reporters.Min;
 import Decimal from "decimal.js";
@@ -13,6 +13,7 @@ import Decimal from "decimal.js";
 export default class InsightFacade implements IInsightFacade {
 	// [0] is InsightDataset meta data for course id
 	// [1] is EnumDataItem[] => buffer for JSON data
+	// [1] is any[] => buffer for JSON data
 	public data: Map<string, any[]>;
 	private static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
 		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
@@ -40,7 +41,7 @@ export default class InsightFacade implements IInsightFacade {
 						let path = relativePath.substr(id.length + 1);
 						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 							let item = new EnumDataItem(result, path, kind);
-							dataSet.push(item);
+							dataSet.push(item.data);
 							total = total + item.mode.numRows;
 						}));
 					});
@@ -62,8 +63,8 @@ export default class InsightFacade implements IInsightFacade {
 							dataSet.push(parse5.parse(buff));
 						}));
 					});
-					Promise.all(promises).then((value: any[]) => {
-						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
+					Promise.all(promises).then(async (value: any[]) => {
+						this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
 						resolve([id]);
 					});
 				}

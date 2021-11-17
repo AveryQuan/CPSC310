@@ -35,26 +35,26 @@ describe("InsightFacade", function () {
 			// encode contents into base64
 			rooms = fileBuffer.toString("base64");
 
-			// filepath = "test/resources/archives/courses2.zip";
-			// fileBuffer = fs.readFileSync(filepath);
-			// // encode contents into base64
-			// courses2 = fileBuffer.toString("base64");
+			filepath = "test/resources/archives/courses2.zip";
+			fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			courses2 = fileBuffer.toString("base64");
 
-			// filepath = "test/resources/archives/courses.zip";
-			// fileBuffer = fs.readFileSync(filepath);
-			// // encode contents into base64
-			// courses = fileBuffer.toString("base64");
+			filepath = "test/resources/archives/courses.zip";
+			fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			courses = fileBuffer.toString("base64");
 
-			// filepath = "test/resources/archives/invalid.zip";
-			// fileBuffer = fs.readFileSync(filepath);
-			// // encode contents into base64
-			// invalid = fileBuffer.toString("base64");
+			filepath = "test/resources/archives/invalid.zip";
+			fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			invalid = fileBuffer.toString("base64");
 
 
-			// filepath = "test/resources/archives/coursesCopy.zip";
-			// fileBuffer = fs.readFileSync(filepath);
-			// // encode contents into base64
-			// courseCopy = fileBuffer.toString("base64");
+			filepath = "test/resources/archives/coursesCopy.zip";
+			fileBuffer = fs.readFileSync(filepath);
+			// encode contents into base64
+			courseCopy = fileBuffer.toString("base64");
 
 		});
 
