@@ -41,13 +41,12 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
 		}
 		return new Promise<string[]>((resolve, reject) => {
-
 			if (kind === InsightDatasetKind.Courses){
 				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					let path = relativePath.substr(id.length + 1);
 					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result, path, kind);
-						dataSet.concat(item.data);
+						dataSet.push(item.data);
 						total = total + item.mode.numRows;
 					}));
 				});
@@ -55,7 +54,7 @@ export default class InsightFacade implements IInsightFacade {
 					if (dataSet.length === 0){
 						reject(new InsightError("Error: Courses - Read invalid"));
 					} else {
-						dataSet.unshift({id:id, kind:kind, numRows:total});
+						dataSet.push({id:id, kind:kind, numRows:total});
 						this.data.set(id, dataSet);
 						resolve([id]);
 					}
@@ -74,7 +73,7 @@ export default class InsightFacade implements IInsightFacade {
 					resolve([id]);
 				});
 			}
-		}).catch((err) => {
+		}).catch(() => {
 			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
 		});
 	}

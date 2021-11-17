@@ -117,10 +117,7 @@ export class EnumDataItem {
 		let count = 0;
 
 		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-
-		for (let key in output) {
-			count++;
-		}
+		count = output.length;
 		let prefix = "courses_";
 		this.mode = {
 			id: _id,

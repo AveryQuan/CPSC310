@@ -167,10 +167,11 @@ export async function makeBuildingsJSON(child: any): Promise<any>{
 			}
 		}
 		let url = apiAdr.concat(encodeURIComponent(ret.rooms_address));
-		let response = await getLatLon(url);
-		ret.rooms_lat = response[0];
-		ret.rooms_lon = response[1];
-		return ret;
+		return getLatLon(url).then((response) => {
+			ret.rooms_lat = response[0];
+			ret.rooms_lon = response[1];
+			return ret;
+		});
 	} else {
 		return false;
 	}
