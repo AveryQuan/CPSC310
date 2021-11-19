@@ -85,22 +85,44 @@ export class Utils {
 		}
 	}
 
+	// made my own sort since javascript sort sucks
 	public static sort(array: any, sortKeys: any, direction: any){
-		const zeroConvert = new Map([[1,1], [0, -1]]);
-		array.sort((a: any, b: any) => {
-			sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
-				let greater = direction(a[key], b[key]);
-				if (greater !== -1) {
-					return zeroConvert.get(greater);
+		for (let i = 0; i < array.length - 1; i++) {
+			for (let j = i + 1; j < array.length; j++) {
+				let comparator = 0;
+				sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
+					let greater = direction(array[i][key], array[j][key]);
+					comparator =  greater;
+				});
+				if (comparator > 0) {
+					Utils.swap(array, i, j);
 				}
-			});
-		});
+			}
+		}
+
 	}
+
+	public static swap(array: any, i: number, j: number) {
+		let temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+
+	// public static sort(array: any, sortKeys: any, direction: any){
+	// 	array.sort((a: any, b: any) => {
+	// 		sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
+	// 			let greater = direction(Number(a[key]), Number(b[key]));
+	// 			if (greater !== 0) {
+	// 				return greater;
+	// 			}
+	// 		});
+	// 		return 0;
+	// 	});
+	// }
 
 	public static sum(rows: [any], field: string){
 		let sum = new Decimal(0);
-		let rowValues = Array.from(rows.values())[0];
-		rowValues.forEach((row: { [x: string]: Decimal.Value; }) => {
+		rows.forEach((row: { [x: string]: Decimal.Value; }) => {
 			sum.add(new Decimal(row[field]));
 		});
 		return Number(sum.toFixed(2));
@@ -113,8 +135,7 @@ export class Utils {
 
 	public static max(rows: [any], field: string) {
 		let maximum = Number.MIN_VALUE;
-		let rowValues = Array.from(rows.values())[0];
-		rowValues.forEach((row: { [x: string]: number; }) => {
+		rows.forEach((row: { [x: string]: number; }) => {
 			if (row[field] > maximum) {
 				maximum = row[field];
 			}
@@ -124,8 +145,7 @@ export class Utils {
 
 	public static min(rows: [any], field: string) {
 		let minimum = Number.MAX_VALUE;
-		let rowValues = Array.from(rows.values())[0];
-		rowValues.forEach((row: { [x: string]: number; }) => {
+		rows.forEach((row: { [x: string]: number; }) => {
 			if (row[field] < minimum) {
 				minimum = row[field];
 			}
@@ -148,11 +168,11 @@ export class Utils {
 	}
 
 	public static up(a: any, b: any) {
-		return (a === b) ? -1 : a > b;
+		return a - b;
 	}
 
 	public static down(a: any, b: any) {
-		return (a === b) ? -1 : a < b;
+		return b - a;
 	}
 }
 

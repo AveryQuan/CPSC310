@@ -241,7 +241,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	// eslint-disable-next-line max-lines-per-function
-	private options(results: any, query: any): Promise<never> | Promise<any[]> {
+	private options(results: any, query: any): Promise<Array<{ result: any[] }>> {
 		let keys = Object.keys(query);
 		keys.forEach((k) => {
 			if (!["COLUMNS", "ORDER"].includes(k)) {
@@ -262,16 +262,18 @@ export default class InsightFacade implements IInsightFacade {
 				let newRow: { [key: string]: any } = {};
 				columns.forEach((field: string) => {
 					let fieldSplit = field.split("_",2);
-					if (fieldSplit[0] !== results[1]) {
+					if (fieldSplit[0] !== results[1] &&  !columns.includes(fieldSplit[0])) {
 						return Promise.reject(new InsightError("Columns refers to wrong dataset"));
 					}
 					let specField: string;
 					if (InsightFacade.CONVERT_FIELDS.has(fieldSplit[1]) ) {
 						specField = InsightFacade.CONVERT_FIELDS.get(fieldSplit[1])!;
-					} else {
+					} else if (fieldSplit[1] !== undefined) {
 						specField = fieldSplit[1];
+					} else {
+						specField = fieldSplit[0];
 					}
-					if (specField !== "id") {
+					if (specField !== "id" && fieldSplit[1] !== undefined) {
 						specField =  specField[0].toUpperCase() + specField.substring(1);
 					}
 					if (this.getDatasetKind(fieldSplit[0]) === "rooms") {
@@ -295,10 +297,11 @@ export default class InsightFacade implements IInsightFacade {
 				InsightFacade.order([retval, results[1]], query["ORDER"]) ;
 
 			}
-		} else {
+		} else {// eslint-disable-next-line max-lines
+
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}// eslint-disable-next-line max-lines
-		return Promise.resolve([retval, results[1]]);
+		return Promise.resolve(retval);
 	}
 
 	private static order(results: any, query: any) {
@@ -338,9 +341,16 @@ export default class InsightFacade implements IInsightFacade {
 		if (groupSplit[0] !== results[1]) {
 			return Promise.reject(new InsightError(groupSplit[0] + " refers to different dataset"));
 		}
-		if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
-			return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
+		if (this.getDatasetKind(results[1]) === "rooms") {
+			if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
+				return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
+			}
+		} else {
+			if (InsightFacade.FIELDS.indexOf(groupSplit[0]) === -1){
+				return Promise.reject(new InsightError(groupSplit[0] + " is invalid group field"));
+			}
 		}
+
 		if (this.getDatasetKind(groupSplit[0]) === "rooms") {
 			results[0] = InsightFacade.group(results[0], query["GROUP"]);
 		} else {
@@ -372,12 +382,15 @@ export default class InsightFacade implements IInsightFacade {
 				funcs.push([fieldName,apply[fieldIndex][fieldName][operation],  APPLY.get(operation)!]);
 			});
 			let groups = Array.from(results[0].keys());
+			let groupFields = query["GROUP"];
 			let result: any[] = [];
-			let groupName: string = groupSplit[0] + "_" + groupSplit[1];
 			groups.forEach((group: any)=> {
-				let temp: any[any] = {groupName, group};
+				let temp: any[any] = {};
+				groupFields.forEach((field: string | number)=> {
+					temp[field] = results[0].get(group)[0][field];	// take any group member to get the fields
+				});
 				funcs.forEach((func)=> {
-					temp[func[0]] =  func[2](results[0], func[1]);
+					temp[func[0]] =  func[2](results[0].get(group), func[1]);
 				});
 				result.push(temp);
 			});

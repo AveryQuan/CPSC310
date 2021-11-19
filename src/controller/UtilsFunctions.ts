@@ -139,6 +139,7 @@ export function getLatLon(url: string): Promise<number[]> {
 
 
 export async function makeBuildingsJSON(child: any): Promise<any>{
+	return null;
 	if (child === [] || child === null || child === undefined){
 		return null;
 	}
