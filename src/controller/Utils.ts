@@ -92,7 +92,7 @@ export class Utils {
 				let comparator = 0;
 				sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
 					let greater = direction(array[i][key], array[j][key]);
-					comparator =  greater;
+					comparator = greater;
 				});
 				if (comparator > 0) {
 					Utils.swap(array, i, j);
@@ -123,7 +123,7 @@ export class Utils {
 	public static sum(rows: [any], field: string){
 		let sum = new Decimal(0);
 		rows.forEach((row: { [x: string]: Decimal.Value; }) => {
-			sum.add(new Decimal(row[field]));
+			sum = new Decimal(sum.add(new Decimal(row[field])));
 		});
 		return Number(sum.toFixed(2));
 	}
@@ -156,7 +156,7 @@ export class Utils {
 	public static count(rows: [any], field: string) {
 		const unique: any[]  = [];
 		let count = 0;
-		let rowValues = Array.from(rows.values())[0];
+		let rowValues = Array.from(rows.values());
 		rowValues.forEach((row: any)=> {
 			let value: any = row[field];
 			if (!unique.includes(value)) {
@@ -168,11 +168,24 @@ export class Utils {
 	}
 
 	public static up(a: any, b: any) {
-		return a - b;
+		if (typeof a === "number") {
+			return b - a;
+		}
+		if (a > b) {
+			return 1;
+		}
+		return -1;
 	}
 
 	public static down(a: any, b: any) {
-		return b - a;
+		if (typeof a === "number") {
+			return b - a;
+		}
+		if (a < b) {
+			return 1;
+		}
+		return -1;
+
 	}
 }
 

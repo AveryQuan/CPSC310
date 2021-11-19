@@ -1,12 +1,10 @@
-let arr = [1,2,3];
-const zeroConvert = new Map([[true,1], [false, -1]]);
 
-arr.sort((a: any, b: any) => {
-	let greater = b - a;
+import Decimal from "decimal.js";
 
-	return greater;
-});
-
-console.log(arr);
+let a = new Decimal(1);
+let b = new Decimal(2);
+a = a.add(b);
+console.log(a.add(b.toFixed(2)));
+console.log(a);
 
 
