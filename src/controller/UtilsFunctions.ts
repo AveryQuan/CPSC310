@@ -200,7 +200,7 @@ export function makeRoomsJSON(child: any): any {
 							ret.rooms_number = val;
 							break;
 						case ("views-field views-field-field-room-capacity"):
-							ret.rooms_seats = itt.childNodes[0].value.trim();
+							ret.rooms_seats = parseInt(itt.childNodes[0].value.trim(), 10);
 							break;
 						case ("views-field views-field-field-room-furniture"):
 							ret.rooms_furniture = itt.childNodes[0].value.trim();
