@@ -20,7 +20,7 @@ export class Utils {
 
 	}
 
-	private static isEqual(a: any, b: any) {
+	public static isEqual(a: any, b: any) {
 		return JSON.stringify(a) === JSON.stringify(b);
 	}
 
@@ -169,7 +169,7 @@ export class Utils {
 
 	public static up(a: any, b: any) {
 		if (typeof a === "number") {
-			return b - a;
+			return a - b;
 		}
 		if (a > b) {
 			return 1;
