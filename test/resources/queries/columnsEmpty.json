@@ -4,7 +4,9 @@
   "input": {
     "WHERE": {},
     "OPTIONS": {
-      "COLUMNS": []
+      "COLUMNS": {
+		  "keys" : []
+	  }
     }
   },
   "errorExpected": true,

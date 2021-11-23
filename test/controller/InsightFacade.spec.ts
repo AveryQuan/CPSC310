@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import {expect} from "chai";
 import InsightFacade from "../../src/controller/InsightFacade";
 import {
 	InsightDatasetKind,
@@ -10,7 +10,6 @@ import * as fs from "fs";
 import * as extra from "fs-extra";
 
 import {testFolder} from "@ubccpsc310/folder-test";
-import { fileURLToPath } from "url";
 
 
 describe("InsightFacade", function () {
@@ -231,7 +230,9 @@ describe("InsightFacade", function () {
 			courses = fileBuffer.toString("base64");
 			rooms = fileBuffer2.toString("base64");
 			insight = new InsightFacade();
-			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms).then(()=> {
+				return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+			});
 		});
 
 		interface Input {
@@ -286,65 +287,27 @@ describe("InsightFacade", function () {
 
 		it ("test", function (){
 			return insight.performQuery({
-
 				WHERE: {
-
-					AND: [{
-
-						IS: {
-
-							rooms_furniture: "*Tables*"
-
+					NOT: {
+						NOT: {
+							GT: {
+								courses_avg: 90
+							}
 						}
-
-					}, {
-
-						GT: {
-
-							rooms_seats: 300
-
-						}
-
-					}]
-
-				},
-
-				OPTIONS: {
-
-					COLUMNS: [
-
-						"rooms_shortname",
-
-						"maxSeats"
-
-					],
-
-					ORDER: {
-
-						dir: "DOWN",
-
-						keys: ["maxSeats"]
-
 					}
-
 				},
-
-				TRANSFORMATIONS: {
-
-					GROUP: ["rooms_shortname"],
-
-					APPLY: [{
-
-						maxSeats: {
-
-							MAX: "rooms_seats"
-
-						}
-
-					}]
-
+				OPTIONS: {
+					COLUMNS: [
+						"courses_pass",
+						"courses_dept",
+						"courses_instructor",
+						"courses_avg"
+					],
+					ORDER: {
+						dir: "DOWN",
+						keys: ["courses_avg"]
+					}
 				}
-
 			}).then((a: any) => {
 				// eslint-disable-next-line max-len
 				expect(a).to.deep.equal([{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]);
