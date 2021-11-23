@@ -91,10 +91,10 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		this.express.get("/echo/:msg", Server.echo);
-		this.express.get("PUT /dataset/:id/:kind", this.put);
-		this.express.get("DELETE /dataset/:id", this.delete);
-		this.express.get("POST /query", this.post);
-		this.express.get("/GET/datasets", this.get);
+		this.express.get("/PUT/dataset/:id/:kind", this.put.bind(this));
+		this.express.get("/DELETE/dataset/:id", this.delete.bind(this));
+		this.express.get("/POST/query", this.post.bind(this));
+		this.express.get("/GET/datasets", this.get.bind(this));
 
 		// TODO: your other endpoints should go here
 
@@ -145,6 +145,7 @@ export default class Server {
 	private get(req: Request, res: Response) {
 		try {
 			console.log(`Server::get(..) - params: ${JSON.stringify(req.params)}`);
+			console.log(this);
 			return this.insight.listDatasets().then((response)=> {
 				res.status(200).json({result: response});
 			});
