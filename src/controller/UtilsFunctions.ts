@@ -66,14 +66,14 @@ export function getTables(input: any): any {
 		let n = todo.length;
 		while(n > 0){
 			let foo = todo.shift();
-			console.log(foo.nodeName);
+			// console.log(foo.nodeName);
 
 			if (foo.nodeName === "table"){
 				return foo;
 			}
 			let child = foo.childNodes;
 
-			console.log(child);
+			// console.log(child);
 			for (let rc of child){
 				todo.push(rc);
 			}
@@ -116,20 +116,20 @@ export function parseTableChild(item: any, readCase: string): any[] {
 					let buffer2 = JSON.parse(itt);
 					let bufferJSON = null;
 					switch(readCase){
-					case ("buildings"):
-						bufferJSON = makeBuildingsJSON(buffer2);
-						if (bufferJSON !== null){
-							ret.push(bufferJSON);
-						}
-						break;
-					case ("rooms"):
-						bufferJSON = makeRoomsJSON(buffer2);
-						if (bufferJSON !== null){
-							ret.push(bufferJSON);
-						}
-						break;
-					default:
-						break;
+						case ("buildings"):
+							bufferJSON = makeBuildingsJSON(buffer2);
+							if (bufferJSON !== null){
+								ret.push(bufferJSON);
+							}
+							break;
+						case ("rooms"):
+							bufferJSON = makeRoomsJSON(buffer2);
+							if (bufferJSON !== null){
+								ret.push(bufferJSON);
+							}
+							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -157,17 +157,17 @@ export function makeBuildingsJSON(child: any): any{
 				let switchCase = itt.attrs.value;
 				let val = itt.childNodes["#text"].value.trim();
 				switch (switchCase){
-				case ("views-field views-field-field-building-code"):
-					ret.rooms_shortname = val;
-					break;
-				case ("views-field views-field-title"):
-					ret.rooms_fullname = val;
-					break;
-				case ("views-field views-field-field-building-address"):
-					ret.rooms_address = val;
-					break;
-				default:
-					break;
+					case ("views-field views-field-field-building-code"):
+						ret.rooms_shortname = val;
+						break;
+					case ("views-field views-field-title"):
+						ret.rooms_fullname = val;
+						break;
+					case ("views-field views-field-field-building-address"):
+						ret.rooms_address = val;
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -211,25 +211,25 @@ export function makeRoomsJSON(child: any): any {
 				let switchCase = itt.attrs.value;
 				let val = itt.childNodes["#text"].value.trim();
 				switch (switchCase){
-				case ("views-field views-field-field-room-number"):
-					val = itt.childNodes["a"].attrs.childNodes["#text"].value.trim();
-					ret.rooms_number = val;
-					break;
-				case ("views-field views-field-field-room-capacity"):
-					ret.rooms_seats = val;
-					break;
-				case ("views-field views-field-field-room-furniture"):
-					ret.rooms_furniture = val;
-					break;
-				case ("views-field views-field-field-room-type"):
-					ret.rooms_type = val;
-					break;
-				case ("views-field views-field-nothing"):
-					val = itt.childNodes["a"].attrs.value.trim();
-					ret.rooms_href = val;
-					break;
-				default:
-					break;
+					case ("views-field views-field-field-room-number"):
+						val = itt.childNodes["a"].attrs.childNodes["#text"].value.trim();
+						ret.rooms_number = val;
+						break;
+					case ("views-field views-field-field-room-capacity"):
+						ret.rooms_seats = val;
+						break;
+					case ("views-field views-field-field-room-furniture"):
+						ret.rooms_furniture = val;
+						break;
+					case ("views-field views-field-field-room-type"):
+						ret.rooms_type = val;
+						break;
+					case ("views-field views-field-nothing"):
+						val = itt.childNodes["a"].attrs.value.trim();
+						ret.rooms_href = val;
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -276,15 +276,14 @@ export function matchRoomBuilding(rooms: any[], buildings: any[]): any[] {
 	return [];
 }
 
-
 export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): any {
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
-	console.log("ping");
+	// console.log("ping");
 	// traverse tables in "index.htm" and format as RoomData
 	let buffer1 = traverseRooms(buildings, "buildings");
-	console.log("buffer 1");
+	// console.log("buffer 1");
 
 	// traverses files in "rooms/campus/discover/buildings-and-classrooms"
 	// and format as RoomData
@@ -298,4 +297,3 @@ export function combineBuffer(buildings: any, dataSet: any[], id: string, kind: 
 	ret.unshift(mode);
 	return ret;
 }
-
