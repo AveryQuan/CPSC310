@@ -1,0 +1,193 @@
+{
+  "title": "all courses fields",
+  "input": {
+    "WHERE": {
+      "EQ": {
+        "courses_avg": 60
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_title",
+        "overallAvg",
+        "courses_dept",
+        "courses_id",
+        "courses_instructor",
+        "courses_title",
+        "courses_pass",
+        "courses_fail",
+        "courses_audit",
+        "courses_uuid",
+        "courses_year"
+      ]
+    },
+    "TRANSFORMATIONS": {
+      "GROUP": [
+        "courses_title",
+        "courses_dept",
+        "courses_id",
+        "courses_instructor",
+        "courses_title",
+        "courses_pass",
+        "courses_fail",
+        "courses_audit",
+        "courses_uuid",
+        "courses_year"
+      ],
+      "APPLY": [
+        {
+          "overallAvg": {
+            "AVG": "courses_avg"
+          }
+        }
+      ]
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_title": "rl es manage i",
+      "overallAvg": 60,
+      "courses_dept": "busi",
+      "courses_id": "441",
+      "courses_instructor": "",
+      "courses_pass": 8,
+      "courses_fail": 2,
+      "courses_audit": 0,
+      "courses_uuid": "50667",
+      "courses_year": 1900
+    },
+    {
+      "courses_title": "cpt aid ms pr as",
+      "overallAvg": 60,
+      "courses_dept": "busi",
+      "courses_id": "444",
+      "courses_instructor": "",
+      "courses_pass": 19,
+      "courses_fail": 6,
+      "courses_audit": 0,
+      "courses_uuid": "74220",
+      "courses_year": 1900
+    },
+    {
+      "courses_title": "nuclear chemisty",
+      "overallAvg": 60,
+      "courses_dept": "chem",
+      "courses_id": "417",
+      "courses_instructor": "fleming, donald",
+      "courses_pass": 14,
+      "courses_fail": 3,
+      "courses_audit": 0,
+      "courses_uuid": "42591",
+      "courses_year": 2010
+    },
+    {
+      "courses_title": "nuclear chemisty",
+      "overallAvg": 60,
+      "courses_dept": "chem",
+      "courses_id": "417",
+      "courses_instructor": "",
+      "courses_pass": 14,
+      "courses_fail": 3,
+      "courses_audit": 0,
+      "courses_uuid": "42592",
+      "courses_year": 1900
+    },
+    {
+      "courses_title": "dnt hyg try & pr",
+      "overallAvg": 60,
+      "courses_dept": "dhyg",
+      "courses_id": "110",
+      "courses_instructor": "",
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "18549",
+      "courses_year": 2007
+    },
+    {
+      "courses_title": "oral epidemiolgy",
+      "overallAvg": 60,
+      "courses_dept": "dhyg",
+      "courses_id": "401",
+      "courses_instructor": "",
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "18554",
+      "courses_year": 2007
+    },
+    {
+      "courses_title": "oral micr&immun",
+      "overallAvg": 60,
+      "courses_dept": "dhyg",
+      "courses_id": "405",
+      "courses_instructor": "",
+      "courses_pass": 5,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "18562",
+      "courses_year": 2007
+    },
+    {
+      "courses_title": "oral micr&immun",
+      "overallAvg": 60,
+      "courses_dept": "dhyg",
+      "courses_id": "405",
+      "courses_instructor": "",
+      "courses_pass": 7,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "32796",
+      "courses_year": 2010
+    },
+    {
+      "courses_title": "int rel grt pwrs",
+      "overallAvg": 60,
+      "courses_dept": "hist",
+      "courses_id": "432",
+      "courses_instructor": "",
+      "courses_pass": 7,
+      "courses_fail": 1,
+      "courses_audit": 0,
+      "courses_uuid": "79752",
+      "courses_year": 2008
+    },
+    {
+      "courses_title": "pharmacy ii",
+      "overallAvg": 60,
+      "courses_dept": "phar",
+      "courses_id": "303",
+      "courses_instructor": "",
+      "courses_pass": 7,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "72745",
+      "courses_year": 2015
+    },
+    {
+      "courses_title": "log & crit think",
+      "overallAvg": 60,
+      "courses_dept": "phil",
+      "courses_id": "120",
+      "courses_instructor": "jackson, howard",
+      "courses_pass": 9,
+      "courses_fail": 4,
+      "courses_audit": 0,
+      "courses_uuid": "20366",
+      "courses_year": 2009
+    },
+    {
+      "courses_title": "",
+      "overallAvg": 60,
+      "courses_dept": "test",
+      "courses_id": "100",
+      "courses_instructor": "",
+      "courses_pass": 3,
+      "courses_fail": 0,
+      "courses_audit": 0,
+      "courses_uuid": "25945",
+      "courses_year": 1900
+    }
+  ]
+}

@@ -44,7 +44,10 @@
         "courses_uuid",
         "courses_year"
       ],
-      "ORDER": "courses_title"
+      "ORDER": {
+		  "dir": "UP",
+			"keys": ["courses_title"]
+	  }
     }
   },
   "errorExpected": false,

@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import {expect} from "chai";
 import InsightFacade from "../../src/controller/InsightFacade";
 import {
 	InsightDatasetKind,
@@ -58,112 +58,18 @@ describe("InsightFacade", function () {
 
 		});
 
-		it("tester", function () {
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then((retval) => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				console.log(insight.data.get("courses")[1][1].data["result"]);
-			});
-		});
-
-		it("list no dataset", function () {
-			return insight.listDatasets().then((x) => {
-				expect(x).to.be.instanceof(Array);
-				expect(x).to.have.length(0);
-			});
-		});
-
-		it("add invalid dataset", function () {
-			return insight.addDataset("invalid", invalid, InsightDatasetKind.Courses).then((msg) => {
-				throw new Error(`Resolved with: ${msg}`);
-			}).catch((err) => {
-				expect(err).to.be.instanceof(InsightError);
-				return insight.listDatasets().then((result) => {
-					expect(result).to.have.length(0);
-				});
-			});
-		});
-
-		it("add 1 good courses dataset ", function () {
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
-				.then((x) => {
-					expect(x).to.deep.equal(["courses"]);
-					return insight.listDatasets().then((dataset) => {
-						expect(dataset).to.deep.equal([{
-							id: "courses",
-							kind: InsightDatasetKind.Courses,
-							numRows: 64612,
-						}]);
-						// return insight.performQuery(
-						// 	{
-						// 		WHERE: {
-						// 			GT: {
-						// 				courses_avg: 99
-						// 			}
-						// 		},
-						// 		OPTIONS: {
-						// 			COLUMNS: [
-						// 				"courses_avg"
-						// 			],
-						// 			ORDER: "courses_avg"
-						// 		}
-						// 	}
-						// ).then((result) => {
-						// 	// eslint-disable-next-line max-len
-						// 	expect(result).to.deep.equals([{courses_avg: 99.19}, {courses_avg: 99.78}, {courses_avg: 99.78}]);
-						// });
-					});
-				});
-
-
-		});
-
-		it("add 2 good courses dataset ", function () {
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.addDataset("coursesCopy", courseCopy, InsightDatasetKind.Courses).then(() => {
-					return insight.listDatasets().then((x) => {
-						expect(x).to.have.length(2);
-						expect(x).to.have.deep.members([{
-							id: "courses",
-							kind: InsightDatasetKind.Courses,
-							numRows: 64612,
-						},
-						{
-							id: "coursesCopy",
-							kind: InsightDatasetKind.Courses,
-							numRows: 64612,
-						}]);
-					});
-				});
-			});
-
-		});
-
-
-		it("add 2 good courses same id should fail ", function () {
-			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
-				return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then((err) => {
-					throw new Error(`Resolved with: ${err}`);
-				}
-				).catch((err) => {
-					expect(err).to.be.instanceof(InsightError);
-				});
-			});
-		});
-
-		it("add 1 rooms dataset", function () {
+		it("add 1 rooms dataset ", function () {
 			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms)
 				.then((x) => {
 					expect(x).to.deep.equal(["rooms"]);
 					return insight.listDatasets().then((dataset) => {
 						expect(dataset).to.deep.equal([{
 							id: "rooms",
-							kind: InsightDatasetKind.Rooms,
+							kind: InsightDatasetKind.Rooms
 						}]);
 					});
 				});
 		});
-
 
 		it("add dataset with invalid id", function () {
 			return insight.addDataset("_fasfd", courses, InsightDatasetKind.Courses)
@@ -312,15 +218,21 @@ describe("InsightFacade", function () {
 		});
 
 		let courses: string;
+		let rooms: string;
 		before(function () {
 			extra.removeSync("./data");
 			let filepath = "test/resources/archives/courses.zip";
 			let fileBuffer = fs.readFileSync(filepath);
 
+			let filepath2 = "test/resources/archives/rooms.zip";
+			let fileBuffer2 = fs.readFileSync(filepath2);
 		// encode contents into base64
 			courses = fileBuffer.toString("base64");
+			rooms = fileBuffer2.toString("base64");
 			insight = new InsightFacade();
-			return insight.addDataset("rooms", courses, InsightDatasetKind.Courses);
+			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms).then(()=> {
+				return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+			});
 		});
 
 		interface Input {
@@ -361,9 +273,9 @@ describe("InsightFacade", function () {
 		);
 
 		testFolder<Input, Output, Error>(
-			"query tests",             	                  // suiteName
+			"c2query tests",             	                  // suiteName
 			(input: Input): Promise<Output> => insight.performQuery(input),      // target
-			"./test/resources/queries",                   // path
+			"./test/resources/c2queries",                   // path
 			{
 				errorValidator(error: any): error is Error {
 					return error === "InsightError" || error === "ResultTooLargeError";
@@ -375,68 +287,30 @@ describe("InsightFacade", function () {
 
 		it ("test", function (){
 			return insight.performQuery({
-
 				WHERE: {
-
-					AND: [{
-
-						IS: {
-
-							rooms_furniture: "*Tables*"
-
+					NOT: {
+						NOT: {
+							GT: {
+								courses_avg: 90
+							}
 						}
-
-					}, {
-
-						GT: {
-
-							rooms_seats: 300
-
-						}
-
-					}]
-
-				},
-
-				OPTIONS: {
-
-					COLUMNS: [
-
-						"rooms_shortname",
-
-						"maxSeats"
-
-					],
-
-					ORDER: {
-
-						dir: "DOWN",
-
-						keys: ["maxSeats"]
-
 					}
-
 				},
-
-				TRANSFORMATIONS: {
-
-					GROUP: ["rooms_shortname"],
-
-					APPLY: [{
-
-						maxSeats: {
-
-							MAX: "rooms_seats"
-
-						}
-
-					}]
-
+				OPTIONS: {
+					COLUMNS: [
+						"courses_pass",
+						"courses_dept",
+						"courses_instructor",
+						"courses_avg"
+					],
+					ORDER: {
+						dir: "DOWN",
+						keys: ["courses_avg"]
+					}
 				}
-
 			}).then((a: any) => {
 				// eslint-disable-next-line max-len
-				expect(a).to.deep.equal({result:[{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]});
+				expect(a).to.deep.equal([{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]);
 			});
 		});
 
@@ -1002,7 +876,4 @@ describe("InsightFacade", function () {
 		});
 	});
 
-
 });
-
-

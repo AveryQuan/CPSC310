@@ -1,5 +1,9 @@
-const unique: [any]  = [null];
-unique.push("gay");
-console.log(unique[0]);
+
+let a = ["gau", "one", "one"];
+let b = ["gau", "one"];
+
+a.forEach((c) => {
+	return Promise.reject("gay");
+});
 
 
