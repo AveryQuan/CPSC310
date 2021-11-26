@@ -23,7 +23,7 @@ export default class Server {
 		// NOTE: you can serve static frontend files in from your express server
 		// by uncommenting the line below. This makes files in ./frontend/public
 		// accessible at http://localhost:<port>/
-		// this.express.use(express.static("./frontend/public"))
+		this.express.use(express.static("./frontend/public"));
 	}
 
 	/**
@@ -90,11 +90,11 @@ export default class Server {
 	private registerRoutes() {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
-		this.express.get("/echo/:msg", Server.echo);
-		this.express.get("/PUT/dataset/:id/:kind", this.put.bind(this));
-		this.express.get("/DELETE/dataset/:id", this.delete.bind(this));
-		this.express.get("/POST/query", this.post.bind(this));
-		this.express.get("/GET/datasets", this.get.bind(this));
+		// this.express.get("/echo/:msg", Server.echo);
+		this.express.put("/", this.put.bind(this));
+		this.express.delete("/", this.delete.bind(this));
+		this.express.post("/query", this.post.bind(this));
+		this.express.get("/dataset", this.get.bind(this));
 
 		// TODO: your other endpoints should go here
 
@@ -133,19 +133,25 @@ export default class Server {
 
 	private post(req: Request, res: Response) {
 		try {
-			console.log(`Server::post(..) - params: ${JSON.stringify(req.params)}`);
-			return this.insight.performQuery(req.params.query).then((response)=> {
+			// console.log(req);
+			// console.log(res);
+			console.log(`Server::post(..) - body: ${JSON.stringify(req.body)}`);
+			return this.insight.performQuery(req.body).then((response)=> {
 				res.status(200).json({result: response});
-			});
+			}).catch((err)=> {
+				res.status(400).json({error: err});
+				console.log(err);
+			}
+			);
 		} catch (err) {
 			res.status(400).json({error: err});
+			console.log("try" + err);
 		}
 	}
 
 	private get(req: Request, res: Response) {
 		try {
 			console.log(`Server::get(..) - params: ${JSON.stringify(req.params)}`);
-			console.log(this);
 			return this.insight.listDatasets().then((response)=> {
 				res.status(200).json({result: response});
 			});

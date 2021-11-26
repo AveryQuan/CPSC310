@@ -12,3 +12,10 @@
 .button:hover {
 	cursor: pointer;
 }
+
+table, th, td {
+	margin-top: 40px;
+	border: 1px solid black;
+	border-collapse: collapse;
+	padding: 5px;
+}
