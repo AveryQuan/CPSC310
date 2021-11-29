@@ -16,7 +16,7 @@
 	<body onload="httpGetAsync()">
 	
 <ul class="nav nav-tabs" id="myTab" role="tablist">
-  <li class="nav-item" >
+  <li class="nav-item active" >
     <a class="nav-link active" id="course-tab" data-toggle="tab" href="#course" role="tab" aria-controls="course" aria-selected="true">Course</a>
   </li>
   <li class="nav-item">
@@ -59,6 +59,9 @@
     </tr>
 	</tbody>
   </table>
+		<!-- button id="click-me-button" class="button" >Click Me!</button-->
+		<button id="post-button" class="button" > SUBMIT </button>
+		<!-- input type="text" id="text" -->
   </div>
   
   <div class="tab-pane" id="room" role="tabpanel" aria-labelledby="room-tab"> 
@@ -66,66 +69,28 @@
     <thead>
     <tr>
       <th scope="col sm-3">List of Buildings</th>
-      <th scope="col sm-6">Results</th>
     </tr>
   </thead>
     <tbody>
-    <tr height="800px">
+    <tr>
       <td>		  
 	  <div class="container" class="fields" style="width: 100%; height: 100%;">
 		  <form>
-			  <select multiple class="form-control" id="sel3">
-				<option>1</option>
-				<option>2</option>
-				<option>3</option>
-				<option>4</option>
-				<option>5</option>
+			  <select multiple class="form-control" id="building">
 			  </select>
 		  </form>
-		</div></td>
-      <td>	  <table class="table table-sm" style="border: 2px solid #dddddd;">
-		  <thead>
-			<tr>
-			  <!-- imp dynamic based on selection -->
-			  <th scope="col">#TODO</th>
-			  <th scope="col">Place</th>
-			  <th scope="col">Holder</th>
-			  <th scope="col">Table</th>
-			</tr>
-		  </thead>
-		  <tbody>
-			<tr>
-			  <th scope="row">1</th>
-			  <td>Mark</td>
-			  <td>Otto</td>
-			  <td>@mdo</td>
-			</tr>
-			<tr>
-			  <th scope="row">2</th>
-			  <td>Jacob</td>
-			  <td>Thornton</td>
-			  <td>@fat</td>
-			</tr>
-			<tr>
-			  <th scope="row">3</th>
-			  <td colspan="2">Larry the Bird</td>
-			  <td>@twitter</td>
-			</tr>
-		  </tbody>
-		</table></td>
+		</div>
+	</td>
     </tr>
 	</tbody>
   </table>
+		<!-- button id="click-me-button" class="button" >Click Me!</button-->
+		<button id="post-building-button" class="button" > SUBMIT BUILDING </button>
+		<!-- input type="text" id="text" -->
   </div>
 </div>
 		
-		<!-- button id="click-me-button" class="button" >Click Me!</button-->
-		<button id="post-button" class="button" > SUBMIT </button>
-		<!-- input type="text" id="text" -->
 
-		<table>
-
-		</table>
 
 		<script type="text/javascript" src="./frontend.js"></script>
 	</body>
