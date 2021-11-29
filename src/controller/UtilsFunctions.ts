@@ -141,7 +141,6 @@ export function getLatLon(url: string): Promise<number[]> {
 
 
 export async function makeBuildingsJSON(child: any): Promise<any>{
-	return null;
 	if (child === [] || child === null || child === undefined){
 		return null;
 	}
@@ -247,27 +246,29 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 	if (buffer1 === [] || buffer2 === []){
 		return new Error("Error: Parse html failed/No tables found");
 	}
-	for (let itt of buffer1) {
-		bufferPos2.push(itt);
-	}
+
 	for (let item of buffer2){
 		let itm = item[0];
 		if (itm !== undefined){
 			let match = itm;
+			let matchFound = false;
 			let name = itm.rooms_name.split("-")[0];
 			for (let val of buffer1){
 				if (name === val.rooms_shortname){
 					match = val;
+					matchFound = true;
 					break;
 				}
 			}
-			for (let obj of item) {
-				obj.rooms_fullname = match.rooms_fullname;
-				obj.rooms_shortname = name;
-				obj.rooms_address = match.rooms_address;
-				obj.rooms_lat = match.rooms_lat;
-				obj.rooms_lon = match.rooms_lon;
-				bufferPos2.push(obj);
+			if (matchFound){
+				for (let obj of item) {
+					obj.rooms_fullname = match.rooms_fullname;
+					obj.rooms_shortname = name;
+					obj.rooms_address = match.rooms_address;
+					obj.rooms_lat = match.rooms_lat;
+					obj.rooms_lon = match.rooms_lon;
+					bufferPos2.push(obj);
+				}
 			}
 		}
 	}

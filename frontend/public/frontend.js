@@ -72,9 +72,9 @@ function postData(data)
 {
 	let xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {
-		if (this.readyState != 4) return;
+		if (this.readyState !== 4) return;
 
-		if (this.status == 200) {
+		if (this.status === 200) {
 			try{
 				let results = document.getElementById("results");
 				results.parentNode.removeChild(results);
@@ -91,51 +91,83 @@ function postData(data)
 	xhr.send(JSON.stringify(data));
 }
 
-// document.getElementById("post-button").addEventListener("click", postCourses);
-
 // Tabs thanks to w3schools.com
 function openCity(evt, cityName) {
-	// Declare all variables
 	var i, tabcontent, tablinks;
-
-	// Get all elements with class="tabcontent" and hide them
 	tabcontent = document.getElementsByClassName("tabcontent");
 	for (i = 0; i < tabcontent.length; i++) {
 		tabcontent[i].style.display = "none";
 	}
-
-	// Get all elements with class="tablinks" and remove the class "active"
 	tablinks = document.getElementsByClassName("tablinks");
 	for (i = 0; i < tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(" active", "");
 	}
 
-	// Show the current tab, and add an "active" class to the button that opened the tab
 	document.getElementById(cityName).style.display = "block";
 	evt.currentTarget.className += " active";
 }
 
-function handleClickMe() {
-	alert("Button Clicked!");
+function postBuildingQuery(){
+	let query = {
+		WHERE : {
+			GT: {
+				rooms_seats: 0
+			}
+		},
+		OPTIONS: {
+			COLUMNS: [
+				"rooms_shortname",
+				"rooms_name",
+				"rooms_seats"
+			],
+			ORDER: {
+				dir: "UP",
+				keys: ["rooms_shortname"]
+			}
+		}
+	};
+	let xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function () {
+		if (this.readyState !== 4) return;
+
+		if (this.status === 200) {
+			try{
+				let results = document.getElementById("results");
+				results.parentNode.removeChild(results);
+			} catch (e) {
+
+			}
+
+			ret = JSON.parse(this.responseText)["result"];
+			makeBuildingList();
+		}
+	};
+	xhr.open("POST", "http://localhost:4321/query", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.send(JSON.stringify(query));
 }
 
-function httpGetAsync(theUrl, callback)
-{
+
+function httpGetAsync(theUrl, callback) {
 	// alert(theUrl);
 	let xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			document.getElementById("text").setAttribute("value", xmlHttp.responseText);
-	}
+		if (xmlHttp.readyState === 4 && xmlHttp.status === 200){
+			console.log("READY STATE 4");
+			// document.getElementById("text").setAttribute("value", xmlHttp.responseText);
+			postBuildingQuery();
+			console.log("cont")
+		}}
 	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
 	xmlHttp.send(null);
 }
+
 function httpPutAsync(theUrl, callback)
 {
 	// alert(theUrl);
 	let xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+		if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
 			callback(xmlHttp.responseText);
 	}
 	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
@@ -170,9 +202,9 @@ function httpPostAsync(theUrl, callback)
 
 	let xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {
-		if (this.readyState != 4) return;
+		if (this.readyState !== 4) return;
 
-		if (this.status == 200) {
+		if (this.status === 200) {
 			try{
 				let results = document.getElementById("results");
 				results.parentNode.removeChild(results);
@@ -188,9 +220,8 @@ function httpPostAsync(theUrl, callback)
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	xhr.send(JSON.stringify(data));
 
+
 }
-
-
 var _table_ = document.createElement('table'),
 	_tr_ = document.createElement('tr'),
 	_th_ = document.createElement('th'),
@@ -237,17 +268,64 @@ function addAllColumnHeaders(arr, table) {
 }
 
 
-
-
-
 function httpDeleteAsync(theUrl, callback)
 {
-	// alert(theUrl);
 	let xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+		if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
 			callback(xmlHttp.responseText);
 	}
 	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
 	xmlHttp.send(null);
+}
+
+function makeBuildingList(){
+	var selectList = document.getElementById("building");
+	console.log(ret);
+	if (ret === []){
+		var option = document.createElement("option");
+		option.value = "false";
+		option.text = "No building information avaliable in dataset";
+		selectList.appendChild(option);
+	} else {
+		var acc = "";
+		for (var i = 0, maxi = ret.length; i < maxi; ++i) {
+			if (acc !== ret[i]["rooms_shortname"]){
+				var option = document.createElement('option');
+				acc = ret[i]["rooms_shortname"];
+				option.value = acc;
+				option.text = acc;
+				selectList.appendChild(option);
+			}
+		}
+	}
+}
+
+function postBuilding(){
+	console.log("POST BUILDING");
+	let name = [];
+	let data = [];
+	try{
+		Array.from(document.querySelector("#building").options).forEach(function(option_element) {
+		let is_option_selected = option_element.selected;
+			if (is_option_selected){
+				name.push(option_element.value);
+				// let tableData = JSON.parse(ret)["result"][option_value];
+			}
+		});
+	} catch(e) {
+	}
+
+	for (var i = 0; i < ret.length; i++){
+		if (name.includes(ret[i]["rooms_shortname"])){
+			data.push(ret[i]);
+		}
+	};
+	try{
+		let results = document.getElementById("results");
+		results.parentNode.removeChild(results);
+	} catch (e) {
+
+	}
+	document.body.appendChild(buildHtmlTable(data));
 }
