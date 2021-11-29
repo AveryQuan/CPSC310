@@ -1,5 +1,119 @@
-document.getElementById("click-me-button").addEventListener("click", httpGetAsync);
-document.getElementById("post-button").addEventListener("click", httpPostAsync);
+document.getElementById("roomsButton").addEventListener("click", postRooms);
+
+function postRooms() {
+	let building = document.getElementById("roomsDropdown").value;
+
+	let data = {
+		"WHERE": {
+
+			"IS": {
+				"rooms_shortname": building
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_name",
+				"rooms_shortname",
+				"rooms_seats",
+				"rooms_number",
+				"rooms_type",
+				"rooms_furniture",
+				"rooms_href"
+			]
+		}
+	};
+	postData(data);
+}
+
+document.getElementById("coursesButton").addEventListener("click", postCourses);
+
+function postCourses() {
+	let grade = parseInt(document.getElementById("gradeDropdown").value, 10);
+	console.log(grade, typeof (grade), document.getElementById("gradeDropdown").value, typeof (document.getElementById("gradeDropdown").value))
+	// let order = document.getElementById("sortbyDropdown").value;
+
+	let data =
+		{
+			"WHERE": {
+				"LT":{
+					"courses_avg": grade
+				}
+			},
+			"OPTIONS": {
+				"COLUMNS": [
+					"courses_instructor",
+					"overallAvg"
+				],
+				"ORDER": {
+					"dir": "DOWN",
+					"keys": [
+						"overallAvg"
+					]
+				}
+			},
+			"TRANSFORMATIONS": {
+				"GROUP": [
+					"courses_instructor"
+				],
+				"APPLY": [
+					{
+						"overallAvg": {
+							"AVG": "courses_avg"
+						}
+					}
+				]
+			}
+		}
+		postData(data);
+
+}
+
+function postData(data)
+{
+	let xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function () {
+		if (this.readyState != 4) return;
+
+		if (this.status == 200) {
+			try{
+				let results = document.getElementById("results");
+				results.parentNode.removeChild(results);
+			} catch (e) {
+
+			}
+
+			let data = JSON.parse(this.responseText)["result"];
+			document.body.appendChild(buildHtmlTable(data));
+		}
+	};
+	xhr.open("POST", "http://localhost:4321/query", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.send(JSON.stringify(data));
+}
+
+// document.getElementById("post-button").addEventListener("click", postCourses);
+
+// Tabs thanks to w3schools.com
+function openCity(evt, cityName) {
+	// Declare all variables
+	var i, tabcontent, tablinks;
+
+	// Get all elements with class="tabcontent" and hide them
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = 0; i < tabcontent.length; i++) {
+		tabcontent[i].style.display = "none";
+	}
+
+	// Get all elements with class="tablinks" and remove the class "active"
+	tablinks = document.getElementsByClassName("tablinks");
+	for (i = 0; i < tablinks.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(" active", "");
+	}
+
+	// Show the current tab, and add an "active" class to the button that opened the tab
+	document.getElementById(cityName).style.display = "block";
+	evt.currentTarget.className += " active";
+}
 
 function handleClickMe() {
 	alert("Button Clicked!");
@@ -48,7 +162,7 @@ function httpPostAsync(theUrl, callback)
 				"courses_avg"
 			],
 			ORDER: {
-				dir: "DOWN",
+				dir: "UP",
 				keys: ["courses_avg"]
 			}
 		}
@@ -73,10 +187,6 @@ function httpPostAsync(theUrl, callback)
 	xhr.open("POST", "http://localhost:4321/query", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	xhr.send(JSON.stringify(data));
-
-
-
-
 
 }
 

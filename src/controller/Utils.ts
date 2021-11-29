@@ -20,6 +20,16 @@ export class Utils {
 
 	}
 
+	public static getInnerElements(temp: any[]) {
+		let temp2 = [];
+		for (let r of temp) {
+			for (let t of r) {
+				temp2.push(t);
+			}
+		}
+		return temp2;
+	}
+
 	public static isEqual(a: any, b: any) {
 		return JSON.stringify(a) === JSON.stringify(b);
 	}
@@ -167,6 +177,8 @@ export class Utils {
 		return count;
 	}
 
+	// if return positive, switch numbers
+	// small number to big number
 	public static up(a: any, b: any) {
 		if (typeof a === "number") {
 			return a - b;
@@ -177,6 +189,7 @@ export class Utils {
 		return -1;
 	}
 
+	// big number to low number
 	public static down(a: any, b: any) {
 		if (typeof a === "number") {
 			return b - a;
