@@ -7,90 +7,85 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 		<!-- Latest compiled and minified JS for Bootstrap -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-			
+
 
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
 		<title>310 Frontend</title>
 		<link href="./style.css" rel="stylesheet" />
 	</head>
-	<body onload="httpGetAsync()">
-	
-<ul class="nav nav-tabs" id="myTab" role="tablist">
-  <li class="nav-item active" >
-    <a class="nav-link active" id="course-tab" data-toggle="tab" href="#course" role="tab" aria-controls="course" aria-selected="true">Course</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="room-tab" data-toggle="tab" href="#room" role="tab" aria-controls="room" aria-selected="false">Room</a>
-  </li>
-</ul>
+	<body>
+
+	<div class="tab">
+		<button class="tablinks" onclick="openCity(event, 'Rooms')">Rooms</button>
+		<button class="tablinks" onclick="openCity(event, 'Courses')">Courses</button>
+	</div>
+
+	<!-- Tab content -->
+	<div id="Rooms" class="tabcontent">
+		<h4>Pick a Room</h4>
+		<select id="roomsDropdown">
+			<option value="AERL">AERL</option>
+			<option value="ALRD">ALRD</option>
+			<option value="ANGU">ANGU</option>
+			<option value="ANSO">ANSO</option>
+			<option value="AUDX">AUDX</option>
+			<option value="BIOL">BIOL</option>
+			<option value="BRKX">BRKX</option>
+			<option value="BUCH">BUCH</option>
+			<option value="CEME">CEME</option>
+			<option value="CHBE">CHBE</option>
+			<option value="CHEM">CHEM</option>
+			<option value="CIRS">CIRS</option>
+			<option value="DMP">DMP</option>
+			<option value="EOSM">EOSM</option>
+			<option value="ESB">ESB</option>
+			<option value="FNH">FNH</option>
+			<option value="FORW">FORW</option>
+			<option value="FRDM">FRDM</option>
+			<option value="FSC">FSC</option>
+			<option value="GEOG">GEOG</option>
+			<option value="HEBB">HEBB</option>
+			<option value="HENN">HENN</option>
+			<option value="IBLC">IBLC</option>
+			<option value="IONA">IONA</option>
+			<option value="LASR">LASR</option>
+			<option value="LSC">LSC</option>
+			<option value="LSK">LSK</option>
+			<option value="MATH">MATH</option>
+			<option value="MATX">MATX</option>
+			<option value="MCLD">MCLD</option>
+			<option value="MCML">MCML</option>
+			<option value="MGYM">MGYM</option>
+			<option value="ORCH">ORCH</option>
+			<option value="OSBO">OSBO</option>
+			<option value="PCOH">PCOH</option>
+			<option value="PHRM">PHRM</option>
+			<option value="SCRF">SCRF</option>
+			<option value="SOWK">SOWK</option>
+			<option value="SPPH">SPPH</option>
+			<option value="SRC">SRC</option>
+			<option value="SWNG">SWNG</option>
+			<option value="UCLL">UCLL</option>
+			<option value="WESB">WESB</option>
+			<option value="WOOD">WOOD</option>
+		</select>
+
+		<button id="roomsButton" class="button" >Submit</button>
+
+	</div>
+
+	<div id="Courses" class="tabcontent">
+		<h4>Fields</h4>
+		<select id="gradeDropdown">
+			<option value=70>70</option>
+			<option value=60>60</option>
+			<option value=50>50</option>
+			<option value=40>40</option>
+		</select>
 
 
-<div class="tab-content" id="myTabContent" style="width: 80%">
-  <div class="tab-pane active" id="course" role="tabpanel" aria-labelledby="course-tab">
-  <table class="table" style="width: 100%">
-  <thead>
-    <tr>
-      <th scope="col" class="fields">Fields</th>
-      <th scope="col" class="sort">Sort by</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-	  <div class="container" class="fields" style="width: 100%">
-		  <form>
-			  <select multiple class="form-control" id="type">
-				<option selected="selected">average >= 90</option>
-				<option disabled="disabled">other </option>
-			  </select>
-		  </form>
-		</div>
-	  </td>
-      <td>
-		  <div class="container" class="fields" style="width: 100%">
-		  <form>
-			  <select multiple class="form-control" id="order">
-				<option value="asc" selected="selected">ascending</option>
-				<option value="dsc">descending</option>
-			  </select>
-		  </form>
-		</div>
-		</td>
-    </tr>
-	</tbody>
-  </table>
-		<!-- button id="click-me-button" class="button" >Click Me!</button-->
-		<button id="post-button" class="button" > SUBMIT </button>
-		<!-- input type="text" id="text" -->
-  </div>
-  
-  <div class="tab-pane" id="room" role="tabpanel" aria-labelledby="room-tab"> 
-  <table class="table">
-    <thead>
-    <tr>
-      <th scope="col sm-3">List of Buildings</th>
-    </tr>
-  </thead>
-    <tbody>
-    <tr>
-      <td>		  
-	  <div class="container" class="fields" style="width: 100%; height: 100%;">
-		  <form>
-			  <select multiple class="form-control" id="building">
-			  </select>
-		  </form>
-		</div>
-	</td>
-    </tr>
-	</tbody>
-  </table>
-		<!-- button id="click-me-button" class="button" >Click Me!</button-->
-		<button id="post-building-button" class="button" > SUBMIT BUILDING </button>
-		<!-- input type="text" id="text" -->
-  </div>
-</div>
-		
-
+		<button id="coursesButton" class="button" >Submit</button>
+	</div>
 
 		<script type="text/javascript" src="./frontend.js"></script>
 	</body>

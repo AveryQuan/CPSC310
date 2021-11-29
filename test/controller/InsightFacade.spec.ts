@@ -285,34 +285,13 @@ describe("InsightFacade", function () {
 			}
 		);
 
-		it ("test", function (){
-			return insight.performQuery({
-				WHERE: {
-					NOT: {
-						NOT: {
-							GT: {
-								courses_avg: 90
-							}
-						}
-					}
-				},
-				OPTIONS: {
-					COLUMNS: [
-						"courses_pass",
-						"courses_dept",
-						"courses_instructor",
-						"courses_avg"
-					],
-					ORDER: {
-						dir: "DOWN",
-						keys: ["courses_avg"]
-					}
-				}
-			}).then((a: any) => {
-				// eslint-disable-next-line max-len
-				expect(a).to.deep.equal([{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]);
-			});
-		});
+		// it ("test", function (){
+		// 	return insight.performQuery({WHERE:{LT:{courses_avg:70}},OPTIONS:{COLUMNS:["courses_instructor","overallAvg"],ORDER:{dir:"DOWN",keys:["overallAvg"]}},TRANSFORMATIONS:{
+		// 		GROUP:["courses_instructor"],APPLY:[{overallAvg:{AVG:"courses_avg"}}]}}).then((a: any) => {
+		// 		// eslint-disable-next-line max-len
+		// 		expect(a).to.deep.equal([{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]);
+		// 	});
+		// });
 
 		it("check order", function () {
 			return insight.performQuery(
