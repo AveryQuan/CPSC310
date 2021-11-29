@@ -255,10 +255,20 @@ export class EnumDataItem {
 		let output = buffer.result;
 		let count = 0;
 
-
+		for (let outputVal of output){
+			let key1 = outputVal.Year;
+			let key2 = outputVal.id;
+			if (key1 !== undefined){
+				let num: number = parseInt(output.Year, 10);
+				outputVal.Year = num;
+			}
+			if (key2 !== undefined){
+				let str: string = output.id.toString();
+				outputVal.id = str;
+			}
+		}
 		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
 		count = output.length;
-		let prefix = "courses_";
 		this.mode = {
 			id: _id,
 			kind: _kind,

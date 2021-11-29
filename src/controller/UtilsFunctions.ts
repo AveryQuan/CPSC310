@@ -221,7 +221,7 @@ export function makeRoomsJSON(child: any): any {
 		}
 		let str = ret.rooms_href.split("/").slice(-1).pop();
 		if (str !== undefined){
-			ret.rooms_name = str;
+			ret.rooms_name = str.replace(/-/g, "_");
 		}
 		return ret;
 	} else {
@@ -252,7 +252,7 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 		if (itm !== undefined){
 			let match = itm;
 			let matchFound = false;
-			let name = itm.rooms_name.split("-")[0];
+			let name = itm.rooms_name.split("_")[0];
 			for (let val of buffer1){
 				if (name === val.rooms_shortname){
 					match = val;
