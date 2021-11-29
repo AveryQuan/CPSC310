@@ -1,36 +1,31 @@
-document.getElementById("click-me-button").addEventListener("click", httpGetAsync);
+// document.getElementById("click-me-button").addEventListener("click", httpGetAsync);
 document.getElementById("post-button").addEventListener("click", httpPostAsync);
+document.getElementById("order").addEventListener("change", changeSort);
 
-function handleClickMe() {
-	alert("Button Clicked!");
-}
-
-function httpGetAsync(theUrl, callback)
-{
-	// alert(theUrl);
-	let xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			document.getElementById("text").setAttribute("value", xmlHttp.responseText);
-	}
-	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
-	xmlHttp.send(null);
-}
-function httpPutAsync(theUrl, callback)
-{
-	// alert(theUrl);
-	let xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			callback(xmlHttp.responseText);
-	}
-	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
-	xmlHttp.send(null);
-}
-
-function httpPostAsync(theUrl, callback)
-{
-	let data = {
+var asc = {
+		WHERE: {
+			NOT: {
+				NOT: {
+					GT: {
+						courses_avg: 90
+					}
+				}
+			}
+		},
+		OPTIONS: {
+			COLUMNS: [
+				"courses_pass",
+				"courses_dept",
+				"courses_instructor",
+				"courses_avg"
+			],
+			ORDER: {
+				dir: "UP",
+				keys: ["courses_avg"]
+			}
+		}
+	};
+let dsc = {
 		WHERE: {
 			NOT: {
 				NOT: {
@@ -53,7 +48,52 @@ function httpPostAsync(theUrl, callback)
 			}
 		}
 	};
+var data = asc; 
 
+
+
+
+function changeSort(url, callback) {
+	var order = document.getElementById("order").value;
+	if (order === "asc"){
+		data = asc;
+	} else if (order === "dsc"){
+		data = dsc;
+	}
+	console.log(data);
+}
+
+function handleClickMe() {
+	alert("Button Clicked!");
+}
+
+function httpGetAsync(theUrl, callback)
+{
+	// alert(theUrl);
+	let xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			console.log("READY STATE 4")
+			// document.getElementById("text").setAttribute("value", xmlHttp.responseText);
+		}
+	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
+	xmlHttp.send(null);
+}
+
+function httpPutAsync(theUrl, callback)
+{
+	// alert(theUrl);
+	let xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText);
+	}
+	xmlHttp.open("GET", "http://localhost:4321/dataset", true); // true for asynchronous
+	xmlHttp.send(null);
+}
+
+function httpPostAsync(theUrl, callback)
+{
 	let xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {
 		if (this.readyState != 4) return;
