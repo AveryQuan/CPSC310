@@ -102,7 +102,7 @@ export class NeedsThis {
 					temp = InsightFacade.CONVERT_FIELDS.get(temp)!;
 				}
 				if (temp !== "id" ) {
-					temp =  temp[0].toUpperCase() + temp.substring(1);// eslint-disable-next-line max-lines
+					temp =  temp[0].toUpperCase() + temp.substring(1);
 				}
 				groupWithoutDataname.push(temp);
 			}
