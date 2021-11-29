@@ -254,7 +254,6 @@ function postBuilding(){
 			}
 		});
 	} catch(e) {
-		console.log(e);
 	}
 	
 	for (var i = 0; i < ret.length; i++){
