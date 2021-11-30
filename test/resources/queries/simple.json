@@ -11,7 +11,9 @@
 				"courses_dept",
 				"courses_avg"
 			],
-			"ORDER": "courses_avg"
+			"ORDER": {
+		  "keys": ["courses_avg"]
+	  }
 		}
 	},
 	"with": [

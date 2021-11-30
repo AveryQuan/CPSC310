@@ -1,4 +1,5 @@
 import Server from "./rest/Server";
+import InsightFacade from "./controller/InsightFacade";
 
 /**
  * Main app class that is run with the node command. Starts the server.

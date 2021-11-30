@@ -1,0 +1,37 @@
+{
+  "errorMsg": "Invalid key type in MIN",
+  "title": "MIN with string",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_avg": 60
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_title",
+        "overallCount"
+      ],
+      "ORDER": {
+        "dir": "DOWN",
+        "keys": [
+          "overallCount"
+        ]
+      }
+    },
+    "TRANSFORMATIONS": {
+      "GROUP": [
+        "courses_title"
+      ],
+      "APPLY": [
+        {
+          "overallCount": {
+            "MIN": "courses_instructor"
+          }
+        }
+      ]
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

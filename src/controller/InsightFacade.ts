@@ -1,87 +1,84 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
+import {
+	IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightError,
+	NotFoundError,
+	ResultTooLargeError
+} from "./IInsightFacade";
 import JSZip = require("jszip");
 import {Utils, EnumDataItem} from "./Utils";
-import {checkCourseFormat, traverseRooms, matchRoomBuilding, combineBuffer} from "./UtilsFunctions";
+import {checkCourseFormat, combineBuffer} from "./UtilsFunctions";
 import parse5 = require("parse5");
-import Min = Mocha.reporters.Min;
-import Decimal from "decimal.js";
+import {NeedsThis} from "./NeedsThis";
 
-/**
- * This is the main programmatic entry point for the project.
- * Method documentation is in IInsightFacade
- */
 export default class InsightFacade implements IInsightFacade {
-	// [0] is InsightDataset meta data for course id
-	// [1] is EnumDataItem[] => buffer for JSON data
 	public data: Map<string, any[]>;
-	private static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
+	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
 		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
-	private static CONVERT_FIELDS = new Map<string, string>(
-		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
+	public static CONVERT_FIELDS = new Map<string, string>(
+		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
 	constructor() {
 		this.data = new Map();
 	}
 
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
 		let promises: any[] = [];
 		let total = 0;
 		let buildings: parse5.Document;
 		if (!checkCourseFormat(id) || this.data.has(id) || !Utils.checkDataKind(kind)) {
-			return Promise.reject(new InsightError("Error: courses - Invalid ID"));
+			return Promise.reject(new InsightError("Error: Invalid ID or Dataset already has Id"));
 		}
-		switch (kind) {
-		case InsightDatasetKind.Courses:
-			return new Promise<string[]>((resolve, reject) => {
-				JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
-					zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
-						let path = relativePath.substr(id.length + 1);
-						promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
-							let item = new EnumDataItem(result, path, kind);
-							dataSet.push(item);
-							total = total + item.mode.numRows;
-						}));
-					});
-					Promise.all(promises).then((value: any[]) => {
-						if (dataSet.length === 0){
-							reject(new InsightError("Error: courses - Read invalid"));
-						} else {
-							dataSet.unshift([{id:id, kind:kind, numrows:total}]);
-							this.data.set(id, dataSet);
-							resolve([id]);
-						}
-					});
-				});
-			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read courses failed"));
-			});
-		case InsightDatasetKind.Rooms:
-			return new Promise<string[]>((resolve, reject) => {
-				JSZip.loadAsync(content, {base64: true}).then((zip: JSZip) => {
-					promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
-						buildings = parse5.parse(result);
+		let zip = await JSZip.loadAsync(content, {base64: true});
+		if (zip === undefined || zip === null){
+			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
+		}
+		return new Promise<string[]>((resolve, reject) => {
+			if (kind === InsightDatasetKind.Courses){
+				let temp: any[] = [];
+				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
+					let path = relativePath.substr(id.length + 1);
+					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
+						let item = new EnumDataItem(result, path, kind);
+						temp.push(item.data);
+						total = total + item.mode.numRows;
 					}));
-					zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
-						promises.push(zip.folder(path)?.file(file.name)?.async("string").then((buff: string) => {
-							dataSet.push(parse5.parse(buff));
-						}));
-					});
-					Promise.all(promises).then((value: any[]) => {
-
-						this.data.set(id, combineBuffer(buildings, dataSet, id, kind));
-
-						resolve([id]);
-					});
 				});
-			}).catch((err) => {
-				return Promise.reject(new InsightError("Error: Read room failed"));
-			});
+				Promise.all(promises).then((value: any[]) => {
+					if (temp.length === 0){
+						reject(new InsightError("Error: courses - Read invalid"));
+					} else {
+						this.insertCoursesDataIThink(temp, dataSet, id, kind, total, resolve);
+					}
+				});
+			} else if (kind === InsightDatasetKind.Rooms) {
+				promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
+					buildings = parse5.parse(result);
+				}));
+				zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
+					promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
+						dataSet.push(parse5.parse(buff));
+					}));
+				});
+				Promise.all(promises).then(async (value: any[]) => {
+					this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
+					resolve([id]);
+				});
+			}
+		}).catch(() => {
+			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
+		});
+	}
 
-
-		}
-
+	private insertCoursesDataIThink(temp: any[], dataSet: any[], id: string, kind: any, total: number, resolve: any) {
+		let temp2 = Utils.getInnerElements(temp);
+		dataSet.push(temp2);
+		dataSet.unshift({id: id, kind: kind, numRows: total});
+		this.data.set(id, dataSet);
+		resolve([id]);
 	}
 
 
@@ -100,110 +97,6 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.resolve(id);
 	}
 
-	private queryComparator(query: any, comparator: any, not: boolean){
-		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-		let keys = Object.keys(query);
-		if(keys.length !== 1) {
-			return Promise.reject(new InsightError("more than one number comparator"));
-		}
-		let value = query[keys[0]];
-		let split = keys[0].split("_", 2);
-		let datasetName = split[0];
-
-		let	field: string =  split[1][0].toUpperCase() + split[1].substring(1);
-		if (typeof value !== "number" || !FIELDS.includes(field)) {
-			return Promise.reject(new InsightError("invalid comparator field"));
-		}
-		let dataset = this.getDataset(datasetName);
-		if (dataset) {
-			let retval = new Set();
-			dataset.forEach((elem: any) => {
-				let result = elem.data["result"];
-				result.forEach((row: any) => {
-					if (not) {
-						if (!comparator(row[field], value)) {
-							retval.add(row);
-						}
-					} else if (comparator(row[field], value)) {
-						retval.add(row);
-					}
-				});
-
-			});
-			return Promise.resolve([retval, datasetName]);
-		} else {
-			return Promise.reject(new InsightError("dataset doesnt exist"));
-		}
-	}
-
-	private querySComparator(query: any, not: boolean): Promise<any> {
-		let keys = Object.keys(query);
-		if(keys.length !== 1) {
-			return Promise.reject(new InsightError("more than one string comparator"));
-		}
-		let value = query[keys[0]];
-		let split = keys[0].split("_", 2);
-		let datasetName = split[0];
-		let	field: string = split[1];
-		if (typeof value !== "string" ||  !InsightFacade.FIELDS.includes(field)) {
-			return Promise.reject(new InsightError("invalid string comparator field"));
-		}
-		if (InsightFacade.CONVERT_FIELDS.has(field)) {
-			field = InsightFacade.CONVERT_FIELDS.get(field)!;
-		}
-		let dataset = this.getDataset(datasetName);
-		let retval = new Set();
-		if (dataset) {
-
-			dataset.forEach((elem: any) => {
-				let result = elem.data["result"];
-				result.forEach((row: any) => {
-					if(not) {
-						if (row[field] !== value) {
-							retval.add(row);
-						}
-					} else if (row[field] === value) {
-
-						retval.add(row);
-					}
-				});
-			});
-			return Promise.resolve([retval, datasetName]);
-
-		} else{
-			return Promise.reject(new InsightError("dataset doesnt exist"));
-		}
-	}
-
-	private queryLogic(query: any, logic: (a: any, b: any) => any, not: boolean): Promise<any>{
-		let keys = Object.keys(query);
-		if(keys.length < 2) {
-			return Promise.reject(new InsightError("more than one logic query"));
-		}
-		let promises: any[] = [];
-		keys.forEach((key) => {
-			promises.push(new Promise((resolve, reject) => {
-				resolve(this.nextQuery(query[key], not));
-				reject((err: any)=> {
-					return err;
-				});
-			}));
-		});
-
-		return Promise.all(promises).then(async (sets) => {
-			let currentSet = sets[0];
-			for (let i = 1; i < sets.length; i++) {
-				if (currentSet[1] !== sets[i][1]) {
-					return Promise.reject(new InsightError("More than one dataset referenced"));
-				}
-				await logic(currentSet, sets[i]).then((value: any) => {
-					currentSet = [value, currentSet[1]];
-				});
-			}
-			return Promise.resolve(currentSet);
-		});
-	}
-
 	private async nextQuery(query: any, not: boolean): Promise<any> {
 		const map = new Map([["AND", "OR"], ["OR", "AND"]]);
 		let keys = Object.keys(query);
@@ -215,194 +108,111 @@ export default class InsightFacade implements IInsightFacade {
 			key = map.get(key);
 		}
 		switch (key) {
-		case "AND": {
-			return this.queryLogic(query[keys[0]], Utils.intersection, not);
-		}
-		case "OR": {
-			return this.queryLogic(query[keys[0]], Utils.union, not);
-		}
-		case "EQ": {
-			return this.queryComparator(query[key], Utils.equals, not);
-		}
-		case "GT": {
-			return this.queryComparator(query[key], Utils.greaterThan, not);
-		}
-		case "LT": {
-			return this.queryComparator(query[key], Utils.lessThan, not);
-		}
-		case "NOT": {
-			return this.queryNot(query[key], not);
-		}
-		case "IS": {
-			return this.querySComparator(query[key], not);
-		}
-		default: {
-			return Promise.reject(new InsightError("Invalid Json"));
-		}
+			case "AND": {
+				return NeedsThis.queryLogic(this, query[keys[0]], Utils.intersection, not);
+			}
+			case "OR": {
+				return NeedsThis.queryLogic(this, query[keys[0]], Utils.union, not);
+			}
+			case "EQ": {
+				return NeedsThis.queryComparator(this, query[key], Utils.equals, not);
+			}
+			case "GT": {
+				return NeedsThis.queryComparator(this, query[key], Utils.greaterThan, not);
+			}
+			case "LT": {
+				return NeedsThis.queryComparator(this, query[key], Utils.lessThan, not);
+			}
+			case "NOT": {
+				return NeedsThis.queryNot(query[key], not, this);
+			}
+			case "IS": {
+				return NeedsThis.querySComparator(this, query[key], not);
+			}
+			default: {
+				return Promise.reject(new InsightError("Invalid Json"));
+			}
 		}
 	}
 
-	// eslint-disable-next-line max-lines-per-function
-	private options(results: any, query: any): Promise<never> | Promise<any[]> {
+	private options(results: any, query: any): Promise<Array<{ result: any[] }>> {
+		if (results[0].size > 5000) {
+			return Promise.reject(new ResultTooLargeError("too many results"));
+		}
 		let keys = Object.keys(query);
-		keys.forEach((k) => {
+		for(let k of keys) {
 			if (!["COLUMNS", "ORDER"].includes(k)) {
 				return Promise.reject(new InsightError("Invalid field in options"));
 			}
-		});
+		}
+		let validColumns: [any] | undefined;
 		let retval: any[] = [];
 		if (keys.includes("COLUMNS")) {
 			let columns = query["COLUMNS"];
+			if (results[2] !== undefined){
+				validColumns = results[2];
+				if (validColumns!.length !== new Set(validColumns).size) {
+					return Promise.reject(new InsightError("Apply keys need unique names"));
+				}
+			}
 			if (!columns) {
 				return Promise.reject(new InsightError("columns empty"));
 			}
-			results[0].forEach((row: any) => {
+			for(let row of results[0]){
 				let newRow: { [key: string]: any } = {};
-				columns.forEach((field: string) => {
+				for(let field of columns) {
 					let fieldSplit = field.split("_",2);
-					if (fieldSplit[0] !== results[1]) {
+					if (fieldSplit[0] !== results[1] &&  !columns.includes(fieldSplit[0])) {
 						return Promise.reject(new InsightError("Columns refers to wrong dataset"));
 					}
-					let specField: string;
-					if (InsightFacade.CONVERT_FIELDS.has(fieldSplit[1]) ) {
-						specField = InsightFacade.CONVERT_FIELDS.get(fieldSplit[1])!;
-					} else {
-						specField = fieldSplit[1];
+					if(this.checkValidColumns(validColumns, field)){
+						return Promise.reject(new InsightError("invalid column"));
 					}
-					if (specField !== "id") {
-						specField =  specField[0].toUpperCase() + specField.substring(1);
-					}
-					newRow[field] = row[specField];
-				});
+					newRow[field] = row[field];
+				}
 				retval.push(newRow);
-			});
+			}
 			if (keys.includes("ORDER")) {
-				let orderField: string = query["ORDER"]["keys"];
-				let dir = query["ORDER"]["dir"];
-				if (orderField === undefined || dir === undefined){
+				if (this.checkValidOrder(query, columns) === 1) {
 					return Promise.reject(new InsightError("order fields missing"));
-				}// eslint-disable-next-line max-lines
-				if (!columns.includes(orderField)) {
+				} else if (this.checkValidOrder(query, columns) === 2) {
 					return Promise.reject(new InsightError("order field not in columns"));
 				}
-				InsightFacade.order([retval, results[1]], query["ORDER"]) ;
-
-				if (keys.includes("TRANSFORMATIONS")) {
-					return InsightFacade.transformations([retval, results[1]], query["TRANSFORMATIONS"])!;
-				}
+				NeedsThis.order([retval, results[1]], query["ORDER"]) ;
 			}
 		} else {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
 	}
-	private static order(results: any, query: any) {
-		const orderConvert = new Map([["UP",InsightFacade.up], ["DOWN", InsightFacade.down]]);
-		if (Object.keys(query) !== ["dir", "keys"]) {
-			throw new InsightError("invalid order");
+
+	public checkValidOrder(query: any, columns: any){
+		let orderField: any[string] = query["ORDER"]["keys"];
+		let dir = query["ORDER"]["dir"];
+		if (orderField === undefined || dir === undefined){
+			return 1;
 		}
-		InsightFacade.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
-	}
-
-	private static up(a: any, b: any) {
-		return (a === b) ? -1 : a > b;
-	}
-
-	private static down(a: any, b: any) {
-		return (a === b) ? -1 : a < b;
-	}
-
-	private static sort(array: any, sortKeys: any, direction: any){
-		const zeroConvert = new Map([[1,1], [0, -1]]);
-		array.sort((a: any, b: any) => {
-			sortKeys.forEach((key: any)=> {	// if elements tie, for loop will keep going through sorting keys list
-				let greater = direction(a[key], b[key]);
-				if (greater !== -1) {
-					return zeroConvert.get(greater);
-				}
-			});
-		});
-	}
-
-
-// takes set of rows and groups by list of keys, returns map[key values, list of rows]
-	private static group(results: any, keys: any) {
-		const groups = new Map();
-		results.forEach((row: any) => {
-			let  temp = [];
-			let rowValues = keys.forEach((key: any) => {
-				temp.push(row[key]);
-			});
-			if (!groups.has(rowValues)){
-				groups.set(rowValues, []);
+		for(let field of orderField) {
+			if (!columns.includes(field)) {
+				return 2;
 			}
-			groups.get(rowValues).push(row);
-		});
-		return groups;
-	}
-
-	private static sum(rows: [any], field: string){
-		let sum = new Decimal(0);
-		rows.forEach((row) => {
-			sum.add(new Decimal(row[field]));
-		});
-		return Number(sum.toFixed(2));
-	}
-
-	private static avg(rows: [any], field: string){
-		let avg: number = InsightFacade.sum(rows,field) / rows.length;
-		return Number(avg.toFixed(2));
-	}
-
-	private static max(rows: [any], field: string) {
-		let maximum = Number.MIN_VALUE;
-		rows.forEach((row) => {
-			if (row[field] > maximum) {
-				maximum = row[field];
-			}
-		});
-		return maximum;
-	}
-
-	private static min(rows: [any], field: string) {
-		let minimum = Number.MAX_VALUE;
-		rows.forEach((row) => {
-			if (row[field] > minimum) {
-				minimum = row[field];
-			}
-		});
-		return minimum;
-	}
-
-	private static count(rows: [any], field: string) {
-		const unique: any[]  = [];
-		let count = 0;
-		rows.forEach((row: any)=> {
-			let value: any = row[field];
-			if (!unique.includes(value)) {
-				unique.push(value);
-				count++;
-			}
-		});
-		return count;
-	}
-
-	private static transformations(results: any, query: any) {
-		const APPLY = new Map([["MAX" , InsightFacade.max],["MIN" , InsightFacade.min],
-			["AVG" , InsightFacade.avg], [ "COUNT" , InsightFacade.count],[ "SUM", InsightFacade.sum]]);
-		let keys = Object.keys(query);
-		if (!keys.includes("GROUP")) {
-			return Promise.reject(new InsightError("Must include group"));
 		}
-		let groupSplit = query["GROUP"].split("_",2);	// [0] is dataset name [1] is field to group on
-		if (groupSplit[0] !== results[1]) {
-			return Promise.reject(new InsightError(groupSplit[0] + " refers to different dataset"));
+		return 0;
+	}
+
+	public checkValidColumns(validColumns: any, field: any){
+		if (validColumns !== undefined && !validColumns!.includes(field)) {
+			let sCheck = field.split("_")[1];
+			let temp1 = InsightFacade.CONVERT_FIELDS.get(sCheck);
+			if(!(sCheck !== undefined && validColumns!.includes(temp1))){
+				return true;	// return true if invlid columns
+			}
 		}
-		if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
-			return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
-		}
-		results[0] = InsightFacade.group(results[0], groupSplit[1]); // results[0] is now a map instead of a list
-		if (keys.includes("APPLY")){
+		return false;
+	}
+
+	public apply(keys: string[], query: any, columns: string[], results: any, APPLY: any , groupSplit: any) {
+		if (keys.includes("APPLY")) {
 			if (keys.length > 2) {
 				return Promise.reject(new InsightError(keys + " contains an invalid key"));
 			}
@@ -410,27 +220,41 @@ export default class InsightFacade implements IInsightFacade {
 			if (Object.keys(apply).length === 0) {
 				return Promise.reject(new InsightError("must have a field for apply"));
 			}
-			let fieldName = Object.keys(apply)[0];
-			let applyToken = apply[fieldName];
-
-			let applyTokenValueSplit = apply[fieldName][applyToken].split("_", 2);
-			// TODO check applyTokenValue is a valid room field, wait for yvonne to add rooms
-			if (applyTokenValueSplit[0] !== results[1]) {
-				return Promise.reject(new InsightError(applyTokenValueSplit[0] + "refers to different dataset"));
+			let fields = Object.keys(apply);
+			let funcs: any[] = [];
+			for (let fieldIndex of fields) {
+				let fieldName = Object.keys(apply[fieldIndex])[0];
+				columns.push(fieldName);
+				let operation = Object.keys(apply[fieldIndex][fieldName])[0];
+				let applyTokenValueSplit = apply[fieldIndex][fieldName][operation].split("_", 2);
+				if (applyTokenValueSplit[0] !== results[1]) {
+					return Promise.reject(new InsightError(applyTokenValueSplit[0] + "refers to different dataset"));
+				}
+				if (!APPLY.has(operation)) {
+					return Promise.reject(new InsightError(operation + "is an invalid apply field"));
+				}
+				funcs.push([fieldName, apply[fieldIndex][fieldName][operation], APPLY.get(operation)!]);
 			}
-			if (!APPLY.has(applyToken)) {
-				return Promise.reject(new InsightError(applyToken + "is an invalid apply field"));
-			}
-			let func = APPLY.get(applyToken)!;
-			let groups = results[0].keys();
+			let groups = Array.from(results[0].keys());
+			let groupFields = query["GROUP"];
 			let result: any[] = [];
-			let groupName: string = groupSplit[1];
-			groups.forEach((group: any)=> {
-				result.push(new Set([[groupName, group], [fieldName, func(results[0], applyTokenValueSplit[1])]]));
-			});
-			return Promise.resolve(result);
+			for (let group of groups) {
+				let temp: any[any] = {};
+				NeedsThis.convertCourseField2(this, groupFields, groupSplit, temp, results, group);
+				for (let func of funcs) {
+					if (typeof results[0].get(group)[0][func[1]] === "string" && func[2].name !== "count") {
+						return Promise.reject(new InsightError("only count can be used for string fields"));
+					}
+					NeedsThis.convertCoursesField(this, groupSplit, func);
+					temp[func[0]] = func[2](results[0].get(group), func[1]);
+				}
+				result.push(temp);
+			}
+			results[0] = result;
+			results.push(columns);
+			return Promise.resolve(results);
 
-		} else if (keys.length > 1) {
+		} else {
 			return Promise.reject(new InsightError(keys + " contains an invalid key"));
 		}
 	}
@@ -441,7 +265,15 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("invalid query"));
 		} else {
 			return this.nextQuery(query["WHERE"], false).then((queryResults) => {
-				return this.options(queryResults, query["OPTIONS"]);
+
+				if (Object.keys(query).includes("TRANSFORMATIONS")) {
+					return NeedsThis.transformations(this, queryResults, query["TRANSFORMATIONS"])
+						.then((results: any) => {
+							return this.options(results, query["OPTIONS"]);
+						});
+				} else {
+					return this.options(queryResults, query["OPTIONS"]);
+				}
 			});
 		}
 	}
@@ -453,21 +285,12 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.resolve(list);
 	}
+
 	private getDataset(dataset: any) {
 		let temp = this.data.get(dataset);
 		if (temp) {
 			return temp[1];
 		}
 		return undefined;
-	}
-	private queryNot(query: any, not: boolean){
-		let keys = Object.keys(query);
-		if(keys.length !== 1) {
-			return Promise.reject(new InsightError("more than one query after NOT"));
-		}
-		return Promise.resolve(this.nextQuery(query, !not));
-	}
-	private static isEqual(a: any, b: any) {
-		return JSON.stringify(a) === JSON.stringify(b);
 	}
 }

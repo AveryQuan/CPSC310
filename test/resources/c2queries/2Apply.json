@@ -1,5 +1,5 @@
 {
-  "title": "min",
+  "title": "2 apply",
   "input": {
     "WHERE": {
       "AND": [
@@ -18,10 +18,11 @@
     "OPTIONS": {
       "COLUMNS": [
         "rooms_shortname",
-        "maxSeats"
+        "maxSeats",
+        "avgSeats"
       ],
       "ORDER": {
-        "dir": "UP",
+        "dir": "DOWN",
         "keys": [
           "maxSeats"
         ]
@@ -34,7 +35,12 @@
       "APPLY": [
         {
           "maxSeats": {
-            "MIN": "rooms_seats"
+            "MAX": "rooms_seats"
+          }
+        },
+        {
+          "avgSeats": {
+            "AVG": "rooms_seats"
           }
         }
       ]
@@ -43,16 +49,19 @@
   "errorExpected": false,
   "with": [
     {
-      "rooms_shortname": "LSC",
-      "maxSeats": 350
+      "rooms_shortname": "OSBO",
+      "maxSeats": 442,
+      "avgSeats": 442
     },
     {
       "rooms_shortname": "HEBB",
-      "maxSeats": 375
+      "maxSeats": 375,
+      "avgSeats": 375
     },
     {
-      "rooms_shortname": "OSBO",
-      "maxSeats": 442
+      "rooms_shortname": "LSC",
+      "maxSeats": 350,
+      "avgSeats": 350
     }
   ]
 }

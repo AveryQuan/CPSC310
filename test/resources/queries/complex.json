@@ -67,7 +67,10 @@
 
       ],
 
-      "ORDER":"courses_title"
+      "ORDER":{
+		  "dir": "UP",
+		  "keys": ["courses_title"]
+	  }
 
     }
 

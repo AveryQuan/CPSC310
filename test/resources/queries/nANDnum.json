@@ -24,7 +24,10 @@
         "courses_instructor",
         "courses_avg"
       ],
-      "ORDER": "courses_avg"
+      "ORDER": {
+		  "dir": "DOWN",
+			"keys": ["courses_avg"]
+	  }
     }
   },
   "errorExpected": false,
