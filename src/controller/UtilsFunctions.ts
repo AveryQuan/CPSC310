@@ -1,5 +1,6 @@
 
 import parse5 = require("parse5");
+import { InsightDataset, InsightDatasetKind } from "./IInsightFacade";
 import {Utils, EnumDataItem, RoomData} from "./Utils";
 let XMLHttpRequest = require("xhr2");
 let apiAdr = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team110/";
@@ -236,9 +237,6 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 	let buffer = [];
 	let bufferPos2 = [];
 
-	let mode = {id: id, kind: kind};
-	buffer.push(mode);
-
 	let table2 = dataSet.map((x) => getTables(x));
 	let buffer2 = Array.from(table2.map((y) => parseRoomChild(y)));
 	let table1 = getTables(buildings);
@@ -272,6 +270,11 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string, 
 			}
 		}
 	}
+
+	let num: number = bufferPos2.length;
+	let mode: InsightDataset = {id: id, kind: InsightDatasetKind.Rooms, numRows:num};
+	buffer.push(mode);
+
 	buffer.push(bufferPos2);
 	return buffer;
 }

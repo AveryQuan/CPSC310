@@ -2,6 +2,7 @@ import {expect} from "chai";
 import InsightFacade from "../../src/controller/InsightFacade";
 import {
 	InsightDatasetKind,
+	InsightDataset,
 	InsightError,
 	NotFoundError,
 	ResultTooLargeError
@@ -10,6 +11,7 @@ import * as fs from "fs";
 import * as extra from "fs-extra";
 
 import {testFolder} from "@ubccpsc310/folder-test";
+import { runInThisContext } from "vm";
 
 
 describe("InsightFacade", function () {
@@ -65,13 +67,97 @@ describe("InsightFacade", function () {
 					return insight.listDatasets().then((dataset) => {
 						expect(dataset).to.deep.equal([{
 							id: "rooms",
-							kind: InsightDatasetKind.Rooms
+							kind: InsightDatasetKind.Rooms,
+							numRows: 364
 						}]);
 					});
 				});
 		});
 
-		it("add dataset with invalid id", function () {
+		it("add 1 courses dataset ", function () {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then((x) => {
+					expect(x).to.deep.equal(["courses"]);
+					return insight.listDatasets().then((dataset) => {
+						expect(dataset).to.deep.equal([{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
+							numRows:64612
+						}]);
+					});
+				});
+		});
+
+		it("add 1 rooms dataset - invalid format", function () {
+			return insight.addDataset("courses2", courses2, InsightDatasetKind.Rooms)
+				.then((err) => {
+					throw new Error(`Resolved with: ${err}`);
+				})
+				.catch((x) => {
+					expect(x).to.be.instanceof(InsightError);
+				});
+		});
+
+
+		it("add 1 courses dataset - invalid format ", function () {
+			return insight.addDataset("courses2", courses2, InsightDatasetKind.Courses)
+				.then((err) => {
+					throw new Error(`Resolved with: ${err}`);
+				})
+				.catch((x) => {
+					expect(x).to.be.instanceof(InsightError);
+				});
+		});
+
+
+		it("list dataset - no dataset added", function () {
+			return insight.listDatasets()
+				.then((x)=> {
+					expect(x).to.deep.equal([]);
+				});
+		});
+
+		it("list dataset - one dataset added", function () {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					let ret: InsightDataset = {
+						id: "courses",
+						kind: InsightDatasetKind.Courses,
+						numRows: 64612
+					};
+					return insight.listDatasets()
+						.then((x)=> {
+							expect(x).to.deep.equal([ret]);
+						});
+				});
+		});
+
+		it("list dataset - two dataset added", function () {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms)
+						.then(() => {
+							let ret: InsightDataset = {
+								id: "courses",
+								kind: InsightDatasetKind.Courses,
+								numRows: 64612
+							};
+							let ret1: InsightDataset = {
+								id: "rooms",
+								kind: InsightDatasetKind.Rooms,
+								numRows: 364
+							};
+
+							return insight.listDatasets()
+								.then((x)=> {
+									expect(x).to.deep.equal([ret, ret1]);
+								});
+						});
+				});
+		});
+
+
+		it("add dataset - invalid id", function () {
 			return insight.addDataset("_fasfd", courses, InsightDatasetKind.Courses)
 				.then((err) => {
 					throw new Error(`Resolved with: ${err}`);
@@ -79,7 +165,29 @@ describe("InsightFacade", function () {
 				.catch((x) => {
 					expect(x).to.be.instanceof(InsightError);
 				});
+		});
 
+		it("add dataset - id all spaces", function () {
+			return insight.addDataset("    ", courses, InsightDatasetKind.Courses)
+				.then((err) => {
+					throw new Error(`Resolved with: ${err}`);
+				})
+				.catch((x) => {
+					expect(x).to.be.instanceof(InsightError);
+				});
+		});
+
+		it("add dataset - repeated id", function () {
+			return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					return insight.addDataset("courses", courses, InsightDatasetKind.Courses)
+						.then((err) => {
+							throw new Error(`Resolved with: ${err}`);
+						})
+						.catch((x) => {
+							expect(x).to.be.instanceof(InsightError);
+						});
+				});
 		});
 
 
@@ -92,19 +200,21 @@ describe("InsightFacade", function () {
 		// });
 
 
-		it("add dataset and remove", function () {
+		it("remove dataset - one dataset added", function () {
 			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
 				return insight.removeDataset("courses").then((x) => {
 					expect(x).to.equal("courses");
 					return insight.listDatasets().then((dataset) => {
 						expect(dataset).to.have.length(0);
+						expect(dataset).to.deep.equal([]);
+						expect(insight.data.size).to.deep.equal(0);
 					});
 				});
 
 			});
 		});
 
-		it("remove dataset invalid id -- all spaces", function () {
+		it("remove dataset - invalid id - all spaces", function () {
 			return insight.removeDataset("      ").then((err) => {
 				throw new Error(`Resolved with: ${err}`);
 			}
@@ -117,19 +227,20 @@ describe("InsightFacade", function () {
 		});
 
 
-		it("remove dataset invalid id", function () {
-			return insight.removeDataset("      ").then((err) => {
+		it("remove dataset - invalid id", function () {
+			return insight.removeDataset("_ fesr").then((err) => {
 				throw new Error(`Resolved with: ${err}`);
 			}
 			).catch((err) => {
 				expect(err).to.be.instanceof(InsightError);
+				expect(insight.data.size).to.deep.equal(0);
 				return insight.listDatasets().then((x) => {
 					expect(x).to.have.length(0);
 				});
 			});
 		});
 
-		it("remove non existent dataset", function () {
+		it("remove dataset - non existent dataset", function () {
 			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
 				return insight.removeDataset("1").then(
 					(err) => {
@@ -137,15 +248,11 @@ describe("InsightFacade", function () {
 					}
 				).catch((x) => {
 					expect(x).to.be.instanceof(NotFoundError);
-
 				});
-
 			});
-
-
 		});
 
-		it("add 2 dataset and remove 1", function () {
+		it("remove dataset - add 2 dataset and remove 1", function () {
 			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
 				return insight.addDataset("coursesCopy", courseCopy, InsightDatasetKind.Courses).then(() => {
 					return insight.removeDataset("courses").then(() => {
@@ -832,8 +939,7 @@ describe("InsightFacade", function () {
 						courses_id: "599",
 						courses_avg: 95
 					}, {courses_dept: "crwr", courses_id: "599", courses_avg: 95}, {
-						courses_dept: "crwr",
-						courses_id: "599",
+						courses_dept: "crwr", courses_id: "599",
 						courses_avg: 95
 					}, {courses_dept: "cpsc", courses_id: "589", courses_avg: 95}, {
 						courses_dept: "cpsc",

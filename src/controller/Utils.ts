@@ -1,7 +1,23 @@
 import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
 import Decimal from "decimal.js";
+import JSZip from "jszip";
 
 export class Utils {
+	// return false if dataset invalid for kind specified
+	public static datasetValid(zip: JSZip, kind: InsightDatasetKind): boolean {
+		if (kind === InsightDatasetKind.Courses){
+			if(zip.folder(/courses/).length <= 0) {
+				return false;
+			}
+		}
+		if (kind === InsightDatasetKind.Rooms){
+			if (zip.file("rooms/index.htm") === null) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	// Returns true if list contains correct items
 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
 		required.forEach((field: any) => {
@@ -247,44 +263,34 @@ export class RoomData {
 }
 
 export class EnumDataItem {
-	public mode: InsightDataset;
 	public data;
-
-	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
+	public numRows: number;
+	constructor(result: string) {
 		let buffer = JSON.parse(result);
 		let output = buffer.result;
-		let count = 0;
-
-		for (let outputVal of output){
-			let key1 = outputVal.Year;
-			let key2 = outputVal.id;
-			if (key1 !== undefined){
-				let num: number = parseInt(output.Year, 10);
-				outputVal.Year = num;
-			}
-			if (key2 !== undefined){
-				let str: string = output.id.toString();
-				outputVal.id = str;
-			}
-		}
+		this.numRows = 0;
+		// for (let outputVal of output){
+		// 	let key1 = outputVal.Year;
+		// 	let key2 = outputVal.id;
+		// 	if (key1 !== undefined){
+		// 		let num: number = parseInt(output.Year, 10);
+		// 		outputVal.Year = num;
+		// 	}
+		// 	if (key2 !== undefined){
+		// 		let str: string = output.id.toString();
+		// 		outputVal.id = str;
+		// 	}
+		// }
 		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-		count = output.length;
-		this.mode = {
-			id: _id,
-			kind: _kind,
-			numRows: count
-		};
+		this.numRows = output.length;
 		this.data = output;
 	}
-
 
 	public has(element: any) {
 		for (const row of this.data["result"]) {
 			if (row === element) {
 				return true;
 			}
-
 		}
 	}
 }
-
