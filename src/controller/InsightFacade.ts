@@ -29,22 +29,21 @@ export default class InsightFacade implements IInsightFacade {
 		let promises: any[] = [];
 		let total = 0;
 		let buildings: parse5.Document;
-		if (!checkCourseFormat(id) || this.data.has(id) || !Utils.checkDataKind(kind)) {
-			return Promise.reject(new InsightError("Error: Invalid ID or Dataset already has Id"));
+		if (!checkCourseFormat(id) || this.data.has(id)) {
+			return Promise.reject(new InsightError("Error: Invalid ID"));
 		}
 		let zip = await JSZip.loadAsync(content, {base64: true});
 		if (zip === undefined || zip === null){
 			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
 		}
 		return new Promise<string[]>((resolve, reject) => {
-			if (kind === InsightDatasetKind.Courses){
+			if (kind === InsightDatasetKind.Courses && Utils.datasetValid(zip, kind)){
 				let temp: any[] = [];
-				zip.forEach((relativePath: string, file: JSZip.JSZipObject) => {
-					let path = relativePath.substr(id.length + 1);
-					promises.push(zip.folder(id)?.file(path)?.async("string").then((result: string) => {
-						let item = new EnumDataItem(result, path, kind);
+				zip.folder("courses")?.forEach((relativePath: string, file: JSZip.JSZipObject) => {
+					promises.push(zip.folder("courses")?.file(relativePath)?.async("string").then((result: string) => {
+						let item = new EnumDataItem(result);
 						temp.push(item.data);
-						total = total + item.mode.numRows;
+						total = total + item.numRows;
 					}));
 				});
 				Promise.all(promises).then((value: any[]) => {
@@ -54,7 +53,7 @@ export default class InsightFacade implements IInsightFacade {
 						this.insertCoursesDataIThink(temp, dataSet, id, kind, total, resolve);
 					}
 				});
-			} else if (kind === InsightDatasetKind.Rooms) {
+			} else if (kind === InsightDatasetKind.Rooms && Utils.datasetValid(zip, kind)) {
 				promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
 					buildings = parse5.parse(result);
 				}));
@@ -67,6 +66,8 @@ export default class InsightFacade implements IInsightFacade {
 					this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
 					resolve([id]);
 				});
+			} else {
+				reject(new InsightError("Error: Invalid zipfile format for dataset kind"));
 			}
 		}).catch(() => {
 			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
@@ -80,7 +81,6 @@ export default class InsightFacade implements IInsightFacade {
 		this.data.set(id, dataSet);
 		resolve([id]);
 	}
-
 
 	public removeDataset(id: string): Promise<string> {
 		if (!checkCourseFormat(id)) {
@@ -280,9 +280,12 @@ export default class InsightFacade implements IInsightFacade {
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
-		this.data.forEach((value, key) => {
+		if (this.data.size === 0){
+			return Promise.resolve(list);
+		}
+		for (const [key, value] of this.data.entries()){
 			list.push(value[0]);
-		});
+		}
 		return Promise.resolve(list);
 	}
 

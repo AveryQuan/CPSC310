@@ -111,7 +111,7 @@ export default class Server {
 		filepath = "test/resources/archives/courses.zip";
 		fileBuffer = fs.readFileSync(filepath);
 		courses = fileBuffer.toString("base64");
-		return this.insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(()=> {
+		return this.insight.addDataset("courses1", courses, InsightDatasetKind.Courses).then(()=> {
 			return this.insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
 		});
 	}
