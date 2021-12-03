@@ -2,7 +2,6 @@
 import parse5 = require("parse5");
 import { InsightDataset, InsightDatasetKind } from "./IInsightFacade";
 import {Utils, EnumDataItem, RoomData} from "./Utils";
-let XMLHttpRequest = require("xhr2");
 let apiAdr = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team110/";
 
 // Returns false if input is invalid
@@ -121,25 +120,40 @@ export function parseRoomChild(item: any): any{
 
 
 export function getLatLon(url: string): Promise<number[]> {
-	let xhr = new XMLHttpRequest();
+	const http = require("http");
+	let arr: number[] = [NaN, NaN];
 	return new Promise((resolve, reject) => {
-		let arr: number[] = [NaN, NaN];
-		xhr.open("GET", url, true);
-		xhr.send();
-		xhr.onload = function () {
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200) {
-					let response = JSON.parse(xhr.responseText);
-					arr[0] = response.lat;
-					arr[1] = response.lon;
-					resolve(arr);
-				}
+		http.get(url, (res: any) => {
+			const contentType = res.headers["content-type"];
+			if (res.statusCode !== 200){
+				reject(arr);
+			} else if (!/^application\/json/.test(contentType)){
+				reject(arr);
 			}
-			reject(arr);
-		};
+			res.setEncoding("utf8");
+			let result: string = "";
+			res.on("data", (chunk: string) => {
+				result += chunk;
+			});
+			res.on("end", () => {
+				try {
+					let parse = JSON.parse(result);
+					if (!parse.error){
+						arr[0] = parse.lat;
+						arr[1] = parse.lon;
+						resolve(arr);
+					} else {
+						reject(arr);
+					}
+				} catch (e) {
+					reject(arr);
+				}
+			}).on("error", () => {
+				reject(arr);
+			});
+		});
 	});
 }
-
 
 export async function makeBuildingsJSON(child: any): Promise<any>{
 	if (child === [] || child === null || child === undefined){
@@ -234,9 +248,7 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string):
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
-	let buffer = [];
 	let bufferPos2 = [];
-
 	let table2 = dataSet.map((x) => getTables(x));
 	let buffer2 = Array.from(table2.map((y) => parseRoomChild(y)));
 	let table1 = getTables(buildings);
@@ -244,7 +256,6 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string):
 	if (buffer1 === [] || buffer2 === []){
 		return new Error("Error: Parse html failed/No tables found");
 	}
-
 	for (let item of buffer2){
 		let itm = item[0];
 		if (itm !== undefined){
@@ -270,11 +281,8 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string):
 			}
 		}
 	}
-
 	let num: number = bufferPos2.length;
 	let mode: InsightDataset = {id: id, kind: InsightDatasetKind.Rooms, numRows:num};
-	buffer.push(mode);
-
-	buffer.push(bufferPos2);
+	let buffer = [mode, bufferPos2];
 	return buffer;
 }

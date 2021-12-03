@@ -1,6 +1,10 @@
-import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
+import {InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade";
 import Decimal from "decimal.js";
 import JSZip from "jszip";
+let FIELDS: string[] = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
+	"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
+let CONVERT_FIELDS = new Map<string, string>(
+	[["Subject","dept"],["Course", "id"],["id", "uuid"],["Professor", "instructor"]]);
 
 export class Utils {
 	// return false if dataset invalid for kind specified
@@ -245,44 +249,41 @@ export class RoomData {
 		this.rooms_furniture = "";
 		this.rooms_href = "";
 	}
-
-	public print(){
-		console.log("============= room data set =============");
-		console.log("rooms_fullname: " + this.rooms_fullname);
-		console.log("rooms_shortname: " + this.rooms_shortname);
-		console.log("rooms_number: " + this.rooms_number);
-		console.log("rooms_name: " + this.rooms_name);
-		console.log("rooms_address: " + this.rooms_address);
-		console.log("rooms_lat: " + this.rooms_lat );
-		console.log("rooms_lon: " + this.rooms_lon );
-		console.log("rooms_seats: " + this.rooms_seats );
-		console.log("rooms_type: " + this.rooms_type);
-		console.log("rooms_furniture: " + this.rooms_furniture);
-		console.log("rooms_href: " + this.rooms_href);
-	}
 }
 
 export class EnumDataItem {
-	public data;
+	public data: any;
 	public numRows: number;
 	constructor(result: string) {
 		try {
-			JSON.parse(result);
+			let js = JSON.parse(result);
+			let output = js.result;
+			this.numRows = output.length;
+			for (let outputVal of output){
+				let key1 = outputVal.Year;
+				let key2 = outputVal.id;
+				if (key1 !== undefined){
+					let num: number = parseInt(outputVal.Year, 10);
+					outputVal.Year = num;
+				}
+				if (key2 !== undefined){
+					let str: string = outputVal.id.toString();
+					outputVal.id = str;
+				}
+			}
+			this.data = output;
 		} catch(e){
-			this.data = null;
 			this.numRows = 0;
-			return;
+			this.data = undefined;
 		}
-		let output = JSON.parse(result).result;
-		this.numRows = output.length;
-		this.data = output;
 	}
 
 	public has(element: any) {
-		for (const row of this.data["result"]) {
-			if (row === element) {
+		for (const row in this.data){
+			if (row === element){
 				return true;
 			}
 		}
+		return false;
 	}
 }

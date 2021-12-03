@@ -168,14 +168,14 @@ export default class InsightFacade implements IInsightFacade {
 						return Promise.reject(new InsightError("invalid column"));
 					}
 					let temp = field;
-					if (NeedsThis.getDatasetKind(results[1], this.data) === "courses"){
+					if (NeedsThis.getDatasetKind(results[1], this.data) === InsightDatasetKind.Courses){
 						temp = temp.split("_")[1];
-					}
-					if (InsightFacade.CONVERT_FIELDS.has(temp)) {
-						temp = InsightFacade.CONVERT_FIELDS.get(temp);
-					}
-					if (temp !== "id"){
-						temp = temp[0].toUpperCase() + temp.substring(1);
+						if (InsightFacade.CONVERT_FIELDS.has(temp)) {
+							temp = InsightFacade.CONVERT_FIELDS.get(temp);
+						}
+						if (temp !== "id"){
+							temp = temp[0].toUpperCase() + temp.substring(1);
+						}
 					}
 					newRow[field] = row[temp];
 				}
