@@ -230,7 +230,7 @@ export function makeRoomsJSON(child: any): any {
 	}
 }
 
-export async function combineBuffer(buildings: any, dataSet: any[], id: string, kind: string): Promise<any> {
+export async function combineBuffer(buildings: any, dataSet: any[], id: string): Promise<any> {
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}

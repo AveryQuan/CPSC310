@@ -27,7 +27,7 @@ export default class InsightFacade implements IInsightFacade {
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let dataSet: any[] = [];
 		let promises: any[] = [];
-		let total = 0;
+		let total: number = 0;
 		let buildings: parse5.Document;
 		if (!checkCourseFormat(id) || this.data.has(id)) {
 			return Promise.reject(new InsightError("Error: Invalid ID"));
@@ -38,19 +38,20 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return new Promise<string[]>((resolve, reject) => {
 			if (kind === InsightDatasetKind.Courses && Utils.datasetValid(zip, kind)){
-				let temp: any[] = [];
 				zip.folder("courses")?.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					promises.push(zip.folder("courses")?.file(relativePath)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result);
-						temp.push(item.data);
-						total = total + item.numRows;
+						if (item.data){
+							dataSet.push(item.data);
+							total = total + item.numRows;
+						}
 					}));
 				});
 				Promise.all(promises).then((value: any[]) => {
-					if (temp.length === 0){
-						reject(new InsightError("Error: courses - Read invalid"));
+					if (dataSet.length === 0){
+						reject(new InsightError("Error: courses - No valid files"));
 					} else {
-						this.insertCoursesDataIThink(temp, dataSet, id, kind, total, resolve);
+						this.insertCoursesDataIThink(dataSet, id, kind, total, resolve);
 					}
 				});
 			} else if (kind === InsightDatasetKind.Rooms && Utils.datasetValid(zip, kind)) {
@@ -63,7 +64,7 @@ export default class InsightFacade implements IInsightFacade {
 					}));
 				});
 				Promise.all(promises).then(async (value: any[]) => {
-					this.data.set(id, await combineBuffer(buildings, dataSet, id, kind));
+					this.data.set(id, await combineBuffer(buildings, dataSet, id));
 					resolve([id]);
 				});
 			} else {
@@ -74,11 +75,8 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	private insertCoursesDataIThink(temp: any[], dataSet: any[], id: string, kind: any, total: number, resolve: any) {
-		let temp2 = Utils.getInnerElements(temp);
-		dataSet.push(temp2);
-		dataSet.unshift({id: id, kind: kind, numRows: total});
-		this.data.set(id, dataSet);
+	private insertCoursesDataIThink(dataSet: any[], id: string, kind: any, total: number, resolve: any) {
+		this.data.set(id, [{id: id, kind: kind, numRows: total}, Utils.getInnerElements(dataSet)]);
 		resolve([id]);
 	}
 

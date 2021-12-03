@@ -70,6 +70,7 @@ describe("InsightFacade", function () {
 							kind: InsightDatasetKind.Rooms,
 							numRows: 364
 						}]);
+						// expect(insight.getDataset("rooms").length).to.deep.equal(364);
 					});
 				});
 		});
@@ -84,6 +85,7 @@ describe("InsightFacade", function () {
 							kind: InsightDatasetKind.Courses,
 							numRows:64612
 						}]);
+						// expect(insight.getDataset("courses").length).to.deep.equal(64612);
 					});
 				});
 		});

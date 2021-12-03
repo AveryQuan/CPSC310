@@ -266,21 +266,14 @@ export class EnumDataItem {
 	public data;
 	public numRows: number;
 	constructor(result: string) {
-		let buffer = JSON.parse(result);
-		let output = buffer.result;
-		// for (let outputVal of output){
-		// 	let key1 = outputVal.Year;
-		// 	let key2 = outputVal.id;
-		// 	if (key1 !== undefined){
-		// 		let num: number = parseInt(output.Year, 10);
-		// 		outputVal.Year = num;
-		// 	}
-		// 	if (key2 !== undefined){
-		// 		let str: string = output.id.toString();
-		// 		outputVal.id = str;
-		// 	}
-		// }
-		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
+		try {
+			JSON.parse(result);
+		} catch(e){
+			this.data = null;
+			this.numRows = 0;
+			return;
+		}
+		let output = JSON.parse(result).result;
 		this.numRows = output.length;
 		this.data = output;
 	}
