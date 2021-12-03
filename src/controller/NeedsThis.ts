@@ -212,4 +212,15 @@ export class NeedsThis {
 			return Promise.resolve(currentSet);
 		});
 	}
+
+	public static checkValidColumns(validColumns: any, field: any){
+		if (validColumns !== undefined && !validColumns!.includes(field)) {
+			let sCheck = field.split("_")[1];
+			let temp1 = InsightFacade.CONVERT_FIELDS.get(sCheck);
+			if(!(sCheck !== undefined && validColumns!.includes(temp1))){
+				return true;	// return true if invlid columns
+			}
+		}
+		return false;
+	}
 }

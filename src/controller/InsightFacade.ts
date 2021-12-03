@@ -133,6 +133,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	private options(results: any, query: any): Promise<Array<{ result: any[] }>> {
 		if (results[0].size > 5000) {
 			return Promise.reject(new ResultTooLargeError("too many results"));
@@ -163,10 +164,20 @@ export default class InsightFacade implements IInsightFacade {
 					if (fieldSplit[0] !== results[1] &&  !columns.includes(fieldSplit[0])) {
 						return Promise.reject(new InsightError("Columns refers to wrong dataset"));
 					}
-					if(this.checkValidColumns(validColumns, field)){
+					if(NeedsThis.checkValidColumns(validColumns, field)){
 						return Promise.reject(new InsightError("invalid column"));
 					}
-					newRow[field] = row[field];
+					let temp = field;
+					if (NeedsThis.getDatasetKind(results[1], this.data) === "courses"){
+						temp = temp.split("_")[1];
+					}
+					if (InsightFacade.CONVERT_FIELDS.has(temp)) {
+						temp = InsightFacade.CONVERT_FIELDS.get(temp);
+					}
+					if (temp !== "id"){
+						temp = temp[0].toUpperCase() + temp.substring(1);
+					}
+					newRow[field] = row[temp];
 				}
 				retval.push(newRow);
 			}
@@ -196,17 +207,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 		}
 		return 0;
-	}
-
-	public checkValidColumns(validColumns: any, field: any){
-		if (validColumns !== undefined && !validColumns!.includes(field)) {
-			let sCheck = field.split("_")[1];
-			let temp1 = InsightFacade.CONVERT_FIELDS.get(sCheck);
-			if(!(sCheck !== undefined && validColumns!.includes(temp1))){
-				return true;	// return true if invlid columns
-			}
-		}
-		return false;
 	}
 
 	public apply(keys: string[], query: any, columns: string[], results: any, APPLY: any , groupSplit: any) {

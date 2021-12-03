@@ -13,7 +13,9 @@
           "courses_avg"
         ],
         "ORDER": {
+			"dir": "DOWN",
 			"keys": ["courses_avg"]
+
 		}
       }
     },

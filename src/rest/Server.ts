@@ -91,12 +91,11 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		// this.express.get("/echo/:msg", Server.echo);
-		this.express.put("/", this.put.bind(this));
-		this.express.delete("/", this.delete.bind(this));
+		this.express.put("/dataset", this.put.bind(this));
+		this.express.delete("/dataset", this.delete.bind(this));
 		this.express.post("/query", this.post.bind(this));
-		this.express.get("/dataset", this.get.bind(this));
+		this.express.get("/datasets", this.get.bind(this));
 
-		// TODO: your other endpoints should go here
 
 	}
 

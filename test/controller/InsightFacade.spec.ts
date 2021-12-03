@@ -340,7 +340,7 @@ describe("InsightFacade", function () {
 			rooms = fileBuffer2.toString("base64");
 			insight = new InsightFacade();
 			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms).then(()=> {
-				return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+			// return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
 			});
 		});
 
@@ -394,12 +394,61 @@ describe("InsightFacade", function () {
 			}
 		);
 
-		// it ("test", function (){
-		// 	return insight.performQuery({WHERE:{LT:{courses_avg:70}},OPTIONS:{COLUMNS:["courses_instructor","overallAvg"],ORDER:{dir:"DOWN",keys:["overallAvg"]}},TRANSFORMATIONS:{
-		// 		GROUP:["courses_instructor"],APPLY:[{overallAvg:{AVG:"courses_avg"}}]}}).then((a: any) => {
-		// 		expect(a).to.deep.equal([{rooms_shortname:"OSBO",maxSeats:442},{rooms_shortname:"HEBB",maxSeats:375},{rooms_shortname:"LSC",maxSeats:350}]);
-		// 	});
-		// });
+		it ("test", function (){
+			return insight.performQuery({
+				WHERE: {
+					AND: [
+						{
+							OR: [
+								{
+									GT: {
+										courses_avg: 90
+									}
+								},
+								{
+									IS: {
+										courses_dept: "adhe"
+									}
+								},
+								{
+									NOT: {
+										IS: {
+											courses_id: "330"
+										}
+									}
+								}
+							]
+						},
+						{
+							EQ: {
+								courses_avg: 95
+							}
+						}
+					]
+				},
+				OPTIONS: {
+					COLUMNS: [
+						"courses_dept",
+						"courses_id",
+						"courses_avg",
+						"courses_instructor",
+						"courses_title",
+						"courses_pass",
+						"courses_fail",
+						"courses_audit",
+						"courses_uuid",
+						"courses_year"
+					],
+					ORDER: {
+						dir: "UP",
+						keys: ["courses_title"]
+					}
+				}
+			}).then ((res)=> {
+				console.log(res);
+			});
+
+		});
 
 		it("check order", function () {
 			return insight.performQuery(
