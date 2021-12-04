@@ -80,6 +80,7 @@ describe("InsightFacade", function () {
 				.then((x) => {
 					expect(x).to.deep.equal(["courses"]);
 					return insight.listDatasets().then((dataset) => {
+						console.log(dataset);
 						expect(dataset).to.deep.equal([{
 							id: "courses",
 							kind: InsightDatasetKind.Courses,
