@@ -4,6 +4,7 @@ import cors from "cors";
 import InsightFacade from "../controller/InsightFacade";
 import fs from "fs";
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import * as extra from "fs-extra";
 
 export default class Server {
 	private readonly port: number;
@@ -34,6 +35,7 @@ export default class Server {
 	 * @returns {Promise<void>}
 	 */
 	public start(): Promise<void> {
+		// extra.removeSync("./data");
 		return new Promise((resolve, reject) => {
 			console.info("Server::start() - start");
 			if (this.server !== undefined) {
@@ -42,9 +44,9 @@ export default class Server {
 			} else {
 				this.server = this.express.listen(this.port, () => {
 					console.info(`Server::start() - server listening on port: ${this.port}`);
-					return this.addDatasets().then(()=> {
-						console.info("Datasets added ");
-					});
+					// return this.addDatasets().then(()=> {
+					// 	console.info("Datasets added ");
+					// });
 					// resolve();
 				}).on("error", (err: Error) => {
 					// catches errors in server start
@@ -89,7 +91,7 @@ export default class Server {
 	// Registers all request handlers to routes
 	private registerRoutes() {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
-		// http://localhost:4321/echo/hello
+		// http://localhost:4321/
 		// this.express.get("/echo/:msg", Server.echo);
 		this.express.put("/dataset", this.put.bind(this));
 		this.express.delete("/dataset", this.delete.bind(this));
@@ -99,31 +101,35 @@ export default class Server {
 
 	}
 
-	private addDatasets(){
-		let courses: string;
-		let rooms: string;
-
-		let filepath = "test/resources/archives/rooms.zip";
-		let fileBuffer = fs.readFileSync(filepath);
-		rooms = fileBuffer.toString("base64");
-
-		filepath = "test/resources/archives/courses.zip";
-		fileBuffer = fs.readFileSync(filepath);
-		courses = fileBuffer.toString("base64");
-		return this.insight.addDataset("courses1", courses, InsightDatasetKind.Courses).then(()=> {
-			return this.insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
-		});
-	}
+	// private addDatasets(){
+	// 	let courses: string;
+	// 	let rooms: string;
+	//
+	// 	let filepath = "test/resources/archives/rooms.zip";
+	// 	let fileBuffer = fs.readFileSync(filepath);
+	// 	rooms = fileBuffer.toString("base64");
+	//
+	// 	filepath = "test/resources/archives/courses.zip";
+	// 	fileBuffer = fs.readFileSync(filepath);
+	// 	courses = fileBuffer.toString("base64");
+	// 	return this.insight.addDataset("courses1", courses, InsightDatasetKind.Courses).then(()=> {
+	// 		return this.insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+	// 	});
+	// }
 
 	private put(req: Request, res: Response) {
 		try {
-			console.log(`Server::put(..) - params: ${JSON.stringify(req.params)}`);
+			console.log(`Server::put(..) - params: ${JSON.stringify(req.query)}`);
+			// console.log(req);
 			let kind = InsightDatasetKind.Courses;
-			if (req.params.kind === "rooms") {
+			if (req.query.kind === "rooms") {
 				kind = InsightDatasetKind.Rooms;
 			}
-			return this.insight.addDataset(req.params.id, req.params.dataset,kind).then((response)=> {
+			let dataset = req.body.toString("base64");
+			return this.insight.addDataset(req.query.id!.toString(), dataset, kind).then((response)=> {
 				res.status(200).json({result: response});
+			}).catch((err)=> {
+				res.status(400).json({error: err});
 			});
 		} catch (err) {
 			res.status(400).json({error: err});
@@ -132,19 +138,15 @@ export default class Server {
 
 	private post(req: Request, res: Response) {
 		try {
-			// console.log(req);
-			// console.log(res);
+
 			console.log(`Server::post(..) - body: ${JSON.stringify(req.body)}`);
 			return this.insight.performQuery(req.body).then((response)=> {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
 				res.status(400).json({error: err});
-				console.log(err);
-			}
-			);
+			});
 		} catch (err) {
 			res.status(400).json({error: err});
-			console.log("try" + err);
 		}
 	}
 
@@ -162,16 +164,18 @@ export default class Server {
 
 	private delete(req: Request, res: Response) {
 		try {
-			console.log(`Server::delete(..) - params: ${JSON.stringify(req.params)}`);
-			return this.insight.removeDataset(req.params.id).then((response)=> {
+			console.log(`Server::delete(..) - params: ${JSON.stringify(req.query)}`);
+			return this.insight.removeDataset(req.query.id!.toString()).then((response)=> {
 				res.status(200).json({result: response});
+			}).catch((err)=> {
+				if ( err instanceof InsightError) {
+					res.status(400).json({error: err});
+				} else {
+					res.status(404).json({error: err});	// not found error
+				}
 			});
 		} catch (err) {
-			if ( err instanceof InsightError) {
-				res.status(400).json({error: err});
-			} else {	// else it is a notfounderror
-				res.status(404).json({error: err});
-			}
+			res.status(404).json({error: err});
 		}
 	}
 
