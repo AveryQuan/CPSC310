@@ -8,92 +8,90 @@ import {
 } from "./IInsightFacade";
 import JSZip = require("jszip");
 import {Utils, EnumDataItem} from "./Utils";
-import {checkCourseFormat, combineBuffer} from "./UtilsFunctions";
+import {checkFormat, combineBuffer, fm} from "./UtilsFunctions";
 import parse5 = require("parse5");
-import {NeedsThis} from "./NeedsThis";
+import {NeedsThis, checkValidZip} from "./NeedsThis";
+import * as _ from "fs-extra";
 
 export default class InsightFacade implements IInsightFacade {
-	public data: Map<string, any[]>;
-	public static FIELDS = ["dept" , "id" , "instructor" , "title" , "uuid", "fullname","shortname",
-		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href", "pass", "fail", "audit",
-		"year"];
-
+	public data: Map<string, any[]> = new Map();
+	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
+		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"]
 	public static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
-	constructor() {
-		this.data = new Map();
-	}
-
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		let dataSet: any[] = [];
+		let arr: any[] = [];
 		let promises: any[] = [];
 		let total: number = 0;
 		let buildings: parse5.Document;
-		if (!checkCourseFormat(id) || this.data.has(id)) {
-			return Promise.reject(new InsightError("Error: Invalid ID"));
+		if (!checkFormat(id) || _.existsSync("./data/" + id + ".json")) {
+			return Promise.reject(new InsightError(" Invalid ID"));
 		}
 		let zip = await JSZip.loadAsync(content, {base64: true});
-		if (zip === undefined || zip === null){
-			return Promise.reject(new InsightError("Error: Read failed for given zipfile"));
-		}
+		_.ensureDirSync("./data/");
 		return new Promise<string[]>((resolve, reject) => {
-			if (kind === InsightDatasetKind.Courses && Utils.datasetValid(zip, kind)){
+			if (kind === InsightDatasetKind.Courses && Utils.datasetValid(zip, kind) && checkValidZip(zip)){
 				zip.folder("courses")?.forEach((relativePath: string, file: JSZip.JSZipObject) => {
 					promises.push(zip.folder("courses")?.file(relativePath)?.async("string").then((result: string) => {
 						let item = new EnumDataItem(result);
 						if (item.data){
-							dataSet.push(item.data);
+							arr.push(item.data);
 							total = total + item.numRows;
 						}
 					}));
 				});
-				Promise.all(promises).then((value: any[]) => {
-					if (dataSet.length === 0){
-						reject(new InsightError("Error: courses - No valid files"));
+				Promise.all(promises).then(async (value: any[]) => {
+					if (arr.length === 0){
+						reject(new InsightError(" courses - No valid files"));
 					} else {
-						this.insertCoursesDataIThink(dataSet, id, kind, total, resolve);
+						this.saveMemDisk(id, await fm(id, total, arr));
+						resolve([id]);
 					}
 				});
-			} else if (kind === InsightDatasetKind.Rooms && Utils.datasetValid(zip, kind)) {
+			} else if (kind === InsightDatasetKind.Rooms && Utils.datasetValid(zip, kind) && checkValidZip(zip)) {
 				promises.push(zip.folder("rooms")?.file("index.htm")?.async("string").then((result: string) => {
 					buildings = parse5.parse(result);
 				}));
 				zip.folder("rooms/campus/discover/buildings-and-classrooms")?.forEach((path, file) => {
 					promises.push(zip.file(file.name)?.async("string").then((buff: string) => {
-						dataSet.push(parse5.parse(buff));
+						arr.push(parse5.parse(buff));
 					}));
 				});
 				Promise.all(promises).then(async (value: any[]) => {
-					this.data.set(id, await combineBuffer(buildings, dataSet, id));
+					this.saveMemDisk(id, await combineBuffer(buildings, arr, id));
 					resolve([id]);
 				});
 			} else {
-				reject(new InsightError("Error: Invalid zipfile format for dataset kind"));
+				reject(new InsightError(" Invalid zipfile format for dataset kind"));
 			}
 		}).catch(() => {
-			return Promise.reject(new InsightError("Error: Parse failed for zipfile"));
+			return Promise.reject(new InsightError(" Parse failed for zipfile"));
 		});
-	}
-
-	private insertCoursesDataIThink(dataSet: any[], id: string, kind: any, total: number, resolve: any) {
-		this.data.set(id, [{id: id, kind: kind, numRows: total}, Utils.getInnerElements(dataSet)]);
-		resolve([id]);
 	}
 
 	public removeDataset(id: string): Promise<string> {
-		if (!checkCourseFormat(id)) {
-			return Promise.reject(new InsightError("Error: Invalid ID -- has dashes or spaces"));
+		if (!checkFormat(id)) {
+			return Promise.reject(new InsightError(" Invalid ID -- has dashes or spaces"));
+		} else if (!_.existsSync("./data/" + id + ".json")) {
+			return Promise.reject(new NotFoundError(" No dataset found with ID given"));
 		}
-		if (!this.data.has(id)) {
-			return Promise.reject(new NotFoundError("Error: No dataset found with ID given"));
+		try {
+			let files = _.readdirSync("./data/");
+			files.forEach((element: any) => {
+				if (element.toString().split(".")[0] === id) {
+					_.removeSync("./data/" + id + ".json");
+				}
+			});
+		} catch (e) {
+			return Promise.reject(new InsightError(" Removed failed"));
 		}
-		this.data.forEach((value, key) => {
-			if (key === id){
-				this.data.delete(id);
-			}
-		});
 		return Promise.resolve(id);
+	}
+
+	private saveMemDisk(id: string, val: any){
+		_.writeJSONSync("./data/" + id + ".json", val ,{flag: "w+"});
+		this.data.set(id, [val.mode, val.arr]);
 	}
 
 	private async nextQuery(query: any, not: boolean): Promise<any> {
@@ -183,7 +181,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
-	}
+	}/
 
 	public apply(keys: string[], query: any, columns: string[], results: any, APPLY: any , groupSplit: any) {
 		if (keys.includes("APPLY")) {
@@ -259,20 +257,29 @@ export default class InsightFacade implements IInsightFacade {
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		let list: InsightDataset[] = [];
-		if (this.data.size === 0){
+		try {
+			let dir = _.readdirSync("./data/");
+			dir.forEach((element: any) => {
+				if (element.toString().split(".")[1] === "json" && checkFormat(element.toString().split(".")[0])) {
+					let file = JSON.parse(_.readFileSync("./data/" + element, "utf8"));
+					if(file.mode){
+						let item: InsightDataset = file.mode;
+						list.push(item);
+					}
+				}
+			});
+		} catch (e) {
 			return Promise.resolve(list);
 		}
-		for (const [key, value] of this.data.entries()){
-			list.push(value[0]);
-		}
 		return Promise.resolve(list);
-	}
-
-	private getDataset(dataset: any) {
+	}	
+  
+  private getDataset(dataset: any) {
 		let temp = this.data.get(dataset);
 		if (temp) {
 			return temp[1];
 		}
 		return undefined;
 	}
+
 }

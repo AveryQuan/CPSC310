@@ -5,7 +5,7 @@ import {Utils, EnumDataItem, RoomData} from "./Utils";
 let apiAdr = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team110/";
 
 // Returns false if input is invalid
-export function checkCourseFormat(input: string): boolean {
+export function checkFormat(input: string): boolean {
 	if (input.includes("_")){
 		return false;
 	}
@@ -248,7 +248,7 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string):
 	if (buildings === null && dataSet === null){
 		return new Error("Error: No rooms read");
 	}
-	let bufferPos2 = [];
+	let arr = [];
 	let table2 = dataSet.map((x) => getTables(x));
 	let buffer2 = Array.from(table2.map((y) => parseRoomChild(y)));
 	let table1 = getTables(buildings);
@@ -276,13 +276,21 @@ export async function combineBuffer(buildings: any, dataSet: any[], id: string):
 					obj.rooms_address = match.rooms_address;
 					obj.rooms_lat = match.rooms_lat;
 					obj.rooms_lon = match.rooms_lon;
-					bufferPos2.push(obj);
+					arr.push(obj);
 				}
 			}
 		}
 	}
-	let num: number = bufferPos2.length;
+	let num: number = arr.length;
 	let mode: InsightDataset = {id: id, kind: InsightDatasetKind.Rooms, numRows:num};
-	let buffer = [mode, bufferPos2];
+	let buffer = {mode, arr};
 	return buffer;
+}
+
+export function fm(id: string, total: number, dataSet: any[]): any{
+	let mode: InsightDataset = { id: id, kind: InsightDatasetKind.Courses, numRows: total};
+	let arr: any[] = Utils.getInnerElements(dataSet);
+	// console.log("GET INNER");
+	let ret = {mode, arr};
+	return ret;
 }

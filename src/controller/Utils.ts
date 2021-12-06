@@ -262,13 +262,16 @@ export class EnumDataItem {
 			for (let outputVal of output){
 				let key1 = outputVal.Year;
 				let key2 = outputVal.id;
+				let key3 = outputVal.Section;
 				if (key1 !== undefined){
 					let num: number = parseInt(outputVal.Year, 10);
 					outputVal.Year = num;
-				}
-				if (key2 !== undefined){
+				} else if (key2 !== undefined){
 					let str: string = outputVal.id.toString();
 					outputVal.id = str;
+				} else if (key3 !== undefined){
+					let num: number = 1900;
+					outputVal.Year = num;
 				}
 			}
 			this.data = output;

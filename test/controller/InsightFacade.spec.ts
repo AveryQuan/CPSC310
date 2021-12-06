@@ -9,7 +9,7 @@ import {
 } from "../../src/controller/IInsightFacade";
 import * as fs from "fs";
 import * as extra from "fs-extra";
-
+import { NeedsThis } from "../../src/controller/NeedsThis";
 import {testFolder} from "@ubccpsc310/folder-test";
 import { runInThisContext } from "vm";
 
@@ -32,6 +32,7 @@ describe("InsightFacade", function () {
 		let courseCopy: string;
 		let rooms: string;
 		before(function () {
+			console.log("test");
 			let filepath = "test/resources/archives/rooms.zip";
 			let fileBuffer = fs.readFileSync(filepath);
 			// encode contents into base64
@@ -65,6 +66,8 @@ describe("InsightFacade", function () {
 				.then((x) => {
 					expect(x).to.deep.equal(["rooms"]);
 					return insight.listDatasets().then((dataset) => {
+						NeedsThis.getDataset("rooms");
+						console.log("LIST DATASET TEST: " + dataset);
 						expect(dataset).to.deep.equal([{
 							id: "rooms",
 							kind: InsightDatasetKind.Rooms,
@@ -210,7 +213,6 @@ describe("InsightFacade", function () {
 					return insight.listDatasets().then((dataset) => {
 						expect(dataset).to.have.length(0);
 						expect(dataset).to.deep.equal([]);
-						expect(insight.data.size).to.deep.equal(0);
 					});
 				});
 
@@ -236,7 +238,6 @@ describe("InsightFacade", function () {
 			}
 			).catch((err) => {
 				expect(err).to.be.instanceof(InsightError);
-				expect(insight.data.size).to.deep.equal(0);
 				return insight.listDatasets().then((x) => {
 					expect(x).to.have.length(0);
 				});
@@ -259,15 +260,14 @@ describe("InsightFacade", function () {
 			return insight.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
 				return insight.addDataset("coursesCopy", courseCopy, InsightDatasetKind.Courses).then(() => {
 					return insight.removeDataset("courses").then(() => {
-
 						return insight.listDatasets().then((dataset) => {
-							// expect(dataset).to.deep.equal([
-							//     {
-							//         id: "small",
-							//         kind: InsightDatasetKind.Courses,
-							//         numRows: 4,
-							//     }])
-
+							expect(dataset).to.deep.equal([
+								{
+									id: "coursesCopy",
+									kind: InsightDatasetKind.Courses,
+									numRows: 64612
+								}
+							]);
 							// return insight.performQuery(
 							// 	{
 							// 		WHERE: {
@@ -320,7 +320,7 @@ describe("InsightFacade", function () {
 			});
 		});
 	});
-
+  
 	describe("query Dataset", function () {
 		this.timeout(10000);
 		let insight: InsightFacade;
@@ -978,9 +978,6 @@ describe("InsightFacade", function () {
 					}]
 				);
 			});
-
-
 		});
 	});
-
 });
