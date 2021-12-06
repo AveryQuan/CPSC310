@@ -15,8 +15,9 @@ import * as _ from "fs-extra";
 
 export default class InsightFacade implements IInsightFacade {
 	public data: Map<string, any[]> = new Map();
-	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
-		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"]
+	public static FIELDS = ["dept" , "id" , "instructor" , "title" , "uuid", "fullname","shortname",
+		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href", "pass", "fail", "audit",
+		"year"];
 
 	public static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
