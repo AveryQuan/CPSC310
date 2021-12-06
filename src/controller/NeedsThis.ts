@@ -1,4 +1,4 @@
-import {InsightError} from "./IInsightFacade";
+import {InsightDatasetKind, InsightError} from "./IInsightFacade";
 import InsightFacade from "./InsightFacade";
 import {Utils} from "./Utils";
 
@@ -38,10 +38,14 @@ export class NeedsThis {
 				if (InsightFacade.CONVERT_FIELDS.has(splitField)) {
 					splitField = InsightFacade.CONVERT_FIELDS.get(splitField)!;
 				}
+				if (splitField !== "id") {
+					splitField = splitField[0].toUpperCase() + splitField.substring(1);
+				}
 				temp[field] = result[0].get(group)[0][splitField];
 			} else {
 				temp[field] = result[0].get(group)[0][field];	// take any group member to get the fields
 			}
+			// temp[field] = result[0].get(group)[0][field];
 		}
 	}
 
@@ -77,17 +81,21 @@ export class NeedsThis {
 		if (!keys.includes("GROUP")) {
 			return Promise.reject(new InsightError("Must include group"));
 		}
+
 		let groupSplit = query["GROUP"][0].split("_",2);	// [0] is dataset name [1] is field to group on
-		if (groupSplit[0] !== results[1]) {
-			return Promise.reject(new InsightError(groupSplit[0] + " refers to different dataset"));
-		}
-		if (NeedsThis.getDatasetKind(results[1], obj.data) === "rooms") {
-			if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
-				return Promise.reject(new InsightError(groupSplit[1] + " is invalid group field"));
+		for (let g of query["GROUP"]){
+			let fieldSplit = g.split("_", 2);
+			if (fieldSplit[0] !== results[1]) {
+				return Promise.reject(new InsightError(fieldSplit[0] + " refers to different dataset"));
 			}
-		} else {
-			if (InsightFacade.FIELDS.indexOf(groupSplit[1]) === -1){
-				return Promise.reject(new InsightError(groupSplit[0] + " is invalid group field"));
+			if (NeedsThis.getDatasetKind(results[1], obj.data) === "rooms") {
+				if (InsightFacade.FIELDS.indexOf(fieldSplit[1]) === -1){
+					return Promise.reject(new InsightError(fieldSplit[1] + " is invalid group field"));
+				}
+			} else {
+				if (InsightFacade.FIELDS.indexOf(fieldSplit[1]) === -1){
+					return Promise.reject(new InsightError(fieldSplit[1] + " is invalid group field"));
+				}
 			}
 		}
 
@@ -96,7 +104,9 @@ export class NeedsThis {
 			columns = columns.concat(query["GROUP"]);
 		} else {
 			let groupWithoutDataname: any[] = [];
+			let optionsCheckGroups = [];
 			for (let g of query["GROUP"]){
+				optionsCheckGroups.push(g);
 				let temp = g.split("_")[1];
 				if (InsightFacade.CONVERT_FIELDS.has(temp)) {
 					temp = InsightFacade.CONVERT_FIELDS.get(temp)!;
@@ -107,7 +117,9 @@ export class NeedsThis {
 				groupWithoutDataname.push(temp);
 			}
 			results[0] = NeedsThis.group(results[0], groupWithoutDataname); // results[0] is now a map instead of a list
-			columns = columns.concat(groupWithoutDataname);
+			let columnsSet = new Set(optionsCheckGroups);
+			optionsCheckGroups = Array.from( columnsSet );
+			columns = columns.concat(optionsCheckGroups);
 		}
 		return obj.apply(keys, query, columns, results, APPLY, groupSplit);
 	}
@@ -222,5 +234,46 @@ export class NeedsThis {
 			}
 		}
 		return false;
+	}
+
+	public static checkValidOrder(query: any, columns: any){
+		let orderField: any[string] = query["ORDER"]["keys"];
+		let dir = query["ORDER"]["dir"];
+		if (orderField === undefined || dir === undefined){
+			return 1;
+		}
+		for(let field of orderField) {
+			if (!columns.includes(field)) {
+				return 2;
+			}
+		}
+		return 0;
+	}
+
+	public static convertCoursesField3(results: any, temp: any, obj: any) {
+		if (NeedsThis.getDatasetKind(results[1], obj.data) === InsightDatasetKind.Courses &&
+			results[3] === undefined) {
+			if (temp.split("_")[1] !== undefined) {
+				temp = temp.split("_")[1];
+
+				if (InsightFacade.CONVERT_FIELDS.has(temp)) {
+					temp = InsightFacade.CONVERT_FIELDS.get(temp);
+				}
+				if (temp !== "id") {
+					temp = temp[0].toUpperCase() + temp.substring(1);
+				}
+			}
+		}
+		return temp;
+	}
+
+	public static checkOrder(query: any, columns: any){
+		if (NeedsThis.checkValidOrder(query, columns) === 1) {
+			return false;
+
+		} else if (NeedsThis.checkValidOrder(query, columns) === 2) {
+			return false;
+		}
+		return true;
 	}
 }

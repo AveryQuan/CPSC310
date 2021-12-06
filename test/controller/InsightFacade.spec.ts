@@ -22,7 +22,7 @@ describe("InsightFacade", function () {
 
 		let insight: InsightFacade;
 		beforeEach(function () {
-			extra.removeSync("./data");
+			// extra.removeSync("./data");
 			insight = new InsightFacade();
 		});
 
@@ -80,7 +80,7 @@ describe("InsightFacade", function () {
 				.then((x) => {
 					expect(x).to.deep.equal(["courses"]);
 					return insight.listDatasets().then((dataset) => {
-						console.log(dataset);
+						// console.log(dataset);
 						expect(dataset).to.deep.equal([{
 							id: "courses",
 							kind: InsightDatasetKind.Courses,
@@ -322,6 +322,7 @@ describe("InsightFacade", function () {
 	});
 
 	describe("query Dataset", function () {
+		this.timeout(10000);
 		let insight: InsightFacade;
 		beforeEach(function () {
 			// insight = new InsightFacade();
@@ -341,7 +342,7 @@ describe("InsightFacade", function () {
 			rooms = fileBuffer2.toString("base64");
 			insight = new InsightFacade();
 			return insight.addDataset("rooms", rooms, InsightDatasetKind.Rooms).then(()=> {
-			// return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
+				return insight.addDataset("courses", courses, InsightDatasetKind.Courses);
 			});
 		});
 
@@ -397,53 +398,24 @@ describe("InsightFacade", function () {
 
 		it ("test", function (){
 			return insight.performQuery({
-				WHERE: {
-					AND: [
+				WHERE: {},
+				OPTIONS: {
+					COLUMNS: [
+						"courses_title",
+						"overallAvg"
+					]
+				},
+				TRANSFORMATIONS: {
+					GROUP: [
+						"courses_title"
+					],
+					APPLY: [
 						{
-							OR: [
-								{
-									GT: {
-										courses_avg: 90
-									}
-								},
-								{
-									IS: {
-										courses_dept: "adhe"
-									}
-								},
-								{
-									NOT: {
-										IS: {
-											courses_id: "330"
-										}
-									}
-								}
-							]
-						},
-						{
-							EQ: {
-								courses_avg: 95
+							overallAvg: {
+								AVG: "courses_avg"
 							}
 						}
 					]
-				},
-				OPTIONS: {
-					COLUMNS: [
-						"courses_dept",
-						"courses_id",
-						"courses_avg",
-						"courses_instructor",
-						"courses_title",
-						"courses_pass",
-						"courses_fail",
-						"courses_audit",
-						"courses_uuid",
-						"courses_year"
-					],
-					ORDER: {
-						dir: "UP",
-						keys: ["courses_title"]
-					}
 				}
 			}).then ((res)=> {
 				console.log(res);

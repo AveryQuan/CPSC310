@@ -14,8 +14,9 @@ import {NeedsThis} from "./NeedsThis";
 
 export default class InsightFacade implements IInsightFacade {
 	public data: Map<string, any[]>;
-	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
-		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
+	public static FIELDS = ["dept" , "id" , "instructor" , "title" , "uuid", "fullname","shortname",
+		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href", "pass", "fail", "audit",
+		"year"];
 
 	public static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
@@ -133,7 +134,6 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
-	// eslint-disable-next-line max-lines-per-function
 	private options(results: any, query: any): Promise<Array<{ result: any[] }>> {
 		if (results[0].size > 5000) {
 			return Promise.reject(new ResultTooLargeError("too many results"));
@@ -168,24 +168,14 @@ export default class InsightFacade implements IInsightFacade {
 						return Promise.reject(new InsightError("invalid column"));
 					}
 					let temp = field;
-					if (NeedsThis.getDatasetKind(results[1], this.data) === InsightDatasetKind.Courses){
-						temp = temp.split("_")[1];
-						if (InsightFacade.CONVERT_FIELDS.has(temp)) {
-							temp = InsightFacade.CONVERT_FIELDS.get(temp);
-						}
-						if (temp !== "id"){
-							temp = temp[0].toUpperCase() + temp.substring(1);
-						}
-					}
+					temp = NeedsThis.convertCoursesField3(results, temp, this);
 					newRow[field] = row[temp];
 				}
 				retval.push(newRow);
 			}
 			if (keys.includes("ORDER")) {
-				if (this.checkValidOrder(query, columns) === 1) {
-					return Promise.reject(new InsightError("order fields missing"));
-				} else if (this.checkValidOrder(query, columns) === 2) {
-					return Promise.reject(new InsightError("order field not in columns"));
+				if (!NeedsThis.checkOrder(query, columns)) {
+					return Promise.reject(new InsightError("order fields missing or not in columns"));
 				}
 				NeedsThis.order([retval, results[1]], query["ORDER"]) ;
 			}
@@ -193,20 +183,6 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
-	}
-
-	public checkValidOrder(query: any, columns: any){
-		let orderField: any[string] = query["ORDER"]["keys"];
-		let dir = query["ORDER"]["dir"];
-		if (orderField === undefined || dir === undefined){
-			return 1;
-		}
-		for(let field of orderField) {
-			if (!columns.includes(field)) {
-				return 2;
-			}
-		}
-		return 0;
 	}
 
 	public apply(keys: string[], query: any, columns: string[], results: any, APPLY: any , groupSplit: any) {
@@ -250,6 +226,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			results[0] = result;
 			results.push(columns);
+			results.push(true);	// means there was apply
 			return Promise.resolve(results);
 
 		} else {
@@ -259,11 +236,10 @@ export default class InsightFacade implements IInsightFacade {
 
 	public performQuery(query: any): Promise<any[]> {
 		if(typeof query !== "object" ||
-			!Utils.listFormatChecker(Object.keys(query), ["WHERE", "OPTIONS"], ["TRANSFORMATIONS"])) {
+				!Utils.listFormatChecker(Object.keys(query), ["WHERE", "OPTIONS"], ["TRANSFORMATIONS"])) {
 			return Promise.reject(new InsightError("invalid query"));
 		} else {
 			return this.nextQuery(query["WHERE"], false).then((queryResults) => {
-
 				if (Object.keys(query).includes("TRANSFORMATIONS")) {
 					return NeedsThis.transformations(this, queryResults, query["TRANSFORMATIONS"])
 						.then((results: any) => {
@@ -272,6 +248,11 @@ export default class InsightFacade implements IInsightFacade {
 				} else {
 					return this.options(queryResults, query["OPTIONS"]);
 				}
+			}).catch((err)=> {
+				if (err instanceof ResultTooLargeError){
+					return Promise.reject(err);
+				}
+				return Promise.reject(new InsightError(err["message"]));
 			});
 		}
 	}
