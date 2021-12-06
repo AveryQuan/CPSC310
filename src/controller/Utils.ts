@@ -270,8 +270,10 @@ export class EnumDataItem {
 					let str: string = outputVal.id.toString();
 					outputVal.id = str;
 				} else if (key3 !== undefined){
-					let num: number = 1900;
-					outputVal.Year = num;
+					if (key3 === "overall"){
+						let num: number = 1900;
+						outputVal.Year = num;
+					}
 				}
 			}
 			this.data = output;
