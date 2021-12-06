@@ -17,6 +17,7 @@ export default class InsightFacade implements IInsightFacade {
 	public data: Map<string, any[]> = new Map();
 	public static FIELDS = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
 		"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"]
+
 	public static CONVERT_FIELDS = new Map<string, string>(
 		[["dept", "Subject"],["id", "Course"],["uuid", "id"],["instructor", "Professor"]]);
 
@@ -181,7 +182,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Columns missing from options"));
 		}
 		return Promise.resolve(retval);
-	}/
+	}
 
 	public apply(keys: string[], query: any, columns: string[], results: any, APPLY: any , groupSplit: any) {
 		if (keys.includes("APPLY")) {
@@ -272,14 +273,13 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.resolve(list);
 		}
 		return Promise.resolve(list);
-	}	
-  
-  private getDataset(dataset: any) {
+	}
+
+	private getDataset(dataset: any) {
 		let temp = this.data.get(dataset);
 		if (temp) {
 			return temp[1];
 		}
 		return undefined;
 	}
-
 }

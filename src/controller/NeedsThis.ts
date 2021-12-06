@@ -1,9 +1,8 @@
 import JSZip from "jszip";
-import {InsightDatasetKind, InsightError} from "./IInsightFacade"
+import {InsightDatasetKind, InsightError} from "./IInsightFacade";
 import InsightFacade from "./InsightFacade";
 import {Utils} from "./Utils";
 import * as _ from "fs-extra";
-import path from "path";
 
 export class NeedsThis {
 	public static getDatasetKind(dataset: any, data: { get: (arg0: any) => any; }) {
@@ -143,7 +142,7 @@ export class NeedsThis {
 			field = InsightFacade.CONVERT_FIELDS.get(field)!;
 		}
 		let dataset = obj.getDataset(datasetName);
-    let retval = new Set();
+		let retval = new Set();
 		if (dataset) {
 			if (NeedsThis.getDatasetKind(datasetName, obj.data) === "rooms") {
 				field = keys[0];
@@ -161,7 +160,6 @@ export class NeedsThis {
 		}
 	}
 
-
 	public static queryComparator(obj: any, query: any, comparator: any, not: boolean){
 		let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year", "Lat" , "Lon" , "Seats"];
 		let keys = Object.keys(query);
@@ -177,7 +175,7 @@ export class NeedsThis {
 			return Promise.reject(new InsightError("invalid comparator field"));
 		}
 		let dataset = obj.getDataset(datasetName);
-    if (dataset) {
+		if (dataset) {
 			if (NeedsThis.getDatasetKind(datasetName, obj.data) === "rooms") {
 				field = keys[0];
 			}
@@ -239,18 +237,6 @@ export class NeedsThis {
 		return false;
 	}
 
-	public static getDatasetDisk(dataset: any): any {
-		_.readFile("./data/" + dataset + ".json/", "utf8").then((data: any) => {
-			try {
-				let temp = JSON.parse(data).arr[0];
-				return temp;
-			} catch(e) {
-				return undefined;
-			}
-		});
-		return undefined;
-	}
-  
 	public static checkValidOrder(query: any, columns: any){
 		let orderField: any[string] = query["ORDER"]["keys"];
 		let dir = query["ORDER"]["dir"];
@@ -299,5 +285,3 @@ export function checkValidZip(zip: JSZip){
 	}
 	return true;
 }
-
-

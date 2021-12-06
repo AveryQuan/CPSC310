@@ -66,7 +66,6 @@ describe("InsightFacade", function () {
 				.then((x) => {
 					expect(x).to.deep.equal(["rooms"]);
 					return insight.listDatasets().then((dataset) => {
-						NeedsThis.getDataset("rooms");
 						console.log("LIST DATASET TEST: " + dataset);
 						expect(dataset).to.deep.equal([{
 							id: "rooms",
@@ -320,7 +319,7 @@ describe("InsightFacade", function () {
 			});
 		});
 	});
-  
+
 	describe("query Dataset", function () {
 		this.timeout(10000);
 		let insight: InsightFacade;
