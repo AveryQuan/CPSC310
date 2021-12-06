@@ -22,7 +22,7 @@ describe("InsightFacade", function () {
 
 		let insight: InsightFacade;
 		beforeEach(function () {
-			// extra.removeSync("./data");
+			extra.removeSync("./data");
 			insight = new InsightFacade();
 		});
 
