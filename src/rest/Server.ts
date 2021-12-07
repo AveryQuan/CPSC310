@@ -47,7 +47,7 @@ export default class Server {
 					// return this.addDatasets().then(()=> {
 					// 	console.info("Datasets added ");
 					// });
-					// resolve();
+					resolve();
 				}).on("error", (err: Error) => {
 					// catches errors in server start
 					console.error(`Server::start() - server ERROR: ${err.message}`);
@@ -120,7 +120,6 @@ export default class Server {
 	private put(req: Request, res: Response) {
 		try {
 			console.log(`Server::put(..) - params: ${JSON.stringify(req.query)}`);
-			// console.log(req);
 			let kind = InsightDatasetKind.Courses;
 			if (req.query.kind === "rooms") {
 				kind = InsightDatasetKind.Rooms;
