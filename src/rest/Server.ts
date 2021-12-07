@@ -129,10 +129,10 @@ export default class Server {
 			return this.insight.addDataset(req.query.id!.toString(), dataset, kind).then((response)=> {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
-				res.status(400).json({error: err});
+				res.status(400).json({error: "err"});
 			});
 		} catch (err) {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "err"});
 		}
 	}
 
@@ -143,10 +143,10 @@ export default class Server {
 			return this.insight.performQuery(req.body).then((response)=> {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
-				res.status(400).json({error: err});
+				res.status(400).json({error: "err"});
 			});
 		} catch (err) {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "err"});
 		}
 	}
 
@@ -158,7 +158,7 @@ export default class Server {
 			});
 		} catch (err) {
 			console.log(err);
-			res.status(400).json({error: err});
+			res.status(400).json({error: "err"});
 		}
 	}
 
@@ -169,13 +169,13 @@ export default class Server {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
 				if ( err instanceof InsightError) {
-					res.status(400).json({error: err});
+					res.status(400).json({error: "insight"});
 				} else {
-					res.status(404).json({error: err});	// not found error
+					res.status(404).json({error: "not found"});	// not found error
 				}
 			});
 		} catch (err) {
-			res.status(404).json({error: err});
+			res.status(404).json({error: "err"});
 		}
 	}
 
@@ -188,7 +188,7 @@ export default class Server {
 			const response = Server.performEcho(req.params.msg);
 			res.status(200).json({result: response});
 		} catch (err) {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "err"});
 		}
 	}
 

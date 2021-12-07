@@ -1,6 +1,8 @@
 
-let a = ["gau", "one", "one"];
+let a = {a: "b", b: "c"};
+let c = new Set();
+c.add(a);
+c.add(a);
 let b = ["gau", "one"];
-let x = parseInt("70", 10);
-console.log(x, typeof (x));
+console.log(c);
 

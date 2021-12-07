@@ -397,26 +397,70 @@ describe("InsightFacade", function () {
 
 		it ("test", function (){
 			return insight.performQuery({
-				WHERE: {},
-				OPTIONS: {
-					COLUMNS: [
-						"courses_title",
-						"overallAvg"
-					]
-				},
-				TRANSFORMATIONS: {
-					GROUP: [
-						"courses_title"
-					],
-					APPLY: [
+
+				WHERE:{
+
+					OR:[
+
 						{
-							overallAvg: {
-								AVG: "courses_avg"
+
+							AND:[
+
+								{
+
+									GT:{
+
+										courses_avg:90
+
+									}
+
+								},
+
+								{
+
+									IS:{
+
+										courses_dept:"adhe"
+
+									}
+
+								}
+
+							]
+
+						},
+
+						{
+
+							EQ:{
+
+								courses_avg:95
+
 							}
+
 						}
+
 					]
+
+				},
+
+				OPTIONS:{
+
+					COLUMNS:[
+
+						"courses_dept",
+
+						"courses_id",
+
+						"courses_avg"
+
+					],
+
+					ORDER:"courses_avg"
+
 				}
-			}).then ((res)=> {
+
+			} ).then ((res)=> {
 				console.log(res);
 			});
 

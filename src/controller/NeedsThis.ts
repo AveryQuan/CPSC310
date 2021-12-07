@@ -69,10 +69,16 @@ export class NeedsThis {
 
 	public static order(results: any, query: any) {
 		const orderConvert = new Map([["UP",Utils.up], ["DOWN", Utils.down]]);
-		if (!Utils.isEqual(Object.keys(query), ["dir", "keys"])) {
-			throw new InsightError("invalid order");
+		if (!Utils.isEqual(Object.keys(query), ["dir", "keys"]) ) {
+			if (!(typeof query === "string")){
+				throw new InsightError("invalid order");
+			} else {
+				Utils.sort(results[0], [query], orderConvert.get("UP"));
+			}
+		} else {
+			Utils.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
 		}
-		Utils.sort(results[0], query["keys"], orderConvert.get(query["dir"]));
+
 	}
 
 	public static transformations(obj: any, results: any, query: any) {
@@ -269,9 +275,12 @@ export class NeedsThis {
 	}
 
 	public static checkOrder(query: any, columns: any){
-		if (NeedsThis.checkValidOrder(query, columns) === 1) {
+		if (typeof query["ORDER"] === "string") {
+			if (!columns.includes(query["ORDER"])){
+				return false;
+			}
+		} else if (NeedsThis.checkValidOrder(query, columns) === 1) {
 			return false;
-
 		} else if (NeedsThis.checkValidOrder(query, columns) === 2) {
 			return false;
 		}
