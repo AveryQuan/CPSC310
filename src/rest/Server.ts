@@ -93,8 +93,8 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/
 		// this.express.get("/echo/:msg", Server.echo);
-		this.express.put("/dataset", this.put.bind(this));
-		this.express.delete("/dataset", this.delete.bind(this));
+		this.express.put("/dataset/:id/:kind", this.put.bind(this));
+		this.express.delete("/dataset/:id", this.delete.bind(this));
 		this.express.post("/query", this.post.bind(this));
 		this.express.get("/datasets", this.get.bind(this));
 
@@ -119,16 +119,19 @@ export default class Server {
 
 	private put(req: Request, res: Response) {
 		try {
-			console.log(`Server::put(..) - params: ${JSON.stringify(req.query)}`);
+			console.log(`Server::put(..) - params: ${JSON.stringify(req.params)}`);
+
 			let kind = InsightDatasetKind.Courses;
-			if (req.query.kind === "rooms") {
+			if (req.params.kind === "rooms") {
 				kind = InsightDatasetKind.Rooms;
 			}
 			let dataset = req.body.toString("base64");
-			return this.insight.addDataset(req.query.id!.toString(), dataset, kind).then((response)=> {
+			return this.insight.addDataset(req.params.id.toString(), dataset, kind).then((response)=> {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
+				console.log(err);
 				res.status(400).json({error: "err"});
+
 			});
 		} catch (err) {
 			res.status(400).json({error: "err"});
@@ -163,8 +166,8 @@ export default class Server {
 
 	private delete(req: Request, res: Response) {
 		try {
-			console.log(`Server::delete(..) - params: ${JSON.stringify(req.query)}`);
-			return this.insight.removeDataset(req.query.id!.toString()).then((response)=> {
+			console.log(`Server::delete(..) - params: ${JSON.stringify(req.params)}`);
+			return this.insight.removeDataset(req.params.id!.toString()).then((response)=> {
 				res.status(200).json({result: response});
 			}).catch((err)=> {
 				if ( err instanceof InsightError) {
