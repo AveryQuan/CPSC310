@@ -1,7 +1,27 @@
-import {InsightDataset, InsightDatasetKind} from "./IInsightFacade";
+import {InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade";
 import Decimal from "decimal.js";
+import JSZip from "jszip";
+let FIELDS: string[] = ["dept" , "id" , "instructor" , "Title" , "uuid", "fullname","shortname",
+	"number", "name", "address", "lat",	 "lon",	 "seats", "type", "furniture", "href"];
+let CONVERT_FIELDS = new Map<string, string>(
+	[["Subject","dept"],["Course", "id"],["id", "uuid"],["Professor", "instructor"]]);
 
 export class Utils {
+	// return false if dataset invalid for kind specified
+	public static datasetValid(zip: JSZip, kind: InsightDatasetKind): boolean {
+		if (kind === InsightDatasetKind.Courses){
+			if(zip.folder(/courses/).length <= 0) {
+				return false;
+			}
+		}
+		if (kind === InsightDatasetKind.Rooms){
+			if (zip.file("rooms/index.htm") === null) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	// Returns true if list contains correct items
 	public static listFormatChecker(list: any[], required: any[], optional: any[]) {
 		required.forEach((field: any) => {
@@ -229,63 +249,48 @@ export class RoomData {
 		this.rooms_furniture = "";
 		this.rooms_href = "";
 	}
-
-	public print(){
-		console.log("============= room data set =============");
-		console.log("rooms_fullname: " + this.rooms_fullname);
-		console.log("rooms_shortname: " + this.rooms_shortname);
-		console.log("rooms_number: " + this.rooms_number);
-		console.log("rooms_name: " + this.rooms_name);
-		console.log("rooms_address: " + this.rooms_address);
-		console.log("rooms_lat: " + this.rooms_lat );
-		console.log("rooms_lon: " + this.rooms_lon );
-		console.log("rooms_seats: " + this.rooms_seats );
-		console.log("rooms_type: " + this.rooms_type);
-		console.log("rooms_furniture: " + this.rooms_furniture);
-		console.log("rooms_href: " + this.rooms_href);
-	}
 }
 
 export class EnumDataItem {
-	public mode: InsightDataset;
-	public data;
-
-	constructor(result: string, _id: string, _kind: InsightDatasetKind) {
-		let buffer = JSON.parse(result);
-		let output = buffer.result;
-		let count = 0;
-
-		// for (let outputVal of output){
-		// 	let key1 = outputVal.Year;
-		// 	let key2 = outputVal.id;
-		// 	if (key1 !== undefined){
-		// 		let num: number = parseInt(output.Year, 10);
-		// 		outputVal.Year = num;
-		// 	}
-		// 	if (key2 !== undefined){
-		// 		let str: string = output.id.toString();
-		// 		outputVal.id = str;
-		// 	}
-		// }
-		// let FIELDS = ["Avg" , "Pass" , "Fail" , "Audit" , "Year"];
-		count = output.length;
-		let prefix = "courses_";
-		this.mode = {
-			id: _id,
-			kind: _kind,
-			numRows: count
-		};
-		this.data = output;
-	}
-
-
-	public has(element: any) {
-		for (const row of this.data["result"]) {
-			if (row === element) {
-				return true;
+	public data: any;
+	public numRows: number;
+	constructor(result: string) {
+		try {
+			let js = JSON.parse(result);
+			let output = js.result;
+			this.numRows = output.length;
+			for (let outputVal of output){
+				let key1 = outputVal.Year;
+				let key2 = outputVal.id;
+				let key3 = outputVal.Section;
+				if (key1 !== undefined){
+					let num: number = parseInt(outputVal.Year, 10);
+					outputVal.Year = num;
+				}
+				if (key2 !== undefined){
+					let str: string = key2.toString();
+					outputVal.id = str;
+				}
+				if (key3 !== undefined){
+					if (key3 === "overall"){
+						let num: number = 1900;
+						outputVal.Year = num;
+					}
+				}
 			}
-
+			this.data = output;
+		} catch(e){
+			this.numRows = 0;
+			this.data = undefined;
 		}
 	}
-}
 
+	public has(element: any) {
+		for (const row in this.data){
+			if (row === element){
+				return true;
+			}
+		}
+		return false;
+	}
+}
